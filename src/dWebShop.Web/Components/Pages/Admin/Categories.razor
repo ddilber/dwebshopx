@@ -1,0 +1,189 @@
+@page "/admin/categories"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+@layout AdminLayout
+@rendermode InteractiveServer
+@using dWebShop.Application.Features.Brands.Queries
+@using dWebShop.Application.Features.Categories.Commands
+@using dWebShop.Application.Features.Categories.Queries
+@inject IMediator Mediator
+@inject ISnackbar Snackbar
+
+<PageTitle>Categories — Admin</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h5">Categories</MudText>
+    <MudSpacer />
+    <MudSelect T="int?" @bind-Value="_filterBrandId" Label="Filter by brand" Clearable="true" Style="width:200px" Class="mr-3"
+               AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+        @foreach (var b in _brands)
+        {
+            <MudSelectItem T="int?" Value="@((int?)b.Id)">@b.Name</MudSelectItem>
+        }
+    </MudSelect>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreate">
+        New Category
+    </MudButton>
+</MudStack>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" />
+}
+else
+{
+    <MudTable Items="_categories" Dense="true" Hover="true" Striped="true" Filter="FilterFunc">
+        <ToolBarContent>
+            <MudTextField @bind-Value="_search" Placeholder="Search…" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" Class="mt-0" />
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>Brand</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Slug</MudTh>
+            <MudTh>Parent</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd><MudChip T="string" Size="Size.Small" Color="Color.Default">@(context.BrandName ?? "—")</MudChip></MudTd>
+            <MudTd>@context.Name</MudTd>
+            <MudTd><MudText Typo="Typo.caption">@context.Slug</MudText></MudTd>
+            <MudTd><MudText Typo="Typo.caption">@(context.ParentName ?? "—")</MudText></MudTd>
+            <MudTd Style="text-align:right">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="@(() => OpenEdit(context))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="@(() => DeleteAsync(context))" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+<MudDialog @bind-IsVisible="_dialogOpen" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+    <TitleContent>@(_editId.HasValue ? "Edit Category" : "New Category")</TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_form.Name" Label="Name" Required="true" Class="mb-3" />
+        <MudTextField @bind-Value="_form.Slug" Label="Slug" HelperText="lowercase, hyphens only" Required="true" Class="mb-3" />
+        <MudTextField @bind-Value="_form.Description" Label="Description" Lines="2" Class="mb-3" />
+        <MudSelect T="int?" @bind-Value="_form.BrandId" Label="Brand" Clearable="true" Class="mb-3"
+                   AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+            @foreach (var b in _brands)
+            {
+                <MudSelectItem T="int?" Value="@((int?)b.Id)">@b.Name</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSelect T="int?" @bind-Value="_form.ParentCategoryId" Label="Parent category" Clearable="true" Class="mb-3"
+                   AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+            @foreach (var c in _categories.Where(c => c.Id != _editId))
+            {
+                <MudSelectItem T="int?" Value="@((int?)c.Id)">@($"{c.BrandName} / {c.Name}")</MudSelectItem>
+            }
+        </MudSelect>
+        @if (!string.IsNullOrWhiteSpace(_errorMsg))
+        {
+            <MudAlert Severity="Severity.Error">@_errorMsg</MudAlert>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="_saving">
+            @(_saving ? "Saving…" : "Save")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private List<CategoryDto> _categories = [];
+    private List<BrandDto> _brands = [];
+    private bool _loading = true;
+    private string _search = string.Empty;
+    private int? _filterBrandId;
+
+    private bool _dialogOpen;
+    private int? _editId;
+    private bool _saving;
+    private string _errorMsg = string.Empty;
+    private CategoryFormModel _form = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _brands = await Mediator.Send(new GetBrandsQuery());
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _categories = await Mediator.Send(new GetCategoriesQuery(_filterBrandId));
+        _loading = false;
+    }
+
+    private bool FilterFunc(CategoryDto c) =>
+        string.IsNullOrWhiteSpace(_search) ||
+        c.Name.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
+        c.Slug.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
+        (c.BrandName ?? string.Empty).Contains(_search, StringComparison.OrdinalIgnoreCase);
+
+    private void OpenCreate()
+    {
+        _editId = null;
+        _form = new();
+        _errorMsg = string.Empty;
+        _dialogOpen = true;
+    }
+
+    private void OpenEdit(CategoryDto c)
+    {
+        _editId = c.Id;
+        _form = new CategoryFormModel
+        {
+            Name = c.Name, Slug = c.Slug, Description = c.Description,
+            BrandId = c.BrandId, ParentCategoryId = c.ParentCategoryId
+        };
+        _errorMsg = string.Empty;
+        _dialogOpen = true;
+    }
+
+    private void CloseDialog() => _dialogOpen = false;
+
+    private async Task SaveAsync()
+    {
+        _errorMsg = string.Empty;
+        if (string.IsNullOrWhiteSpace(_form.Name) || string.IsNullOrWhiteSpace(_form.Slug))
+        {
+            _errorMsg = "Name and Slug are required.";
+            return;
+        }
+        _saving = true;
+        try
+        {
+            if (_editId.HasValue)
+                await Mediator.Send(new UpdateCategoryCommand(_editId.Value, _form.Name, _form.Slug, _form.Description, _form.ParentCategoryId, _form.BrandId));
+            else
+                await Mediator.Send(new CreateCategoryCommand(_form.Name, _form.Slug, _form.Description, _form.ParentCategoryId, _form.BrandId));
+
+            Snackbar.Add(_editId.HasValue ? "Category updated." : "Category created.", Severity.Success);
+            _dialogOpen = false;
+            await LoadAsync();
+        }
+        catch (Exception ex) { _errorMsg = ex.Message; }
+        finally { _saving = false; }
+    }
+
+    private async Task DeleteAsync(CategoryDto c)
+    {
+        try
+        {
+            await Mediator.Send(new DeleteCategoryCommand(c.Id));
+            Snackbar.Add("Category deleted.", Severity.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private class CategoryFormModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Slug { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public int? BrandId { get; set; }
+        public int? ParentCategoryId { get; set; }
+    }
+}

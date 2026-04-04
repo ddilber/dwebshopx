@@ -1,0 +1,584 @@
+@page "/admin/pricelists"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+@layout AdminLayout
+@rendermode InteractiveServer
+@using dWebShop.Application.Features.Pricelists.Commands
+@using dWebShop.Application.Features.Pricelists.Queries
+@using dWebShop.Application.Features.Partners.Queries
+@using dWebShop.Application.Features.ProductSkus.Queries
+@inject IMediator Mediator
+@inject ISnackbar Snackbar
+
+<PageTitle>Pricelists — Admin</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h5">Pricelists</MudText>
+    <MudSpacer />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
+               OnClick="OpenCreatePricelist">New Pricelist</MudButton>
+</MudStack>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" />
+}
+else if (_selectedPricelist is null)
+{
+    <!-- Pricelist summary table -->
+    <MudTable Items="_pricelists" Dense="true" Hover="true" Striped="true">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Active</MudTh>
+            <MudTh>Items</MudTh>
+            <MudTh>Clients</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                <MudLink @onclick="@(() => OpenPricelist(context))" Style="cursor:pointer;">@context.Name</MudLink>
+            </MudTd>
+            <MudTd><MudText Typo="Typo.caption">@(context.Description.Length > 60 ? context.Description[..60] + "…" : context.Description)</MudText></MudTd>
+            <MudTd>
+                @if (context.IsActive)
+                {
+                    <MudChip T="string" Color="Color.Success" Size="Size.Small">Active</MudChip>
+                }
+                else
+                {
+                    <MudChip T="string" Color="Color.Default" Size="Size.Small">Inactive</MudChip>
+                }
+            </MudTd>
+            <MudTd>@context.ItemCount</MudTd>
+            <MudTd>@context.ClientCount</MudTd>
+            <MudTd Style="text-align:right">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="@(() => OpenEditPricelist(context))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error"
+                               OnClick="@(() => DeletePricelistAsync(context))" />
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary pa-4">No pricelists yet. Create one above.</MudText>
+        </NoRecordsContent>
+    </MudTable>
+
+    <!-- Client Discounts section -->
+    <MudDivider Class="my-6" />
+    <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-3">
+        <MudText Typo="Typo.h6">Client Discounts</MudText>
+        <MudSpacer />
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="OpenCreateDiscount">Add Discount</MudButton>
+    </MudStack>
+
+    <MudTable Items="_discounts" Dense="true" Hover="true" Striped="true">
+        <HeaderContent>
+            <MudTh>Client</MudTh>
+            <MudTh>Discount %</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Valid From</MudTh>
+            <MudTh>Valid To</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@GetPartnerName(context.PartnerId)</MudTd>
+            <MudTd>@context.DiscountPercent.ToString("N2")%</MudTd>
+            <MudTd><MudText Typo="Typo.caption">@context.Description</MudText></MudTd>
+            <MudTd>@(context.ValidFrom?.ToString("yyyy-MM-dd") ?? "—")</MudTd>
+            <MudTd>@(context.ValidTo?.ToString("yyyy-MM-dd") ?? "—")</MudTd>
+            <MudTd Style="text-align:right">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                               OnClick="@(() => OpenEditDiscount(context))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error"
+                               OnClick="@(() => DeleteDiscountAsync(context))" />
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary pa-4">No client discounts configured.</MudText>
+        </NoRecordsContent>
+    </MudTable>
+}
+else
+{
+    <!-- Pricelist detail view -->
+    <MudButton StartIcon="@Icons.Material.Filled.ArrowBack" OnClick="BackToList" Class="mb-4">Back to Pricelists</MudButton>
+
+    <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-2">
+        <MudText Typo="Typo.h6">@_selectedPricelist.Name</MudText>
+        @if (_selectedPricelist.IsActive)
+        {
+            <MudChip T="string" Color="Color.Success" Size="Size.Small">Active</MudChip>
+        }
+        else
+        {
+            <MudChip T="string" Color="Color.Default" Size="Size.Small">Inactive</MudChip>
+        }
+    </MudStack>
+    @if (!string.IsNullOrWhiteSpace(_selectedPricelist.Description))
+    {
+        <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">@_selectedPricelist.Description</MudText>
+    }
+
+    <MudTabs Elevation="0" Rounded="false" ApplyEffectsToContainer="true">
+
+        <!-- Tab 1: SKU Price Items -->
+        <MudTabPanel Text="Price Items">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="mt-3 mb-3">
+                <MudText Typo="Typo.subtitle1" Style="font-weight:600;">SKU Overrides</MudText>
+                <MudSpacer />
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
+                           Size="Size.Small" OnClick="OpenAddItem">Add Item</MudButton>
+            </MudStack>
+
+            <MudTable Items="_selectedPricelist.Items" Dense="true" Hover="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>SKU Code</MudTh>
+                    <MudTh>SKU Name</MudTh>
+                    <MudTh>Price (KM)</MudTh>
+                    <MudTh>Min Qty</MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd><MudText Typo="Typo.caption">@context.SkuCode</MudText></MudTd>
+                    <MudTd>@context.SkuName</MudTd>
+                    <MudTd>@context.Price.ToString("N4")</MudTd>
+                    <MudTd>@(context.MinQuantity?.ToString("N2") ?? "—")</MudTd>
+                    <MudTd Style="text-align:right">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                                       OnClick="@(() => OpenEditItem(context))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error"
+                                       OnClick="@(() => DeleteItemAsync(context))" />
+                    </MudTd>
+                </RowTemplate>
+                <NoRecordsContent>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary pa-4">No items. Add SKU price overrides above.</MudText>
+                </NoRecordsContent>
+            </MudTable>
+        </MudTabPanel>
+
+        <!-- Tab 2: Client Assignments -->
+        <MudTabPanel Text="Assigned Clients">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="mt-3 mb-3">
+                <MudText Typo="Typo.subtitle1" Style="font-weight:600;">Clients with this Pricelist</MudText>
+                <MudSpacer />
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.PersonAdd"
+                           Size="Size.Small" OnClick="OpenAssignClient">Assign Client</MudButton>
+            </MudStack>
+
+            <MudTable Items="_selectedPricelist.Clients" Dense="true" Hover="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>Client</MudTh>
+                    <MudTh>Default?</MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.PartnerName</MudTd>
+                    <MudTd>
+                        @if (context.IsDefault)
+                        {
+                            <MudChip T="string" Color="Color.Primary" Size="Size.Small">Default</MudChip>
+                        }
+                    </MudTd>
+                    <MudTd Style="text-align:right">
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error"
+                                       OnClick="@(() => RemoveClientAsync(context))" />
+                    </MudTd>
+                </RowTemplate>
+                <NoRecordsContent>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary pa-4">No clients assigned to this pricelist.</MudText>
+                </NoRecordsContent>
+            </MudTable>
+        </MudTabPanel>
+    </MudTabs>
+}
+
+<!-- Pricelist Create/Edit Dialog -->
+<MudDialog @bind-IsVisible="_plDialogOpen" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+    <TitleContent>@(_plEditId.HasValue ? "Edit Pricelist" : "New Pricelist")</TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_plForm.Name" Label="Name" Required="true" Class="mb-3" />
+        <MudTextField @bind-Value="_plForm.Description" Label="Description" Lines="2" Class="mb-3" />
+        <MudCheckBox @bind-Value="_plForm.IsActive" Label="Active" Color="Color.Primary" Class="mb-2" />
+        @if (!string.IsNullOrEmpty(_plError))
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-2">@_plError</MudAlert>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _plDialogOpen = false)">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SavePricelistAsync" Disabled="_saving">
+            @(_saving ? "Saving…" : "Save")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+<!-- PricelistItem Add/Edit Dialog -->
+<MudDialog @bind-IsVisible="_itemDialogOpen" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+    <TitleContent>@(_itemEditId.HasValue ? "Edit Price Item" : "Add Price Item")</TitleContent>
+    <DialogContent>
+        <MudSelect T="int?" @bind-Value="_itemForm.ProductSkuId" Label="SKU" Required="true" Class="mb-3">
+            @foreach (var sku in _allSkus)
+            {
+                <MudSelectItem T="int?" Value="@((int?)sku.Id)">[@sku.SKU] @sku.Name</MudSelectItem>
+            }
+        </MudSelect>
+        <MudNumericField T="decimal" @bind-Value="_itemForm.Price" Label="Price (KM)" Min="0" Format="N4" Required="true" Class="mb-3" />
+        <MudNumericField T="decimal?" @bind-Value="_itemForm.MinQuantity" Label="Min Quantity (optional)" Min="0" Format="N2" Class="mb-3" />
+        @if (!string.IsNullOrEmpty(_itemError))
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-2">@_itemError</MudAlert>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _itemDialogOpen = false)">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveItemAsync" Disabled="_saving">
+            @(_saving ? "Saving…" : "Save")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+<!-- Assign Client Dialog -->
+<MudDialog @bind-IsVisible="_assignDialogOpen" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+    <TitleContent>Assign Client</TitleContent>
+    <DialogContent>
+        <MudSelect T="int" @bind-Value="_assignPartnerId" Label="Client / Partner" Required="true" Class="mb-3">
+            @foreach (var p in _partners)
+            {
+                <MudSelectItem T="int" Value="@p.Id">@p.DisplayName</MudSelectItem>
+            }
+        </MudSelect>
+        <MudCheckBox @bind-Value="_assignIsDefault" Label="Set as default pricelist for this client" Color="Color.Primary" />
+        @if (!string.IsNullOrEmpty(_assignError))
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-2">@_assignError</MudAlert>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _assignDialogOpen = false)">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAssignmentAsync" Disabled="_saving">
+            @(_saving ? "Saving…" : "Assign")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+<!-- Client Discount Dialog -->
+<MudDialog @bind-IsVisible="_discountDialogOpen" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+    <TitleContent>@(_discountEditId.HasValue ? "Edit Discount" : "Add Client Discount")</TitleContent>
+    <DialogContent>
+        <MudSelect T="int" @bind-Value="_discountForm.PartnerId" Label="Client / Partner" Required="true" Class="mb-3"
+                   Disabled="_discountEditId.HasValue">
+            @foreach (var p in _partners)
+            {
+                <MudSelectItem T="int" Value="@p.Id">@p.DisplayName</MudSelectItem>
+            }
+        </MudSelect>
+        <MudNumericField T="decimal" @bind-Value="_discountForm.DiscountPercent" Label="Discount %" Min="0" Max="100" Format="N2" Required="true" Class="mb-3" />
+        <MudTextField @bind-Value="_discountForm.Description" Label="Description (optional)" Class="mb-3" />
+        <MudDatePicker @bind-Date="_discountForm.ValidFromDate" Label="Valid From (optional)" Class="mb-3" />
+        <MudDatePicker @bind-Date="_discountForm.ValidToDate" Label="Valid To (optional)" Class="mb-3" />
+        @if (!string.IsNullOrEmpty(_discountError))
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-2">@_discountError</MudAlert>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => _discountDialogOpen = false)">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveDiscountAsync" Disabled="_saving">
+            @(_saving ? "Saving…" : "Save")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    // ---- State ----
+    private List<PricelistSummaryDto> _pricelists = [];
+    private PricelistDto? _selectedPricelist;
+    private List<ClientDiscountInfoDto> _discounts = [];
+    private List<PartnerDto> _partners = [];
+    private List<ProductSkuDto> _allSkus = [];
+    private bool _loading = true;
+    private bool _saving;
+
+    // Pricelist dialog
+    private bool _plDialogOpen;
+    private int? _plEditId;
+    private string _plError = string.Empty;
+    private PlForm _plForm = new();
+
+    // Item dialog
+    private bool _itemDialogOpen;
+    private int? _itemEditId;
+    private string _itemError = string.Empty;
+    private ItemForm _itemForm = new();
+
+    // Assign client dialog
+    private bool _assignDialogOpen;
+    private int _assignPartnerId;
+    private bool _assignIsDefault;
+    private string _assignError = string.Empty;
+
+    // Discount dialog
+    private bool _discountDialogOpen;
+    private int? _discountEditId;
+    private string _discountError = string.Empty;
+    private DiscountForm _discountForm = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAllAsync();
+        _loading = false;
+    }
+
+    private async Task LoadAllAsync()
+    {
+        var plTask = Mediator.Send(new GetPricelistsQuery());
+        var discountTask = Mediator.Send(new GetClientDiscountsQuery());
+        var partnersTask = Mediator.Send(new GetPartnersQuery());
+        await Task.WhenAll(plTask, discountTask, partnersTask);
+        _pricelists = plTask.Result;
+        _discounts = discountTask.Result;
+        _partners = partnersTask.Result;
+    }
+
+    private async Task LoadSkusAsync()
+    {
+        if (_allSkus.Count == 0)
+        {
+            // Load all SKUs via a simplified approach — reuse the existing query per product
+            // For admin use we load all directly via a combined query
+            _allSkus = await Mediator.Send(new GetAllSkusQuery());
+        }
+    }
+
+    private string GetPartnerName(int partnerId) =>
+        _partners.FirstOrDefault(p => p.Id == partnerId)?.DisplayName ?? $"Partner #{partnerId}";
+
+    // ---- Navigation ----
+
+    private async Task OpenPricelist(PricelistSummaryDto summary)
+    {
+        _selectedPricelist = await Mediator.Send(new GetPricelistByIdQuery(summary.Id));
+        await LoadSkusAsync();
+    }
+
+    private void BackToList()
+    {
+        _selectedPricelist = null;
+    }
+
+    // ---- Pricelist CRUD ----
+
+    private void OpenCreatePricelist()
+    {
+        _plEditId = null;
+        _plForm = new();
+        _plError = string.Empty;
+        _plDialogOpen = true;
+    }
+
+    private void OpenEditPricelist(PricelistSummaryDto s)
+    {
+        _plEditId = s.Id;
+        _plForm = new PlForm { Name = s.Name, Description = s.Description, IsActive = s.IsActive };
+        _plError = string.Empty;
+        _plDialogOpen = true;
+    }
+
+    private async Task SavePricelistAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_plForm.Name)) { _plError = "Name is required."; return; }
+        _saving = true;
+        try
+        {
+            if (_plEditId.HasValue)
+                await Mediator.Send(new UpdatePricelistCommand(_plEditId.Value, _plForm.Name, _plForm.Description, _plForm.IsActive));
+            else
+                await Mediator.Send(new CreatePricelistCommand(_plForm.Name, _plForm.Description, _plForm.IsActive));
+
+            Snackbar.Add(_plEditId.HasValue ? "Pricelist updated." : "Pricelist created.", Severity.Success);
+            _plDialogOpen = false;
+            await LoadAllAsync();
+            if (_selectedPricelist is not null)
+                _selectedPricelist = await Mediator.Send(new GetPricelistByIdQuery(_selectedPricelist.Id));
+        }
+        catch (Exception ex) { _plError = ex.Message; }
+        finally { _saving = false; }
+    }
+
+    private async Task DeletePricelistAsync(PricelistSummaryDto s)
+    {
+        try
+        {
+            await Mediator.Send(new DeletePricelistCommand(s.Id));
+            Snackbar.Add("Pricelist deleted.", Severity.Success);
+            await LoadAllAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    // ---- Pricelist Items ----
+
+    private void OpenAddItem()
+    {
+        _itemEditId = null;
+        _itemForm = new ItemForm();
+        _itemError = string.Empty;
+        _itemDialogOpen = true;
+    }
+
+    private void OpenEditItem(PricelistItemDto item)
+    {
+        _itemEditId = item.Id;
+        _itemForm = new ItemForm { ProductSkuId = item.ProductSkuId, Price = item.Price, MinQuantity = item.MinQuantity };
+        _itemError = string.Empty;
+        _itemDialogOpen = true;
+    }
+
+    private async Task SaveItemAsync()
+    {
+        if (_itemForm.ProductSkuId is null) { _itemError = "SKU is required."; return; }
+        _saving = true;
+        try
+        {
+            await Mediator.Send(new UpsertPricelistItemCommand(
+                _itemEditId,
+                _selectedPricelist!.Id,
+                _itemForm.ProductSkuId,
+                _itemForm.Price,
+                _itemForm.MinQuantity));
+            Snackbar.Add("Item saved.", Severity.Success);
+            _itemDialogOpen = false;
+            _selectedPricelist = await Mediator.Send(new GetPricelistByIdQuery(_selectedPricelist.Id));
+        }
+        catch (Exception ex) { _itemError = ex.Message; }
+        finally { _saving = false; }
+    }
+
+    private async Task DeleteItemAsync(PricelistItemDto item)
+    {
+        try
+        {
+            await Mediator.Send(new DeletePricelistItemCommand(item.Id));
+            Snackbar.Add("Item removed.", Severity.Success);
+            _selectedPricelist = await Mediator.Send(new GetPricelistByIdQuery(_selectedPricelist!.Id));
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    // ---- Client Assignments ----
+
+    private void OpenAssignClient()
+    {
+        _assignPartnerId = _partners.FirstOrDefault()?.Id ?? 0;
+        _assignIsDefault = false;
+        _assignError = string.Empty;
+        _assignDialogOpen = true;
+    }
+
+    private async Task SaveAssignmentAsync()
+    {
+        if (_assignPartnerId == 0) { _assignError = "Please select a client."; return; }
+        _saving = true;
+        try
+        {
+            await Mediator.Send(new AssignClientPricelistCommand(_assignPartnerId, _selectedPricelist!.Id, _assignIsDefault));
+            Snackbar.Add("Client assigned.", Severity.Success);
+            _assignDialogOpen = false;
+            _selectedPricelist = await Mediator.Send(new GetPricelistByIdQuery(_selectedPricelist.Id));
+        }
+        catch (Exception ex) { _assignError = ex.Message; }
+        finally { _saving = false; }
+    }
+
+    private async Task RemoveClientAsync(ClientPricelistDto cp)
+    {
+        try
+        {
+            await Mediator.Send(new RemoveClientPricelistCommand(cp.Id));
+            Snackbar.Add("Client removed from pricelist.", Severity.Success);
+            _selectedPricelist = await Mediator.Send(new GetPricelistByIdQuery(_selectedPricelist!.Id));
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    // ---- Client Discounts ----
+
+    private void OpenCreateDiscount()
+    {
+        _discountEditId = null;
+        _discountForm = new DiscountForm { PartnerId = _partners.FirstOrDefault()?.Id ?? 0 };
+        _discountError = string.Empty;
+        _discountDialogOpen = true;
+    }
+
+    private void OpenEditDiscount(ClientDiscountInfoDto d)
+    {
+        _discountEditId = d.Id;
+        _discountForm = new DiscountForm
+        {
+            PartnerId = d.PartnerId,
+            DiscountPercent = d.DiscountPercent,
+            Description = d.Description ?? string.Empty,
+            ValidFromDate = d.ValidFrom,
+            ValidToDate = d.ValidTo
+        };
+        _discountError = string.Empty;
+        _discountDialogOpen = true;
+    }
+
+    private async Task SaveDiscountAsync()
+    {
+        if (_discountForm.PartnerId == 0) { _discountError = "Please select a client."; return; }
+        _saving = true;
+        try
+        {
+            await Mediator.Send(new UpsertClientDiscountCommand(
+                _discountForm.PartnerId,
+                _discountForm.DiscountPercent,
+                string.IsNullOrWhiteSpace(_discountForm.Description) ? null : _discountForm.Description,
+                _discountForm.ValidFromDate.HasValue ? DateTime.SpecifyKind(_discountForm.ValidFromDate.Value, DateTimeKind.Utc) : null,
+                _discountForm.ValidToDate.HasValue ? DateTime.SpecifyKind(_discountForm.ValidToDate.Value, DateTimeKind.Utc) : null));
+            Snackbar.Add("Discount saved.", Severity.Success);
+            _discountDialogOpen = false;
+            _discounts = await Mediator.Send(new GetClientDiscountsQuery());
+        }
+        catch (Exception ex) { _discountError = ex.Message; }
+        finally { _saving = false; }
+    }
+
+    private async Task DeleteDiscountAsync(ClientDiscountInfoDto d)
+    {
+        try
+        {
+            await Mediator.Send(new DeleteClientDiscountCommand(d.Id));
+            Snackbar.Add("Discount deleted.", Severity.Success);
+            _discounts = await Mediator.Send(new GetClientDiscountsQuery());
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    // ---- Form models ----
+
+    private class PlForm
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public bool IsActive { get; set; } = true;
+    }
+
+    private class ItemForm
+    {
+        public int? ProductSkuId { get; set; }
+        public decimal Price { get; set; }
+        public decimal? MinQuantity { get; set; }
+    }
+
+    private class DiscountForm
+    {
+        public int PartnerId { get; set; }
+        public decimal DiscountPercent { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public DateTime? ValidFromDate { get; set; }
+        public DateTime? ValidToDate { get; set; }
+    }
+}

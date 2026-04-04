@@ -1,0 +1,12 @@
+/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/bin/Debug/net10.0/dWebShop.Domain.deps.json
+/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/bin/Debug/net10.0/dWebShop.Domain.dll
+/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/bin/Debug/net10.0/dWebShop.Domain.pdb
+/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/obj/Debug/net10.0/dWebShop.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/obj/Debug/net10.0/dWebShop.Domain.AssemblyInfoInputs.cache
+/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/obj/Debug/net10.0/dWebShop.Domain.AssemblyInfo.cs
+/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/obj/Debug/net10.0/dWebShop.Domain.csproj.CoreCompileInputs.cache
+/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/obj/Debug/net10.0/dWebShop.Domain.dll
+/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/obj/Debug/net10.0/refint/dWebShop.Domain.dll
+/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/obj/Debug/net10.0/dWebShop.Domain.pdb
+/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/obj/Debug/net10.0/ref/dWebShop.Domain.dll
+/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/obj/Debug/net10.0/dWebShop.Domain.csproj.AssemblyReference.cache

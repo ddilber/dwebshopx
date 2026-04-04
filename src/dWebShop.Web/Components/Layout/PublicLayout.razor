@@ -1,0 +1,33 @@
+@inherits LayoutComponentBase
+
+<MudLayout>
+    <MudAppBar Elevation="1" Color="Color.Primary">
+        <MudText Typo="Typo.h6" Class="mr-4">
+            <MudLink Href="/" Color="Color.Inherit" Underline="Underline.None">dWebShop</MudLink>
+        </MudText>
+        <MudSpacer />
+        <MudButton Href="/" Color="Color.Inherit" Variant="Variant.Text">Home</MudButton>
+        <MudButton Href="/brands" Color="Color.Inherit" Variant="Variant.Text">Brands</MudButton>
+        <MudButton Href="/about" Color="Color.Inherit" Variant="Variant.Text">About</MudButton>
+        <MudButton Href="/contact" Color="Color.Inherit" Variant="Variant.Text">Contact</MudButton>
+        <MudDivider Vertical="true" FlexItem="true" Class="mx-2" />
+        <AuthorizeView>
+            <Authorized>
+                <MudButton Href="/portal" Color="Color.Inherit" Variant="Variant.Text">Portal</MudButton>
+                <form method="post" action="/logout">
+                    <MudButton ButtonType="ButtonType.Submit" Color="Color.Inherit" Variant="Variant.Outlined" Size="Size.Small">Logout</MudButton>
+                </form>
+            </Authorized>
+            <NotAuthorized>
+                <MudButton Href="/login" Color="Color.Inherit" Variant="Variant.Text">Login</MudButton>
+                <MudButton Href="/register" Color="Color.Inherit" Variant="Variant.Outlined" Size="Size.Small">Register</MudButton>
+            </NotAuthorized>
+        </AuthorizeView>
+    </MudAppBar>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-6">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>

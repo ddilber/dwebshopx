@@ -1,0 +1,43 @@
+@inherits LayoutComponentBase
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+
+<MudLayout>
+    <MudAppBar Elevation="1" Color="Color.Dark">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
+                       OnClick="@ToggleDrawer" />
+        <MudText Typo="Typo.h6">
+            <MudLink Href="/admin" Color="Color.Inherit" Underline="Underline.None">Admin Panel</MudLink>
+        </MudText>
+        <MudSpacer />
+        <MudButton Href="/portal" Color="Color.Inherit" Variant="Variant.Text">Portal</MudButton>
+        <form method="post" action="/logout">
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Inherit" Variant="Variant.Outlined" Size="Size.Small">Logout</MudButton>
+        </form>
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" Variant="DrawerVariant.Responsive" Elevation="2">
+        <MudNavMenu>
+            <MudText Typo="Typo.subtitle2" Class="px-4 pt-4 pb-2 mud-text-secondary">Administration</MudText>
+            <MudNavLink Href="/admin" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+            <MudNavLink Href="/admin/brands" Icon="@Icons.Material.Filled.Storefront">Brands</MudNavLink>
+            <MudNavLink Href="/admin/categories" Icon="@Icons.Material.Filled.Category">Categories</MudNavLink>
+            <MudNavLink Href="/admin/products" Icon="@Icons.Material.Filled.Inventory2">Products</MudNavLink>
+            <MudNavLink Href="/admin/pricelists" Icon="@Icons.Material.Filled.PriceChange">Pricelists</MudNavLink>
+            <MudNavLink Href="/admin/orders" Icon="@Icons.Material.Filled.ShoppingBag">Orders</MudNavLink>
+            <MudNavLink Href="/admin/clients" Icon="@Icons.Material.Filled.People">Clients</MudNavLink>
+            <MudNavLink Href="/admin/blog" Icon="@Icons.Material.Filled.Article">Blog</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-6">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+}

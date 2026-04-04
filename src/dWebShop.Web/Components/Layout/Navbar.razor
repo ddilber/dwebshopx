@@ -1,0 +1,72 @@
+@inject IJSRuntime JS
+@implements IDisposable
+
+<nav class="navbar @(_scrolled ? "navbar--scrolled" : "")" id="main-navbar">
+    <div class="navbar__container container">
+        <a href="/" class="navbar__logo">
+            <img src="/images/logo-dark.png" alt="ASGifiks" class="navbar__logo-img" />
+        </a>
+
+        <ul class="navbar__links @(_menuOpen ? "navbar__links--open" : "")">
+            <li><a href="/" class="navbar__link" @onclick="CloseMenu">Početna</a></li>
+            <li><a href="/about" class="navbar__link" @onclick="CloseMenu">O Nama</a></li>
+            <li><a href="/services" class="navbar__link" @onclick="CloseMenu">Usluge</a></li>
+            <li><a href="/projects" class="navbar__link" @onclick="CloseMenu">Projekti</a></li>
+            <li><a href="/contact" class="navbar__link" @onclick="CloseMenu">Kontakt</a></li>
+        </ul>
+
+        <a href="/shop" class="btn btn-primary navbar__cta">Web Shop</a>
+
+        <button class="navbar__toggle @(_menuOpen ? "navbar__toggle--open" : "")"
+                @onclick="ToggleMenu"
+                aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+
+    @if (_menuOpen)
+    {
+        <div class="navbar__mobile-menu">
+            <ul class="navbar__mobile-links">
+                <li><a href="/" class="navbar__mobile-link" @onclick="CloseMenu">Početna</a></li>
+                <li><a href="/about" class="navbar__mobile-link" @onclick="CloseMenu">O Nama</a></li>
+                <li><a href="/services" class="navbar__mobile-link" @onclick="CloseMenu">Usluge</a></li>
+                <li><a href="/projects" class="navbar__mobile-link" @onclick="CloseMenu">Projekti</a></li>
+                <li><a href="/contact" class="navbar__mobile-link" @onclick="CloseMenu">Kontakt</a></li>
+            </ul>
+            <a href="/shop" class="btn btn-primary navbar__mobile-cta" @onclick="CloseMenu">Web Shop</a>
+        </div>
+    }
+</nav>
+
+@code {
+    private bool _scrolled = false;
+    private bool _menuOpen = false;
+    private DotNetObjectReference<Navbar>? _objRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _objRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("initNavbarScroll", _objRef);
+        }
+    }
+
+    [JSInvokable]
+    public void OnScroll(bool scrolled)
+    {
+        _scrolled = scrolled;
+        StateHasChanged();
+    }
+
+    private void ToggleMenu() => _menuOpen = !_menuOpen;
+    private void CloseMenu() => _menuOpen = false;
+
+    public void Dispose()
+    {
+        _objRef?.Dispose();
+    }
+}

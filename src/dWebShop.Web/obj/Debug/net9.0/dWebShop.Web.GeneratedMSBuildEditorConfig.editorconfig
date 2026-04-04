@@ -1,0 +1,270 @@
+is_global = true
+build_property.MudDebugAnalyzer = 
+build_property.MudAllowedAttributePattern = 
+build_property.MudAllowedAttributeList = 
+build_property.TargetFramework = net9.0
+build_property.TargetFramework = net9.0
+build_property.TargetPlatformMinVersion = 
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.TargetFrameworkIdentifier = .NETCoreApp
+build_property.TargetFrameworkVersion = v9.0
+build_property.RootNamespace = dWebShop.Web
+build_property.RootNamespace = dWebShop.Web
+build_property.ProjectDir = /home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 9.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 9.0
+build_property.EnableCodeStyleSeverity = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/App.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9BcHAucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/AdminLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvQWRtaW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/LandingLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvTGFuZGluZ0xheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/PortalLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvUG9ydGFsTGF5b3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/PublicLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvUHVibGljTGF5b3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/About.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BYm91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Blog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9CbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Brands.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9CcmFuZHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Categories.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9DYXRlZ29yaWVzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Clients.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9DbGllbnRzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Dashboard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9EYXNoYm9hcmQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Orders.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9PcmRlcnMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Pricelists.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9QcmljZWxpc3RzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/ProductEdit.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9Qcm9kdWN0RWRpdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Products.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9Qcm9kdWN0cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/ProductSkus.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9Qcm9kdWN0U2t1cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Auth/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BdXRoL0xvZ2luLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Auth/PendingApproval.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BdXRoL1BlbmRpbmdBcHByb3ZhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Auth/Register.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BdXRoL1JlZ2lzdGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Auth/RegisterSuccess.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BdXRoL1JlZ2lzdGVyU3VjY2Vzcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Brands/Cortec/Cortec.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9CcmFuZHMvQ29ydGVjL0NvcnRlYy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Brands/Sto/Sto.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9CcmFuZHMvU3RvL1N0by5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Brands/Xypex/Xypex.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9CcmFuZHMvWHlwZXgvWHlwZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Contact.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Db250YWN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Counter.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Db3VudGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Error.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9FcnJvci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Ib21lLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/NotFound.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Ob3RGb3VuZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Portal/Cart.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qb3J0YWwvQ2FydC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Portal/Dashboard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qb3J0YWwvRGFzaGJvYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Portal/Orders.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qb3J0YWwvT3JkZXJzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Portal/ProductDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qb3J0YWwvUHJvZHVjdERldGFpbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Portal/Products.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qb3J0YWwvUHJvZHVjdHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Portal/Profile.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qb3J0YWwvUHJvZmlsZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Privacy.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qcml2YWN5LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Projects.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qcm9qZWN0cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Public/BrandCategoryProducts.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9QdWJsaWMvQnJhbmRDYXRlZ29yeVByb2R1Y3RzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Public/BrandDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9QdWJsaWMvQnJhbmREZXRhaWwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Public/Brands.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9QdWJsaWMvQnJhbmRzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Public/ProductDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9QdWJsaWMvUHJvZHVjdERldGFpbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Services.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9TZXJ2aWNlcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Terms.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9UZXJtcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Weather.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9XZWF0aGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/RedirectToLogin.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9SZWRpcmVjdFRvTG9naW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Routes.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9Sb3V0ZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/BrandCard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvQnJhbmRDYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/CategoryTree.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvQ2F0ZWdvcnlUcmVlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/DocumentDownload.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvRG9jdW1lbnREb3dubG9hZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/LoadingSpinner.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvTG9hZGluZ1NwaW5uZXIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/PaginatedList.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvUGFnaW5hdGVkTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/PriceDisplay.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvUHJpY2VEaXNwbGF5LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/ProductCard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvUHJvZHVjdENhcmQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/SearchBar.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvU2VhcmNoQmFyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9fSW1wb3J0cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/Footer.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvRm9vdGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-qxzmaehri3
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvTWFpbkxheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-bc6v2zhcmp
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/Navbar.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvTmF2YmFyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-qkhcjo4xwg
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvTmF2TWVudS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-valg02ddol
+
+[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/ReconnectModal.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvUmVjb25uZWN0TW9kYWwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-8le2fwaexp

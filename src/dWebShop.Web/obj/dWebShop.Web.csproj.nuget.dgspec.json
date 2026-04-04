@@ -1,0 +1,321 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/dWebShop.Web.csproj": {}
+  },
+  "projects": {
+    "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Application/dWebShop.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Application/dWebShop.Application.csproj",
+        "projectName": "dWebShop.Application",
+        "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Application/dWebShop.Application.csproj",
+        "packagesPath": "/home/ddilber/.nuget/packages/",
+        "outputPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Application/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/ddilber/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/dWebShop.Domain.csproj": {
+                "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/dWebShop.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.200"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "FluentValidation": {
+              "target": "Package",
+              "version": "[12.1.1, )"
+            },
+            "FluentValidation.DependencyInjectionExtensions": {
+              "target": "Package",
+              "version": "[12.1.1, )"
+            },
+            "Mapster": {
+              "target": "Package",
+              "version": "[10.0.6, )"
+            },
+            "MediatR": {
+              "target": "Package",
+              "version": "[14.1.0, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/ddilber/.dotnet/sdk/10.0.201/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/dWebShop.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/dWebShop.Domain.csproj",
+        "projectName": "dWebShop.Domain",
+        "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/dWebShop.Domain.csproj",
+        "packagesPath": "/home/ddilber/.nuget/packages/",
+        "outputPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/ddilber/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.200"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/ddilber/.dotnet/sdk/10.0.201/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Infrastructure/dWebShop.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Infrastructure/dWebShop.Infrastructure.csproj",
+        "projectName": "dWebShop.Infrastructure",
+        "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Infrastructure/dWebShop.Infrastructure.csproj",
+        "packagesPath": "/home/ddilber/.nuget/packages/",
+        "outputPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Infrastructure/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/ddilber/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Application/dWebShop.Application.csproj": {
+                "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Application/dWebShop.Application.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "noWarn": [
+            "NU1608"
+          ],
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.200"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "MailKit": {
+              "target": "Package",
+              "version": "[4.12.0, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Pomelo.EntityFrameworkCore.MySql": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Serilog.AspNetCore": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/ddilber/.dotnet/sdk/10.0.201/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/dWebShop.Web.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/dWebShop.Web.csproj",
+        "projectName": "dWebShop.Web",
+        "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/dWebShop.Web.csproj",
+        "packagesPath": "/home/ddilber/.nuget/packages/",
+        "outputPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/ddilber/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Application/dWebShop.Application.csproj": {
+                "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Application/dWebShop.Application.csproj"
+              },
+              "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Infrastructure/dWebShop.Infrastructure.csproj": {
+                "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Infrastructure/dWebShop.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.200"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "MudBlazor": {
+              "target": "Package",
+              "version": "[9.2.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/ddilber/.dotnet/sdk/10.0.201/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

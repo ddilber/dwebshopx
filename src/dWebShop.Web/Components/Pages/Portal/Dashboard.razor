@@ -1,0 +1,8 @@
+@page "/portal"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin,Client")]
+@layout PortalLayout
+
+<PageTitle>Portal</PageTitle>
+
+<h2>Welcome to the Portal</h2>
+<p>You are successfully logged in.</p>

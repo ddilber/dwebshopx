@@ -1,0 +1,215 @@
+@page "/admin/brands"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+@layout AdminLayout
+@rendermode InteractiveServer
+@using dWebShop.Application.Features.Brands.Commands
+@using dWebShop.Application.Features.Brands.Queries
+@inject IMediator Mediator
+@inject ISnackbar Snackbar
+@inject IWebHostEnvironment Env
+
+<PageTitle>Brands — Admin</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h5">Brands</MudText>
+    <MudSpacer />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
+               OnClick="OpenCreate">New Brand</MudButton>
+</MudStack>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" />
+}
+else
+{
+    <MudTable Items="_brands" Dense="true" Hover="true" Striped="true" Filter="FilterFunc">
+        <ToolBarContent>
+            <MudTextField @bind-Value="_search" Placeholder="Search…" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" Class="mt-0" />
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>Logo</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Slug</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                @if (!string.IsNullOrWhiteSpace(context.LogoImage))
+                {
+                    <MudImage Src="@($"/product_images/brands/{context.LogoImage}")" Height="36" ObjectFit="ObjectFit.Contain" />
+                }
+            </MudTd>
+            <MudTd>@context.Name</MudTd>
+            <MudTd><MudText Typo="Typo.caption">@context.Slug</MudText></MudTd>
+            <MudTd><MudText Typo="Typo.caption">@(context.Description.Length > 80 ? context.Description[..80] + "…" : context.Description)</MudText></MudTd>
+            <MudTd Style="text-align:right">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="@(() => OpenEdit(context))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="@(() => DeleteAsync(context))" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+<!-- Create / Edit Dialog -->
+<MudDialog @bind-IsVisible="_dialogOpen" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+    <TitleContent>@(_editId.HasValue ? "Edit Brand" : "New Brand")</TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_form.Name" Label="Name" Required="true" Class="mb-3" />
+        <MudTextField @bind-Value="_form.Slug" Label="Slug" HelperText="lowercase, hyphens only" Required="true" Class="mb-3" />
+        <MudTextField @bind-Value="_form.Description" Label="Description" Lines="3" Class="mb-3" />
+        <MudText Typo="Typo.subtitle2" Class="mb-1">Logo image</MudText>
+        @if (!string.IsNullOrWhiteSpace(_form.LogoImage))
+        {
+            <MudImage Src="@($"/product_images/brands/{_form.LogoImage}")" Height="48" ObjectFit="ObjectFit.Contain" Class="mb-2" />
+        }
+        <InputFile id="logoUpload" OnChange="OnLogoSelected" accept="image/*" style="display:none" />
+        <MudButton HtmlTag="label" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Upload" for="logoUpload">
+            Choose logo…
+        </MudButton>
+        @if (!string.IsNullOrWhiteSpace(_logoFileName))
+        {
+            <MudText Typo="Typo.caption" Class="ml-2">@_logoFileName</MudText>
+        }
+        @if (!string.IsNullOrWhiteSpace(_errorMsg))
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-2">@_errorMsg</MudAlert>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="_saving">
+            @(_saving ? "Saving…" : "Save")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private List<BrandDto> _brands = [];
+    private bool _loading = true;
+    private string _search = string.Empty;
+
+    // Dialog state
+    private bool _dialogOpen;
+    private int? _editId;
+    private bool _saving;
+    private string _errorMsg = string.Empty;
+    private string _logoFileName = string.Empty;
+    private IBrowserFile? _logoFile;
+
+    private BrandFormModel _form = new();
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _brands = await Mediator.Send(new GetBrandsQuery());
+        _loading = false;
+    }
+
+    private bool FilterFunc(BrandDto b) =>
+        string.IsNullOrWhiteSpace(_search) ||
+        b.Name.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
+        b.Slug.Contains(_search, StringComparison.OrdinalIgnoreCase);
+
+    private void OpenCreate()
+    {
+        _editId = null;
+        _form = new();
+        _logoFileName = string.Empty;
+        _logoFile = null;
+        _errorMsg = string.Empty;
+        _dialogOpen = true;
+    }
+
+    private void OpenEdit(BrandDto b)
+    {
+        _editId = b.Id;
+        _form = new BrandFormModel { Name = b.Name, Slug = b.Slug, Description = b.Description, LogoImage = b.LogoImage };
+        _logoFileName = string.Empty;
+        _logoFile = null;
+        _errorMsg = string.Empty;
+        _dialogOpen = true;
+    }
+
+    private void CloseDialog() => _dialogOpen = false;
+
+    private void OnLogoSelected(InputFileChangeEventArgs e)
+    {
+        _logoFile = e.File;
+        _logoFileName = e.File.Name;
+    }
+
+    private async Task SaveAsync()
+    {
+        _errorMsg = string.Empty;
+        if (string.IsNullOrWhiteSpace(_form.Name) || string.IsNullOrWhiteSpace(_form.Slug))
+        {
+            _errorMsg = "Name and Slug are required.";
+            return;
+        }
+
+        _saving = true;
+        try
+        {
+            // Upload logo if selected
+            if (_logoFile is not null)
+            {
+                const long maxBytes = 2 * 1024 * 1024; // 2 MB
+                var ext = Path.GetExtension(_logoFile.Name).ToLowerInvariant();
+                if (_logoFile.Size > maxBytes) { _errorMsg = "Logo must be under 2 MB."; return; }
+                if (ext is not (".jpg" or ".jpeg" or ".png" or ".svg" or ".webp")) { _errorMsg = "Unsupported image type."; return; }
+
+                var dir = Path.Combine(Env.WebRootPath, "product_images", "brands");
+                Directory.CreateDirectory(dir);
+                var fileName = $"{Guid.NewGuid():N}{ext}";
+                var filePath = Path.Combine(dir, fileName);
+                await using var fs = new FileStream(filePath, FileMode.Create);
+                await _logoFile.OpenReadStream(maxBytes).CopyToAsync(fs);
+                _form.LogoImage = fileName;
+            }
+
+            if (_editId.HasValue)
+                await Mediator.Send(new UpdateBrandCommand(_editId.Value, _form.Name, _form.Slug, _form.Description, _form.LogoImage, string.Empty));
+            else
+                await Mediator.Send(new CreateBrandCommand(_form.Name, _form.Slug, _form.Description, _form.LogoImage, string.Empty));
+
+            Snackbar.Add(_editId.HasValue ? "Brand updated." : "Brand created.", Severity.Success);
+            _dialogOpen = false;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMsg = ex.Message;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private async Task DeleteAsync(BrandDto b)
+    {
+        try
+        {
+            await Mediator.Send(new DeleteBrandCommand(b.Id));
+            Snackbar.Add("Brand deleted.", Severity.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private class BrandFormModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Slug { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string LogoImage { get; set; } = string.Empty;
+    }
+}

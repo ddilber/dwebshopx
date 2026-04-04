@@ -1,0 +1,350 @@
+@page "/admin/products/{Id:int}"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+@layout AdminLayout
+@rendermode InteractiveServer
+@using dWebShop.Application.Features.Brands.Queries
+@using dWebShop.Application.Features.Categories.Queries
+@using dWebShop.Application.Features.Products.Commands
+@using dWebShop.Application.Features.Products.Queries
+@inject IMediator Mediator
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+@inject IWebHostEnvironment Env
+
+<PageTitle>Edit Product — Admin</PageTitle>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" />
+}
+else if (_product is null)
+{
+    <MudAlert Severity="Severity.Error">Product not found.</MudAlert>
+}
+else
+{
+    <MudBreadcrumbs Items="_breadcrumbs" Class="mb-2" />
+
+    <MudText Typo="Typo.h5" Class="mb-4">@_product.Name</MudText>
+
+    <MudTabs Elevation="1" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-4">
+
+        <!-- ── Basic Info ─────────────────────────────────────────────────── -->
+        <MudTabPanel Text="Basic Info">
+            <MudGrid Spacing="3">
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_form.Name" Label="Name" Required="true" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_form.Slug" Label="Slug" Required="true" />
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudTextField @bind-Value="_form.SKU" Label="SKU" />
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudTextField @bind-Value="_form.ExtRef" Label="External Ref" />
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="int?" @bind-Value="_form.BrandId" Label="Brand" Clearable="true"
+                               AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+                        @foreach (var b in _brands)
+                        {
+                            <MudSelectItem T="int?" Value="@((int?)b.Id)">@b.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_form.Description" Label="Short Description" Lines="3" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_form.DetailDescription" Label="Long Description / Specs" Lines="6" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudSwitch @bind-Value="_form.IsActive" Label="Active" Color="Color.Primary" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle2" Class="mb-2">Categories</MudText>
+                    <MudChipSet T="int" MultiSelection="true" @bind-SelectedValues="_selectedCategoryIds">
+                        @foreach (var c in _allCategories)
+                        {
+                            <MudChip T="int" Value="@c.Id" Color="Color.Default" Variant="Variant.Outlined">
+                                @c.Name
+                            </MudChip>
+                        }
+                    </MudChipSet>
+                </MudItem>
+                <MudItem xs="12">
+                    @if (!string.IsNullOrWhiteSpace(_saveError))
+                    {
+                        <MudAlert Severity="Severity.Error" Class="mb-2">@_saveError</MudAlert>
+                    }
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveBasicAsync" Disabled="_saving">
+                        @(_saving ? "Saving…" : "Save Changes")
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+        </MudTabPanel>
+
+        <!-- ── Images ─────────────────────────────────────────────────────── -->
+        <MudTabPanel Text="Images">
+            <MudText Typo="Typo.subtitle2" Class="mb-3">Product Images</MudText>
+            <MudGrid Spacing="2" Class="mb-4">
+                @foreach (var img in _product.Images)
+                {
+                    <MudItem xs="6" sm="3" md="2">
+                        <MudCard Elevation="1">
+                            <MudCardMedia Image="@($"/product_images/{img.Path}")" Height="120" />
+                            <MudCardActions>
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error"
+                                               OnClick="@(() => DeleteImageAsync(img.Id))" />
+                            </MudCardActions>
+                        </MudCard>
+                    </MudItem>
+                }
+            </MudGrid>
+            <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                <MudText Typo="Typo.subtitle2" Class="mb-2">Upload image</MudText>
+                <MudText Typo="Typo.caption" Class="mb-2">Max 5 MB · jpg, png, webp</MudText>
+                <InputFile id="imgUpload" OnChange="OnImageSelected" accept="image/*" style="display:none" />
+                <MudButton HtmlTag="label" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Upload" for="imgUpload">
+                    Choose file…
+                </MudButton>
+                @if (_imageFile is not null)
+                {
+                    <MudText Typo="Typo.caption" Class="ml-2 d-inline">@_imageFile.Name</MudText>
+                    <MudTextField @bind-Value="_imageDescription" Label="Description" Class="mt-2" />
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="UploadImageAsync"
+                               Disabled="_uploadingImage">
+                        @(_uploadingImage ? "Uploading…" : "Upload")
+                    </MudButton>
+                }
+                @if (!string.IsNullOrWhiteSpace(_imageError))
+                {
+                    <MudAlert Severity="Severity.Error" Class="mt-2">@_imageError</MudAlert>
+                }
+            </MudPaper>
+        </MudTabPanel>
+
+        <!-- ── Documents ──────────────────────────────────────────────────── -->
+        <MudTabPanel Text="Documents">
+            <MudText Typo="Typo.subtitle2" Class="mb-3">Product Documents (PDF)</MudText>
+            <MudTable Items="_product.Documents" Dense="true" Class="mb-4">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>File</MudTh>
+                    <MudTh>Description</MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Name</MudTd>
+                    <MudTd><MudLink Href="@($"/product_docs/{context.Path}")" Target="_blank">@context.Path</MudLink></MudTd>
+                    <MudTd><MudText Typo="Typo.caption">@context.Description</MudText></MudTd>
+                    <MudTd>
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error"
+                                       OnClick="@(() => DeleteDocAsync(context.Id))" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+
+            <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                <MudText Typo="Typo.subtitle2" Class="mb-2">Upload document</MudText>
+                <MudText Typo="Typo.caption" Class="mb-2">Max 20 MB · PDF only</MudText>
+                <InputFile id="docUpload" OnChange="OnDocSelected" accept=".pdf" style="display:none" />
+                <MudButton HtmlTag="label" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Upload" for="docUpload">
+                    Choose PDF…
+                </MudButton>
+                @if (_docFile is not null)
+                {
+                    <MudText Typo="Typo.caption" Class="ml-2 d-inline">@_docFile.Name</MudText>
+                    <MudTextField @bind-Value="_docName" Label="Display Name" Class="mt-2" />
+                    <MudTextField @bind-Value="_docDescription" Label="Description" Class="mt-2" />
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="UploadDocAsync"
+                               Disabled="_uploadingDoc">
+                        @(_uploadingDoc ? "Uploading…" : "Upload")
+                    </MudButton>
+                }
+                @if (!string.IsNullOrWhiteSpace(_docError))
+                {
+                    <MudAlert Severity="Severity.Error" Class="mt-2">@_docError</MudAlert>
+                }
+            </MudPaper>
+        </MudTabPanel>
+
+    </MudTabs>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private ProductDetailDto? _product;
+    private List<BrandDto> _brands = [];
+    private List<CategoryDto> _allCategories = [];
+    private IReadOnlyCollection<int> _selectedCategoryIds = [];
+    private bool _loading = true;
+    private bool _saving;
+    private string _saveError = string.Empty;
+
+    private ProductEditFormModel _form = new();
+
+    private IBrowserFile? _imageFile;
+    private string _imageDescription = string.Empty;
+    private bool _uploadingImage;
+    private string _imageError = string.Empty;
+
+    private IBrowserFile? _docFile;
+    private string _docName = string.Empty;
+    private string _docDescription = string.Empty;
+    private bool _uploadingDoc;
+    private string _docError = string.Empty;
+
+    private List<BreadcrumbItem> _breadcrumbs = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _brands = await Mediator.Send(new GetBrandsQuery());
+        _allCategories = await Mediator.Send(new GetCategoriesQuery());
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _product = await Mediator.Send(new GetProductByIdQuery(Id));
+        if (_product is not null)
+        {
+            _form = new ProductEditFormModel
+            {
+                Name = _product.Name,
+                SKU = _product.SKU,
+                ExtRef = _product.ExtRef,
+                Slug = _product.Slug,
+                Description = _product.Description,
+                DetailDescription = _product.DetailDescription,
+                IsActive = _product.IsActive,
+                BrandId = _product.BrandId,
+            };
+            _selectedCategoryIds = _product.Categories.Select(c => c.Id).ToList();
+            _breadcrumbs =
+            [
+                new BreadcrumbItem("Products", "/admin/products"),
+                new BreadcrumbItem(_product.Name, null, disabled: true),
+            ];
+        }
+        _loading = false;
+    }
+
+    private async Task SaveBasicAsync()
+    {
+        _saveError = string.Empty;
+        if (string.IsNullOrWhiteSpace(_form.Name) || string.IsNullOrWhiteSpace(_form.Slug))
+        {
+            _saveError = "Name and Slug are required.";
+            return;
+        }
+        _saving = true;
+        try
+        {
+            await Mediator.Send(new UpdateProductCommand(Id, _form.Name, _form.SKU, _form.ExtRef, _form.Slug,
+                _form.Description, _form.IsActive, _form.BrandId, _form.DetailDescription,
+                _selectedCategoryIds.ToList()));
+            Snackbar.Add("Product saved.", Severity.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex) { _saveError = ex.Message; }
+        finally { _saving = false; }
+    }
+
+    private void OnImageSelected(InputFileChangeEventArgs e) { _imageFile = e.File; _imageError = string.Empty; }
+    private void OnDocSelected(InputFileChangeEventArgs e) { _docFile = e.File; _docName = Path.GetFileNameWithoutExtension(e.File.Name); _docError = string.Empty; }
+
+    private async Task UploadImageAsync()
+    {
+        _imageError = string.Empty;
+        if (_imageFile is null) return;
+        const long max = 5 * 1024 * 1024;
+        var ext = Path.GetExtension(_imageFile.Name).ToLowerInvariant();
+        if (_imageFile.Size > max) { _imageError = "Image must be under 5 MB."; return; }
+        if (ext is not (".jpg" or ".jpeg" or ".png" or ".webp")) { _imageError = "Unsupported image type."; return; }
+
+        _uploadingImage = true;
+        try
+        {
+            var dir = Path.Combine(Env.WebRootPath, "product_images");
+            Directory.CreateDirectory(dir);
+            var fileName = $"{Guid.NewGuid():N}{ext}";
+            var path = Path.Combine(dir, fileName);
+            await using var fs = new FileStream(path, FileMode.Create);
+            await _imageFile.OpenReadStream(max).CopyToAsync(fs);
+            await Mediator.Send(new AddProductImageCommand(Id, fileName, _imageDescription));
+            Snackbar.Add("Image uploaded.", Severity.Success);
+            _imageFile = null;
+            _imageDescription = string.Empty;
+            await LoadAsync();
+        }
+        catch (Exception ex) { _imageError = ex.Message; }
+        finally { _uploadingImage = false; }
+    }
+
+    private async Task DeleteImageAsync(int imageId)
+    {
+        try
+        {
+            await Mediator.Send(new DeleteProductImageCommand(imageId));
+            Snackbar.Add("Image removed.", Severity.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private async Task UploadDocAsync()
+    {
+        _docError = string.Empty;
+        if (_docFile is null) return;
+        const long max = 20 * 1024 * 1024;
+        var ext = Path.GetExtension(_docFile.Name).ToLowerInvariant();
+        if (_docFile.Size > max) { _docError = "Document must be under 20 MB."; return; }
+        if (ext != ".pdf") { _docError = "Only PDF files are allowed."; return; }
+
+        _uploadingDoc = true;
+        try
+        {
+            var dir = Path.Combine(Env.WebRootPath, "product_docs");
+            Directory.CreateDirectory(dir);
+            var fileName = $"{Guid.NewGuid():N}{ext}";
+            var path = Path.Combine(dir, fileName);
+            await using var fs = new FileStream(path, FileMode.Create);
+            await _docFile.OpenReadStream(max).CopyToAsync(fs);
+            await Mediator.Send(new AddProductDocumentCommand(Id, _docName, fileName, _docDescription));
+            Snackbar.Add("Document uploaded.", Severity.Success);
+            _docFile = null;
+            _docName = string.Empty;
+            _docDescription = string.Empty;
+            await LoadAsync();
+        }
+        catch (Exception ex) { _docError = ex.Message; }
+        finally { _uploadingDoc = false; }
+    }
+
+    private async Task DeleteDocAsync(int docId)
+    {
+        try
+        {
+            await Mediator.Send(new DeleteProductDocumentCommand(docId));
+            Snackbar.Add("Document removed.", Severity.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private class ProductEditFormModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string SKU { get; set; } = string.Empty;
+        public string ExtRef { get; set; } = string.Empty;
+        public string Slug { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string DetailDescription { get; set; } = string.Empty;
+        public bool IsActive { get; set; } = true;
+        public int? BrandId { get; set; }
+    }
+}

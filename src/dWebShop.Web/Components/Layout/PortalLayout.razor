@@ -1,0 +1,44 @@
+@inherits LayoutComponentBase
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin,Client")]
+
+<MudLayout>
+    <MudAppBar Elevation="1" Color="Color.Primary">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
+                       OnClick="@ToggleDrawer" />
+        <MudText Typo="Typo.h6">
+            <MudLink Href="/portal" Color="Color.Inherit" Underline="Underline.None">Client Portal</MudLink>
+        </MudText>
+        <MudSpacer />
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                <MudButton Href="/admin" Color="Color.Inherit" Variant="Variant.Text">Admin</MudButton>
+            </Authorized>
+        </AuthorizeView>
+        <form method="post" action="/logout">
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Inherit" Variant="Variant.Outlined" Size="Size.Small">Logout</MudButton>
+        </form>
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" Variant="DrawerVariant.Responsive" Elevation="2">
+        <MudNavMenu>
+            <MudText Typo="Typo.subtitle2" Class="px-4 pt-4 pb-2 mud-text-secondary">Portal</MudText>
+            <MudNavLink Href="/portal" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+            <MudNavLink Href="/portal/products" Icon="@Icons.Material.Filled.Inventory">Products</MudNavLink>
+            <MudNavLink Href="/portal/cart" Icon="@Icons.Material.Filled.ShoppingCart">Cart</MudNavLink>
+            <MudNavLink Href="/portal/orders" Icon="@Icons.Material.Filled.Receipt">Orders</MudNavLink>
+            <MudNavLink Href="/portal/profile" Icon="@Icons.Material.Filled.Person">Profile</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-6">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+}

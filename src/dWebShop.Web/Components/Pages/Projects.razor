@@ -1,0 +1,44 @@
+@page "/projects"
+@layout MainLayout
+
+<PageTitle>Naši Projekti — ASGifiks</PageTitle>
+
+<div style="padding: 4rem 0; background: linear-gradient(135deg, var(--color-dark) 0%, var(--secondary-color) 100%); color: white;">
+    <div class="container">
+        <span class="section-tag" style="background: rgba(255,255,255,0.15); color: white;">PROJEKTI</span>
+        <h1 class="section-title" style="color: white; margin-top: 0.75rem;">Naši Projekti</h1>
+        <p style="color: rgba(255,255,255,0.8); max-width: 600px; font-size: 1.1rem;">
+            Više od 1000 uspješno realizovanih projekata širom Bosne i Hercegovine.
+        </p>
+    </div>
+</div>
+
+<div class="container" style="padding: 4rem 20px;">
+    <div class="section-header">
+        <span class="section-tag">PORTFOLIO</span>
+        <h2 class="section-title">Referentni Projekti</h2>
+        <p class="section-description">Portfolio referentnih projekata bit će uskoro dostupan. Kontaktirajte nas za detaljne informacije o našim realizacijama.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 3rem;">
+        <div style="background: var(--color-gray-light); border-radius: var(--border-radius-lg); padding: 2rem; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🏢</div>
+            <h3 style="font-weight: 700; color: var(--color-dark); margin-bottom: 0.5rem;">Stambeni Projekti</h3>
+            <p style="color: var(--color-gray); font-size: 0.9rem;">Fasadna izolacija stambenih zgrada i porodičnih kuća.</p>
+        </div>
+        <div style="background: var(--color-gray-light); border-radius: var(--border-radius-lg); padding: 2rem; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🏭</div>
+            <h3 style="font-weight: 700; color: var(--color-dark); margin-bottom: 0.5rem;">Industrijski Projekti</h3>
+            <p style="color: var(--color-gray); font-size: 0.9rem;">Zaštita industrijskih postrojenja i infrastrukture.</p>
+        </div>
+        <div style="background: var(--color-gray-light); border-radius: var(--border-radius-lg); padding: 2rem; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🏛️</div>
+            <h3 style="font-weight: 700; color: var(--color-dark); margin-bottom: 0.5rem;">Javni Objekti</h3>
+            <p style="color: var(--color-gray); font-size: 0.9rem;">Škole, bolnice i javne institucije diljem BiH.</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 3rem; text-align: center;">
+        <a href="/contact" class="btn btn-primary">Upit za Projekat</a>
+    </div>
+</div>

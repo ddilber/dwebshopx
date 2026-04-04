@@ -1,0 +1,108 @@
+@page "/admin/clients"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+@layout AdminLayout
+@rendermode InteractiveServer
+
+@using dWebShop.Application.Services
+@using dWebShop.Domain.Entities.Users
+@using Microsoft.AspNetCore.Identity
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IEmailService EmailService
+
+<PageTitle>Client Approvals</PageTitle>
+
+<h2>Client Approvals</h2>
+
+@if (_pendingUsers is null)
+{
+    <p>Loading...</p>
+}
+else if (_pendingUsers.Count == 0)
+{
+    <div class="alert alert-info">No pending approvals.</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in _pendingUsers)
+            {
+                <tr>
+                    <td>@user.UserName</td>
+                    <td>@user.Email</td>
+                    <td>
+                        <button class="btn btn-success btn-sm me-2" @onclick="() => ApproveAsync(user)">Approve</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => RejectAsync(user)">Reject</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (!string.IsNullOrEmpty(_statusMessage))
+{
+    <div class="alert alert-success mt-3">@_statusMessage</div>
+}
+
+@code {
+    private List<ApplicationUser>? _pendingUsers;
+    private string? _statusMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPendingUsersAsync();
+    }
+
+    private async Task LoadPendingUsersAsync()
+    {
+        _pendingUsers = (await UserManager.GetUsersInRoleAsync("Client"))
+            .Where(u => !u.IsApproved)
+            .ToList();
+
+        // Also include users with no role and not approved
+        var allUsers = UserManager.Users.Where(u => !u.IsApproved).ToList();
+        foreach (var user in allUsers)
+        {
+            var roles = await UserManager.GetRolesAsync(user);
+            if (roles.Count == 0 && !_pendingUsers.Any(p => p.Id == user.Id))
+                _pendingUsers.Add(user);
+        }
+    }
+
+    private async Task ApproveAsync(ApplicationUser user)
+    {
+        user.IsApproved = true;
+        await UserManager.UpdateAsync(user);
+
+        if (!await UserManager.IsInRoleAsync(user, "Client"))
+            await UserManager.AddToRoleAsync(user, "Client");
+
+        try
+        {
+            await EmailService.SendApprovalConfirmationToClientAsync(user.Email!, user.UserName!);
+        }
+        catch
+        {
+            // Email failure should not break the approval flow
+        }
+
+        _statusMessage = $"User {user.UserName} approved.";
+        await LoadPendingUsersAsync();
+    }
+
+    private async Task RejectAsync(ApplicationUser user)
+    {
+        await UserManager.DeleteAsync(user);
+        _statusMessage = $"User {user.UserName} rejected and removed.";
+        await LoadPendingUsersAsync();
+    }
+}

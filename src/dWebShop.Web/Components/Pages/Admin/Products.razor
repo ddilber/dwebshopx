@@ -1,0 +1,207 @@
+@page "/admin/products"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+@layout AdminLayout
+@rendermode InteractiveServer
+@using dWebShop.Application.Features.Brands.Queries
+@using dWebShop.Application.Features.Categories.Queries
+@using dWebShop.Application.Features.Products.Commands
+@using dWebShop.Application.Features.Products.Queries
+@inject IMediator Mediator
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<PageTitle>Products — Admin</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h5">Products</MudText>
+    <MudSpacer />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreate">
+        New Product
+    </MudButton>
+</MudStack>
+
+<!-- Filters -->
+<MudPaper Class="pa-3 mb-4" Elevation="0" Outlined="true">
+    <MudGrid Spacing="2">
+        <MudItem xs="12" sm="4">
+            <MudTextField @bind-Value="_search" Label="Search" Immediate="true" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" />
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudSelect T="int?" @bind-Value="_filterBrandId" Label="Brand" Clearable="true"
+                       AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+                @foreach (var b in _brands)
+                {
+                    <MudSelectItem T="int?" Value="@((int?)b.Id)">@b.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="4" Class="d-flex align-center">
+            <MudButton Variant="Variant.Outlined" OnClick="SearchAsync">Search</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" />
+}
+else
+{
+    <MudTable Items="_pagedResult?.Items" Dense="true" Hover="true" Striped="true">
+        <HeaderContent>
+            <MudTh>Image</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>SKU</MudTh>
+            <MudTh>Brand</MudTh>
+            <MudTh>Active</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                @if (!string.IsNullOrWhiteSpace(context.PrimaryImage))
+                {
+                    <MudImage Src="@($"/product_images/{context.PrimaryImage}")" Height="36" ObjectFit="ObjectFit.Contain" />
+                }
+            </MudTd>
+            <MudTd>
+                <MudLink Href="@($"/admin/products/{context.Id}")">@context.Name</MudLink>
+            </MudTd>
+            <MudTd><MudText Typo="Typo.caption">@context.SKU</MudText></MudTd>
+            <MudTd>@(context.BrandName ?? "—")</MudTd>
+            <MudTd>
+                @if (context.IsActive)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Small" />
+                }
+                else
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Cancel" Color="Color.Default" Size="Size.Small" />
+                }
+            </MudTd>
+            <MudTd Style="text-align:right">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Href="@($"/admin/products/{context.Id}")" />
+                <MudIconButton Icon="@Icons.Material.Filled.ViewList" Size="Size.Small" Title="SKUs"
+                               Href="@($"/admin/products/{context.Id}/skus")" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error"
+                               OnClick="@(() => DeleteAsync(context))" />
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{10,20,50}" />
+        </PagerContent>
+    </MudTable>
+
+    @if (_pagedResult is not null)
+    {
+        <MudText Typo="Typo.caption" Class="mt-2">Total: @_pagedResult.TotalCount products</MudText>
+    }
+}
+
+<!-- Create Dialog (basic fields; full edit is on the product detail page) -->
+<MudDialog @bind-IsVisible="_dialogOpen" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+    <TitleContent>New Product</TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_form.Name" Label="Name" Required="true" Class="mb-3" />
+        <MudTextField @bind-Value="_form.SKU" Label="SKU" Class="mb-3" />
+        <MudTextField @bind-Value="_form.ExtRef" Label="External Ref" Class="mb-3" />
+        <MudTextField @bind-Value="_form.Slug" Label="Slug" Required="true" Class="mb-3" />
+        <MudTextField @bind-Value="_form.Description" Label="Short Description" Lines="2" Class="mb-3" />
+        <MudSelect T="int?" @bind-Value="_form.BrandId" Label="Brand" Clearable="true" Class="mb-3"
+                   AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+            @foreach (var b in _brands)
+            {
+                <MudSelectItem T="int?" Value="@((int?)b.Id)">@b.Name</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSwitch @bind-Value="_form.IsActive" Label="Active" Color="Color.Primary" Class="mb-3" />
+        @if (!string.IsNullOrWhiteSpace(_errorMsg))
+        {
+            <MudAlert Severity="Severity.Error">@_errorMsg</MudAlert>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateAsync" Disabled="_saving">
+            @(_saving ? "Creating…" : "Create & Edit")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private PagedResult<ProductListItemDto>? _pagedResult;
+    private List<BrandDto> _brands = [];
+    private bool _loading = true;
+    private string _search = string.Empty;
+    private int? _filterBrandId;
+    private int _page = 1;
+
+    private bool _dialogOpen;
+    private bool _saving;
+    private string _errorMsg = string.Empty;
+    private ProductFormModel _form = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _brands = await Mediator.Send(new GetBrandsQuery());
+        await SearchAsync();
+    }
+
+    private async Task SearchAsync()
+    {
+        _loading = true;
+        _page = 1;
+        _pagedResult = await Mediator.Send(new GetProductsQuery(_page, 20, _filterBrandId, null, _search));
+        _loading = false;
+    }
+
+    private void OpenCreate()
+    {
+        _form = new();
+        _errorMsg = string.Empty;
+        _dialogOpen = true;
+    }
+
+    private void CloseDialog() => _dialogOpen = false;
+
+    private async Task CreateAsync()
+    {
+        _errorMsg = string.Empty;
+        if (string.IsNullOrWhiteSpace(_form.Name) || string.IsNullOrWhiteSpace(_form.Slug))
+        {
+            _errorMsg = "Name and Slug are required.";
+            return;
+        }
+        _saving = true;
+        try
+        {
+            var id = await Mediator.Send(new CreateProductCommand(_form.Name, _form.SKU, _form.ExtRef, _form.Slug, _form.Description, _form.IsActive, _form.BrandId, null));
+            _dialogOpen = false;
+            Nav.NavigateTo($"/admin/products/{id}");
+        }
+        catch (Exception ex) { _errorMsg = ex.Message; }
+        finally { _saving = false; }
+    }
+
+    private async Task DeleteAsync(ProductListItemDto p)
+    {
+        try
+        {
+            await Mediator.Send(new DeleteProductCommand(p.Id));
+            Snackbar.Add("Product deleted.", Severity.Success);
+            await SearchAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private class ProductFormModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string SKU { get; set; } = string.Empty;
+        public string ExtRef { get; set; } = string.Empty;
+        public string Slug { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public bool IsActive { get; set; } = true;
+        public int? BrandId { get; set; }
+    }
+}

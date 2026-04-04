@@ -4,11 +4,13 @@
 @rendermode InteractiveServer
 @using dWebShop.Application.Features.Products.Queries
 @using dWebShop.Application.Features.ProductSkus.Queries
+@using dWebShop.Application.Services
 @using dWebShop.Domain.Entities.Users
 @using Microsoft.AspNetCore.Identity
 @inject IMediator Mediator
 @inject UserManager<ApplicationUser> UserManager
 @inject AuthenticationStateProvider AuthStateProvider
+@inject IPricingService PricingService
 @inject NavigationManager Nav
 
 <PageTitle>@(_product?.Name ?? "Product") — Portal</PageTitle>
@@ -125,7 +127,7 @@
                                     <td><MudText Typo="Typo.caption">@sku.SKU</MudText></td>
                                     <td>@sku.Name</td>
                                     <td>
-                                        <PriceDisplay Price="sku.Price" PriceTypo="Typo.body2" />
+                                        <PriceDisplay Price="@(_resolvedPrices.GetValueOrDefault(sku.Id, sku.Price))" PriceTypo="Typo.body2" />
                                     </td>
                                     <td>
                                         <MudButton Variant="Variant.Outlined"
@@ -181,8 +183,10 @@
 
     private ProductDetailDto? _product;
     private GetProductSkusResult? _skuResult;
+    private Dictionary<int, decimal?> _resolvedPrices = new();
     private bool _loading = true;
     private bool _isApproved;
+    private int? _partnerId;
     private int _selectedImage;
     private List<BreadcrumbItem> _breadcrumbs = [];
 
@@ -197,6 +201,7 @@
         {
             var user = await UserManager.GetUserAsync(authState.User);
             _isApproved = user?.IsApproved ?? false;
+            _partnerId = user?.PartnerId;
         }
 
         if (_isApproved)
@@ -204,7 +209,15 @@
             _product = await Mediator.Send(new GetProductBySlugQuery(Slug));
 
             if (_product is not null)
+            {
                 _skuResult = await Mediator.Send(new GetProductSkusQuery(_product.Id));
+                if (_skuResult.Skus.Count > 0)
+                {
+                    _resolvedPrices = await PricingService.ResolvePricesAsync(
+                        _partnerId,
+                        _skuResult.Skus.Select(s => s.Id));
+                }
+            }
         }
 
         _breadcrumbs =
