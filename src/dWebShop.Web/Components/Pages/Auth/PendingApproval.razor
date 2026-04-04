@@ -1,0 +1,21 @@
+@page "/pending-approval"
+@layout PublicLayout
+
+<PageTitle>Account Pending Approval</PageTitle>
+
+<div class="d-flex justify-center align-center" style="min-height:60vh;">
+    <MudPaper Class="pa-8" MaxWidth="500px" Elevation="2">
+        <div class="d-flex flex-column align-center gap-4">
+            <MudIcon Icon="@Icons.Material.Filled.HourglassTop" Color="Color.Warning" Style="font-size:64px;" />
+            <MudText Typo="Typo.h5" Align="Align.Center" Style="font-weight:700;">Account Pending Approval</MudText>
+            <MudText Typo="Typo.body1" Align="Align.Center" Class="mud-text-secondary">
+                Your account has been registered but is awaiting approval from an administrator.
+                You will be able to access the client portal once your account is approved.
+            </MudText>
+            <MudText Typo="Typo.body2" Align="Align.Center" Class="mud-text-secondary">
+                If you have questions, please <MudLink Href="/contact">contact us</MudLink>.
+            </MudText>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" Href="/">Back to Home</MudButton>
+        </div>
+    </MudPaper>
+</div>

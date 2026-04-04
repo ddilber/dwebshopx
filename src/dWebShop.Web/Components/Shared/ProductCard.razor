@@ -28,8 +28,12 @@
         }
     </MudCardContent>
     <MudCardActions>
+        @if (AdditionalActions is not null)
+        {
+            @AdditionalActions(Product)
+        }
         <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward"
-                   Href="@($"/products/{Product.Slug}")">
+                   Href="@($"{DetailHrefBase}/{Product.Slug}")">
             Details
         </MudButton>
     </MudCardActions>
@@ -40,6 +44,8 @@
 @code {
     [Parameter, EditorRequired] public ProductListItemDto Product { get; set; } = default!;
     [Parameter] public string Class { get; set; } = string.Empty;
+    [Parameter] public string DetailHrefBase { get; set; } = "/products";
+    [Parameter] public RenderFragment<ProductListItemDto>? AdditionalActions { get; set; }
 
-    private void Navigate() => Nav.NavigateTo($"/products/{Product.Slug}");
+    private void Navigate() => Nav.NavigateTo($"{DetailHrefBase}/{Product.Slug}");
 }
