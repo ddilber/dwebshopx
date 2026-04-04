@@ -23,6 +23,7 @@ public class GetProductsQueryHandler(IAppDbContext db) : IRequestHandler<GetProd
     public async Task<PagedResult<ProductListItemDto>> Handle(GetProductsQuery request, CancellationToken ct)
     {
         var query = db.Products
+            .AsNoTracking()
             .Include(p => p.Brand)
             .Include(p => p.ProductDetails)
                 .ThenInclude(pd => pd!.Images)

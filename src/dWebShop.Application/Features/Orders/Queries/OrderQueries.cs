@@ -49,6 +49,7 @@ public class GetPartnerOrdersQueryHandler(IAppDbContext db)
     public async Task<(List<OrderListDto>, int)> Handle(GetPartnerOrdersQuery request, CancellationToken ct)
     {
         var query = db.Orders
+            .AsNoTracking()
             .Where(o => o.PartnerId == request.PartnerId)
             .OrderByDescending(o => o.Created);
 
@@ -80,6 +81,7 @@ public class GetOrderByGuidQueryHandler(IAppDbContext db)
     public async Task<OrderDetailDto?> Handle(GetOrderByGuidQuery request, CancellationToken ct)
     {
         var query = db.Orders
+            .AsNoTracking()
             .Include(o => o.Partner)
             .Include(o => o.DeliveryAddress)
             .Include(o => o.Items!)
@@ -150,6 +152,7 @@ public class GetAllOrdersQueryHandler(IAppDbContext db)
     public async Task<(List<AdminOrderListDto>, int)> Handle(GetAllOrdersQuery request, CancellationToken ct)
     {
         var query = db.Orders
+            .AsNoTracking()
             .Include(o => o.Partner)
             .AsQueryable();
 

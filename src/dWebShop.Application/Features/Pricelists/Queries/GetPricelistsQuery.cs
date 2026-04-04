@@ -15,6 +15,7 @@ public class GetPricelistsQueryHandler(IAppDbContext db) : IRequestHandler<GetPr
 {
     public async Task<List<PricelistSummaryDto>> Handle(GetPricelistsQuery request, CancellationToken ct) =>
         await db.Pricelists
+            .AsNoTracking()
             .OrderBy(p => p.Name)
             .Select(p => new PricelistSummaryDto(
                 p.Id, p.Name, p.Description, p.IsActive,
@@ -30,6 +31,7 @@ public class GetPricelistByIdQueryHandler(IAppDbContext db) : IRequestHandler<Ge
     public async Task<PricelistDto?> Handle(GetPricelistByIdQuery request, CancellationToken ct)
     {
         var pl = await db.Pricelists
+            .AsNoTracking()
             .Include(p => p.Items!)
                 .ThenInclude(i => i.ProductSku)
             .Include(p => p.ClientPricelists!)

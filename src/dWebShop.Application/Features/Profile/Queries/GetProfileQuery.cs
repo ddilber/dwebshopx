@@ -27,6 +27,7 @@ public class GetProfileQueryHandler(IAppDbContext db) : IRequestHandler<GetProfi
     public async Task<ProfileDto?> Handle(GetProfileQuery request, CancellationToken ct)
     {
         var partner = await db.Partners
+            .AsNoTracking()
             .Include(p => p.DeliveryAddresses)
             .FirstOrDefaultAsync(p => p.Id == request.PartnerId, ct);
 

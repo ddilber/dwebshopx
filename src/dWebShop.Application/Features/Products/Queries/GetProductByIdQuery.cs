@@ -25,6 +25,7 @@ public class GetProductByIdQueryHandler(IAppDbContext db) : IRequestHandler<GetP
     public async Task<ProductDetailDto?> Handle(GetProductByIdQuery request, CancellationToken ct)
     {
         var p = await db.Products
+            .AsNoTracking()
             .Include(x => x.Brand)
             .Include(x => x.ProductDetails)
                 .ThenInclude(pd => pd!.Images)

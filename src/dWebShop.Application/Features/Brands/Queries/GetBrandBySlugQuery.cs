@@ -17,6 +17,7 @@ public class GetBrandBySlugQueryHandler(IAppDbContext db) : IRequestHandler<GetB
     public async Task<BrandWithCategoriesDto?> Handle(GetBrandBySlugQuery request, CancellationToken ct)
     {
         var brand = await db.Brands
+            .AsNoTracking()
             .Include(b => b.Categories)
             .FirstOrDefaultAsync(b => b.Slug == request.Slug, ct);
 

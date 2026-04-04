@@ -2,6 +2,7 @@ using dWebShop.Application.Common.Interfaces;
 using dWebShop.Domain.Entities.Products;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace dWebShop.Application.Features.Categories.Commands;
 
@@ -16,7 +17,7 @@ public class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryCo
     }
 }
 
-public class CreateCategoryCommandHandler(IAppDbContext db) : IRequestHandler<CreateCategoryCommand, int>
+public class CreateCategoryCommandHandler(IAppDbContext db, IMemoryCache cache) : IRequestHandler<CreateCategoryCommand, int>
 {
     public async Task<int> Handle(CreateCategoryCommand request, CancellationToken ct)
     {
@@ -30,6 +31,8 @@ public class CreateCategoryCommandHandler(IAppDbContext db) : IRequestHandler<Cr
         };
         db.Categories.Add(category);
         await db.SaveChangesAsync(ct);
+        cache.Remove("categories:all");
+        if (request.BrandId.HasValue) cache.Remove($"categories:{request.BrandId}");
         return category.Id;
     }
 }

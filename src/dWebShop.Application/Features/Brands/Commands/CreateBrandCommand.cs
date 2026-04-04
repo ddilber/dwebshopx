@@ -2,6 +2,7 @@ using dWebShop.Application.Common.Interfaces;
 using dWebShop.Domain.Entities.Products;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace dWebShop.Application.Features.Brands.Commands;
 
@@ -16,7 +17,7 @@ public class CreateBrandCommandValidator : AbstractValidator<CreateBrandCommand>
     }
 }
 
-public class CreateBrandCommandHandler(IAppDbContext db) : IRequestHandler<CreateBrandCommand, int>
+public class CreateBrandCommandHandler(IAppDbContext db, IMemoryCache cache) : IRequestHandler<CreateBrandCommand, int>
 {
     public async Task<int> Handle(CreateBrandCommand request, CancellationToken ct)
     {
@@ -30,6 +31,7 @@ public class CreateBrandCommandHandler(IAppDbContext db) : IRequestHandler<Creat
         };
         db.Brands.Add(brand);
         await db.SaveChangesAsync(ct);
+        cache.Remove("brands:all");
         return brand.Id;
     }
 }

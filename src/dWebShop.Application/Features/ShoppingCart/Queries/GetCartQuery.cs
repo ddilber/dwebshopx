@@ -22,6 +22,7 @@ public class GetCartQueryHandler(IAppDbContext db) : IRequestHandler<GetCartQuer
 {
     public async Task<List<CartItemDto>> Handle(GetCartQuery request, CancellationToken ct) =>
         await db.ShoppingCartItems
+            .AsNoTracking()
             .Where(x => x.UserId == request.UserId)
             .OrderBy(x => x.Name)
             .Select(x => new CartItemDto(

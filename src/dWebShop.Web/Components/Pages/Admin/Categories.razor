@@ -53,6 +53,9 @@ else
                 <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="@(() => DeleteAsync(context))" />
             </MudTd>
         </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{20,50,100}" />
+        </PagerContent>
     </MudTable>
 }
 

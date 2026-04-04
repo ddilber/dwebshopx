@@ -18,6 +18,7 @@ public class GetProductSkusQueryHandler(IAppDbContext db) : IRequestHandler<GetP
     public async Task<GetProductSkusResult> Handle(GetProductSkusQuery request, CancellationToken ct)
     {
         var skus = await db.ProductSkus
+            .AsNoTracking()
             .Include(s => s.SkuOptionValues!)
                 .ThenInclude(sov => sov.ProductOption)
             .Include(s => s.SkuOptionValues!)
@@ -27,6 +28,7 @@ public class GetProductSkusQueryHandler(IAppDbContext db) : IRequestHandler<GetP
             .ToListAsync(ct);
 
         var options = await db.ProductOptions
+            .AsNoTracking()
             .Include(o => o.ProductOptionValues)
             .Where(o => o.ProductId == request.ProductId)
             .OrderBy(o => o.Name)
@@ -55,6 +57,7 @@ public class GetAllSkusQueryHandler(IAppDbContext db) : IRequestHandler<GetAllSk
 {
     public async Task<List<ProductSkuDto>> Handle(GetAllSkusQuery request, CancellationToken ct) =>
         await db.ProductSkus
+            .AsNoTracking()
             .OrderBy(s => s.SKU)
             .Select(s => new ProductSkuDto(s.Id, s.SKU, s.ExtRef, s.Name, s.Price, s.Tax, s.ImagePath, new List<SkuOptionValueDto>()))
             .ToListAsync(ct);

@@ -1,0 +1,47 @@
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change_me_in_production}
+      MYSQL_DATABASE: dWebShopX
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-change_me_in_production}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=dWebShopX;User=root;Password=${MYSQL_ROOT_PASSWORD:-change_me_in_production};
+      - Email__Host=${EMAIL_HOST:-localhost}
+      - Email__Port=${EMAIL_PORT:-25}
+      - Email__Username=${EMAIL_USERNAME:-}
+      - Email__Password=${EMAIL_PASSWORD:-}
+      - Email__SenderEmail=${EMAIL_SENDER:-noreply@dwebshop.local}
+      - Email__SenderName=${EMAIL_SENDER_NAME:-dWebShop}
+      - Seed__AdminEmail=${ADMIN_EMAIL:-admin@dwebshop.local}
+      - Seed__AdminUserName=${ADMIN_USERNAME:-admin}
+      - Seed__AdminPassword=${ADMIN_PASSWORD:-Admin@12345!}
+    volumes:
+      - product_images:/app/wwwroot/product_images
+      - product_docs:/app/wwwroot/product_docs
+      - app_logs:/app/logs
+
+volumes:
+  mysql_data:
+  product_images:
+  product_docs:
+  app_logs:

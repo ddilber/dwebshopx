@@ -14,6 +14,7 @@ public class GetPartnersQueryHandler(IAppDbContext db) : IRequestHandler<GetPart
 {
     public async Task<List<PartnerDto>> Handle(GetPartnersQuery request, CancellationToken ct) =>
         await db.Partners
+            .AsNoTracking()
             .OrderBy(p => p.CompanyName).ThenBy(p => p.LastName)
             .Select(p => new PartnerDto(
                 p.Id,
@@ -28,6 +29,7 @@ public class GetClientDiscountsQueryHandler(IAppDbContext db) : IRequestHandler<
 {
     public async Task<List<ClientDiscountInfoDto>> Handle(GetClientDiscountsQuery request, CancellationToken ct) =>
         await db.ClientDiscounts
+            .AsNoTracking()
             .OrderBy(d => d.PartnerId)
             .Select(d => new ClientDiscountInfoDto(d.Id, d.PartnerId, d.DiscountPercent, d.Description, d.ValidFrom, d.ValidTo))
             .ToListAsync(ct);

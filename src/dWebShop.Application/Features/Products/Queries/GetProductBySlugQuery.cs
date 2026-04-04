@@ -11,6 +11,7 @@ public class GetProductBySlugQueryHandler(IAppDbContext db) : IRequestHandler<Ge
     public async Task<ProductDetailDto?> Handle(GetProductBySlugQuery request, CancellationToken ct)
     {
         var p = await db.Products
+            .AsNoTracking()
             .Include(x => x.Brand)
             .Include(x => x.ProductDetails)
                 .ThenInclude(pd => pd!.Images)

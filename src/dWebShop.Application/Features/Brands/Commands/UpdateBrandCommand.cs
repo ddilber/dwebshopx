@@ -2,6 +2,7 @@ using dWebShop.Application.Common.Interfaces;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace dWebShop.Application.Features.Brands.Commands;
 
@@ -16,7 +17,7 @@ public class UpdateBrandCommandValidator : AbstractValidator<UpdateBrandCommand>
     }
 }
 
-public class UpdateBrandCommandHandler(IAppDbContext db) : IRequestHandler<UpdateBrandCommand>
+public class UpdateBrandCommandHandler(IAppDbContext db, IMemoryCache cache) : IRequestHandler<UpdateBrandCommand>
 {
     public async Task Handle(UpdateBrandCommand request, CancellationToken ct)
     {
@@ -28,5 +29,6 @@ public class UpdateBrandCommandHandler(IAppDbContext db) : IRequestHandler<Updat
         if (!string.IsNullOrWhiteSpace(request.LogoImage)) brand.LogoImage = request.LogoImage;
         if (!string.IsNullOrWhiteSpace(request.SliderImage)) brand.SliderImage = request.SliderImage;
         await db.SaveChangesAsync(ct);
+        cache.Remove("brands:all");
     }
 }

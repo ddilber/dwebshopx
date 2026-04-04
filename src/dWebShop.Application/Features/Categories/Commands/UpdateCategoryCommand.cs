@@ -2,6 +2,7 @@ using dWebShop.Application.Common.Interfaces;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace dWebShop.Application.Features.Categories.Commands;
 
@@ -16,17 +17,21 @@ public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryCo
     }
 }
 
-public class UpdateCategoryCommandHandler(IAppDbContext db) : IRequestHandler<UpdateCategoryCommand>
+public class UpdateCategoryCommandHandler(IAppDbContext db, IMemoryCache cache) : IRequestHandler<UpdateCategoryCommand>
 {
     public async Task Handle(UpdateCategoryCommand request, CancellationToken ct)
     {
         var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == request.Id, ct)
             ?? throw new KeyNotFoundException($"Category {request.Id} not found.");
+        var oldBrandId = category.BrandId;
         category.Name = request.Name;
         category.Slug = request.Slug;
         category.Description = request.Description;
         category.CategoryId = request.ParentCategoryId;
         category.BrandId = request.BrandId;
         await db.SaveChangesAsync(ct);
+        cache.Remove("categories:all");
+        if (oldBrandId.HasValue) cache.Remove($"categories:{oldBrandId}");
+        if (request.BrandId.HasValue) cache.Remove($"categories:{request.BrandId}");
     }
 }
