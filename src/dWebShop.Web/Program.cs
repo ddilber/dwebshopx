@@ -20,6 +20,7 @@ Log.Logger = new LoggerConfiguration()
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog();
+builder.WebHost.UseStaticWebAssets();
 
 // Add services to the container.
 builder.Services.AddMemoryCache();
