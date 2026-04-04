@@ -8,6 +8,10 @@ public class Order : BaseAuditableEntity
     public int PartnerId { get; set; }
     public Guid Guid { get; set; }
     public Partner? Partner { get; set; }
+    public OrderStatus Status { get; set; } = OrderStatus.Pending;
+    public int? DeliveryAddressId { get; set; }
+    public Address? DeliveryAddress { get; set; }
+    public string? Notes { get; set; }
     public DateTime Created { get; set; }
     public DateTime Accepted { get; set; }
     public DateTime Delivered { get; set; }

@@ -208,9 +208,14 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>
                 .WithMany()
                 .HasForeignKey(x => x.PartnerId)
                 .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.DeliveryAddress)
+                .WithMany()
+                .HasForeignKey(x => x.DeliveryAddressId)
+                .OnDelete(DeleteBehavior.SetNull);
             e.HasMany(x => x.Items)
                 .WithOne()
                 .OnDelete(DeleteBehavior.Cascade);
+            e.Property(x => x.Status).HasConversion<int>();
         });
 
         builder.Entity<OrderItem>(e =>

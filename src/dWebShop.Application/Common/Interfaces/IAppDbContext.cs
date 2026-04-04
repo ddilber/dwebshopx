@@ -1,3 +1,4 @@
+using dWebShop.Domain.Entities.Orders;
 using dWebShop.Domain.Entities.Partners;
 using dWebShop.Domain.Entities.Pricing;
 using dWebShop.Domain.Entities.Products;
@@ -22,6 +23,10 @@ public interface IAppDbContext
     DbSet<SkuOptionValue> SkuOptionValues { get; }
 
     DbSet<Partner> Partners { get; }
+    DbSet<Address> Addresses { get; }
+
+    DbSet<Order> Orders { get; }
+    DbSet<OrderItem> OrderItems { get; }
 
     DbSet<Pricelist> Pricelists { get; }
     DbSet<PricelistItem> PricelistItems { get; }

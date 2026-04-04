@@ -1,8 +1,131 @@
 @page "/admin/orders"
 @attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
 @layout AdminLayout
+@rendermode InteractiveServer
+@using dWebShop.Application.Features.Orders.Commands
+@using dWebShop.Application.Features.Orders.Queries
+@using dWebShop.Domain.Entities.Orders
+@inject IMediator Mediator
+@inject NavigationManager Nav
 
 <PageTitle>Orders — Admin</PageTitle>
 
-<h1>Orders</h1>
-<p>View and manage all customer orders.</p>
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4">
+    <MudText Typo="Typo.h5">Orders</MudText>
+    <MudSpacer />
+    <MudTextField @bind-Value="_search"
+                  Placeholder="Search by client name/email..."
+                  Adornment="Adornment.Start"
+                  AdornmentIcon="@Icons.Material.Filled.Search"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense"
+                  Style="width:300px;"
+                  DebounceInterval="300"
+                  OnDebounceIntervalElapsed="SearchChanged" />
+</MudStack>
+
+<LoadingSpinner Visible="_loading" />
+
+@if (!_loading)
+{
+    @if (_orders.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info">No orders found.</MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_orders" Dense="true" Outlined="true" Striped="true" Hover="true">
+            <HeaderContent>
+                <MudTh>Order Ref</MudTh>
+                <MudTh>Client</MudTh>
+                <MudTh>Date</MudTh>
+                <MudTh Style="text-align:center">Items</MudTh>
+                <MudTh Style="text-align:right">Total</MudTh>
+                <MudTh Style="text-align:center">Status</MudTh>
+                <MudTh>Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    <MudText Typo="Typo.body2" Style="font-family:monospace">#@context.Guid.ToString()[..8].ToUpper()</MudText>
+                </MudTd>
+                <MudTd>
+                    <strong>@context.PartnerName</strong><br />
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@context.PartnerEmail</MudText>
+                </MudTd>
+                <MudTd>@context.Created.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</MudTd>
+                <MudTd Style="text-align:center">@context.ItemCount</MudTd>
+                <MudTd Style="text-align:right"><PriceDisplay Price="context.Total" PriceTypo="Typo.body2" /></MudTd>
+                <MudTd Style="text-align:center">
+                    <MudChip T="string" Color="@StatusColor(context.Status)" Size="Size.Small">@context.Status</MudChip>
+                </MudTd>
+                <MudTd>
+                    <MudStack Row="true" Spacing="1">
+                        <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small"
+                                   Href="@($"/admin/orders/{context.Guid}")">View</MudButton>
+                        <MudSelect T="OrderStatus"
+                                   Value="context.Status"
+                                   ValueChanged="@(s => UpdateStatus(context.Id, s))"
+                                   Dense="true"
+                                   Variant="Variant.Outlined"
+                                   Margin="Margin.Dense"
+                                   Style="width:130px;">
+                            @foreach (var s in Enum.GetValues<OrderStatus>())
+                            {
+                                <MudSelectItem T="OrderStatus" Value="@s">@s</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudStack>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+
+        @if (_totalPages > 1)
+        {
+            <MudPagination Count="_totalPages" @bind-Selected="_page" Class="mt-4" OnChange="LoadOrders" />
+        }
+    }
+}
+
+@code {
+    private List<AdminOrderListDto> _orders = [];
+    private bool _loading = true;
+    private string _search = string.Empty;
+    private int _page = 1;
+    private int _totalPages = 1;
+    private const int PageSize = 20;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+        _loading = false;
+    }
+
+    private async Task LoadOrders()
+    {
+        var (items, total) = await Mediator.Send(new GetAllOrdersQuery(_page, PageSize, _search));
+        _orders = items;
+        _totalPages = (int)Math.Ceiling(total / (double)PageSize);
+    }
+
+    private async Task SearchChanged()
+    {
+        _page = 1;
+        await LoadOrders();
+    }
+
+    private async Task UpdateStatus(int orderId, OrderStatus newStatus)
+    {
+        await Mediator.Send(new UpdateOrderStatusCommand(orderId, newStatus));
+        await LoadOrders();
+    }
+
+    private static Color StatusColor(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => Color.Default,
+        OrderStatus.Confirmed => Color.Info,
+        OrderStatus.Shipped => Color.Primary,
+        OrderStatus.Delivered => Color.Success,
+        OrderStatus.Cancelled => Color.Error,
+        _ => Color.Default
+    };
+}
