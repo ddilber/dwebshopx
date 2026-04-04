@@ -1,6 +1,7 @@
 using dWebShop.Domain.Entities.Partners;
 using dWebShop.Domain.Entities.Pricing;
 using dWebShop.Domain.Entities.Products;
+using dWebShop.Domain.Entities.ShoppingCart;
 using Microsoft.EntityFrameworkCore;
 
 namespace dWebShop.Application.Common.Interfaces;
@@ -26,6 +27,8 @@ public interface IAppDbContext
     DbSet<PricelistItem> PricelistItems { get; }
     DbSet<ClientPricelist> ClientPricelists { get; }
     DbSet<ClientDiscount> ClientDiscounts { get; }
+
+    DbSet<ShoppingCartItem> ShoppingCartItems { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

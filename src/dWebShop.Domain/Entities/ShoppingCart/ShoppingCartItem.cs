@@ -5,6 +5,7 @@ namespace dWebShop.Domain.Entities.ShoppingCart;
 
 public class ShoppingCartItem : BaseAuditableEntity
 {
+    public int UserId { get; set; }
     public int ProductId { get; set; }
     public string ProductSlug { get; set; } = string.Empty;
     public int SkuId { get; set; }

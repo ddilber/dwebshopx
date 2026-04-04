@@ -299,6 +299,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>
         builder.Entity<ShoppingCartItem>(e =>
         {
             e.ToTable("ShoppingCartItems");
+            e.HasOne<ApplicationUser>()
+                .WithMany()
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
             e.Property(x => x.Price).HasPrecision(18, 4);
             e.Property(x => x.Tax).HasPrecision(18, 4);
             e.Property(x => x.Discount).HasPrecision(18, 4);

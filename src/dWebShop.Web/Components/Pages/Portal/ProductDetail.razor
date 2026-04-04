@@ -4,6 +4,7 @@
 @rendermode InteractiveServer
 @using dWebShop.Application.Features.Products.Queries
 @using dWebShop.Application.Features.ProductSkus.Queries
+@using dWebShop.Application.Features.ShoppingCart.Commands
 @using dWebShop.Application.Services
 @using dWebShop.Domain.Entities.Users
 @using Microsoft.AspNetCore.Identity
@@ -12,6 +13,7 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IPricingService PricingService
 @inject NavigationManager Nav
+@inject ISnackbar Snackbar
 
 <PageTitle>@(_product?.Name ?? "Product") — Portal</PageTitle>
 
@@ -104,7 +106,7 @@
                     </div>
                 }
 
-                <!-- SKUs with pricing -->
+                <!-- SKUs with pricing and add-to-cart -->
                 @if (_skuResult?.Skus.Count > 0)
                 {
                     <MudText Typo="Typo.subtitle1" Class="mt-4 mb-2" Style="font-weight:600;">
@@ -117,25 +119,36 @@
                                 <th>SKU</th>
                                 <th>Name</th>
                                 <th>Price</th>
+                                <th style="text-align:center">Qty</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var sku in _skuResult.Skus)
                             {
+                                var resolvedPrice = _resolvedPrices.GetValueOrDefault(sku.Id, sku.Price) ?? sku.Price;
                                 <tr>
                                     <td><MudText Typo="Typo.caption">@sku.SKU</MudText></td>
                                     <td>@sku.Name</td>
                                     <td>
-                                        <PriceDisplay Price="@(_resolvedPrices.GetValueOrDefault(sku.Id, sku.Price))" PriceTypo="Typo.body2" />
+                                        <PriceDisplay Price="resolvedPrice" PriceTypo="Typo.body2" />
+                                    </td>
+                                    <td style="width:90px;">
+                                        <MudNumericField T="decimal"
+                                                         @bind-Value="_quantities[sku.Id]"
+                                                         Min="1"
+                                                         Step="1"
+                                                         HideSpinButtons="false"
+                                                         Style="width:80px;"
+                                                         Disabled="_addingToCart" />
                                     </td>
                                     <td>
                                         <MudButton Variant="Variant.Outlined"
                                                    Color="Color.Primary"
                                                    Size="Size.Small"
                                                    StartIcon="@Icons.Material.Filled.AddShoppingCart"
-                                                   Disabled="true"
-                                                   Title="Available in Phase 3">
+                                                   OnClick="@(() => AddToCart(sku, resolvedPrice))"
+                                                   Disabled="_addingToCart">
                                             Add to Cart
                                         </MudButton>
                                     </td>
@@ -184,9 +197,12 @@
     private ProductDetailDto? _product;
     private GetProductSkusResult? _skuResult;
     private Dictionary<int, decimal?> _resolvedPrices = new();
+    private Dictionary<int, decimal> _quantities = new();
     private bool _loading = true;
     private bool _isApproved;
+    private bool _addingToCart;
     private int? _partnerId;
+    private int _userId;
     private int _selectedImage;
     private List<BreadcrumbItem> _breadcrumbs = [];
 
@@ -202,10 +218,17 @@
             var user = await UserManager.GetUserAsync(authState.User);
             _isApproved = user?.IsApproved ?? false;
             _partnerId = user?.PartnerId;
+            _userId = user?.Id ?? 0;
         }
 
         if (_isApproved)
         {
+            if (authState.User.IsInRole("Admin"))
+            {
+                var adminUser = await UserManager.GetUserAsync(authState.User);
+                _userId = adminUser?.Id ?? 0;
+            }
+
             _product = await Mediator.Send(new GetProductBySlugQuery(Slug));
 
             if (_product is not null)
@@ -216,6 +239,9 @@
                     _resolvedPrices = await PricingService.ResolvePricesAsync(
                         _partnerId,
                         _skuResult.Skus.Select(s => s.Id));
+
+                    foreach (var sku in _skuResult.Skus)
+                        _quantities[sku.Id] = 1;
                 }
             }
         }
@@ -228,5 +254,28 @@
         ];
 
         _loading = false;
+    }
+
+    private async Task AddToCart(ProductSkuDto sku, decimal resolvedPrice)
+    {
+        if (_userId == 0 || _product is null) return;
+
+        _addingToCart = true;
+        var qty = _quantities.GetValueOrDefault(sku.Id, 1);
+
+        await Mediator.Send(new AddToCartCommand(
+            UserId: _userId,
+            ProductId: _product.Id,
+            ProductSlug: _product.Slug,
+            SkuId: sku.Id,
+            SKU: sku.SKU,
+            Name: sku.Name,
+            Quantity: qty,
+            Price: resolvedPrice,
+            Tax: sku.Tax,
+            ImagePath: sku.ImagePath ?? (_product.Images.Count > 0 ? _product.Images[0].Path : null)));
+
+        Snackbar.Add($"{sku.Name} added to cart", Severity.Success);
+        _addingToCart = false;
     }
 }
