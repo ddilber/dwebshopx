@@ -1,0 +1,41 @@
+@using dWebShop.Application.Features.Brands.Queries
+
+<MudList T="CategorySummaryDto" Dense="true">
+    @foreach (var root in RootCategories)
+    {
+        <MudListItem T="CategorySummaryDto" Value="root" Icon="@Icons.Material.Filled.Category">
+            <MudLink Href="@GetCategoryUrl(root)" Underline="Underline.None">
+                <MudText Typo="Typo.body1" Style="font-weight:600;">@root.Name</MudText>
+            </MudLink>
+            @if (!string.IsNullOrWhiteSpace(root.Description))
+            {
+                <MudText Typo="Typo.caption" Class="mud-text-secondary ml-4">@root.Description</MudText>
+            }
+            @{
+                var children = AllCategories.Where(c => c.ParentCategoryId == root.Id).ToList();
+            }
+            @if (children.Any())
+            {
+                <MudList T="CategorySummaryDto" Dense="true" Class="ml-4">
+                    @foreach (var child in children)
+                    {
+                        <MudListItem T="CategorySummaryDto" Value="child" Icon="@Icons.Material.Filled.ChevronRight">
+                            <MudLink Href="@GetCategoryUrl(child)" Underline="Underline.None">@child.Name</MudLink>
+                        </MudListItem>
+                    }
+                </MudList>
+            }
+        </MudListItem>
+    }
+</MudList>
+
+@code {
+    [Parameter, EditorRequired] public List<CategorySummaryDto> AllCategories { get; set; } = [];
+    [Parameter, EditorRequired] public string BrandSlug { get; set; } = string.Empty;
+
+    private IEnumerable<CategorySummaryDto> RootCategories =>
+        AllCategories.Where(c => c.ParentCategoryId == null);
+
+    private string GetCategoryUrl(CategorySummaryDto cat) =>
+        $"/brands/{BrandSlug}/categories/{cat.Slug}";
+}

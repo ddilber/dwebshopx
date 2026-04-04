@@ -1,0 +1,161 @@
+@page "/contact"
+@layout MainLayout
+@rendermode InteractiveServer
+@using dWebShop.Application.Services
+@inject IEmailService EmailService
+@inject IConfiguration Configuration
+
+<PageTitle>Contact — dWebShop</PageTitle>
+<HeadContent>
+    <meta name="description" content="Get in touch with ASGifiks d.o.o. for product inquiries and technical support." />
+</HeadContent>
+
+<MudGrid Spacing="4">
+    <!-- Contact form -->
+    <MudItem xs="12" md="7">
+        <MudText Typo="Typo.h4" Class="mb-1" Style="font-weight:700;">Contact Us</MudText>
+        <MudText Typo="Typo.body1" Class="mud-text-secondary mb-6">
+            Send us a message and we'll get back to you as soon as possible.
+        </MudText>
+
+        @if (_sent)
+        {
+            <MudAlert Severity="Severity.Success" Icon="@Icons.Material.Filled.CheckCircle">
+                <strong>Message sent!</strong> Thank you for contacting us. We'll be in touch shortly.
+            </MudAlert>
+        }
+        else
+        {
+            <MudTextField @bind-Value="_form.Name"
+                          Label="Your Name *"
+                          Variant="Variant.Outlined"
+                          Class="mb-3"
+                          Required="true"
+                          Error="@(_submitted && string.IsNullOrWhiteSpace(_form.Name))"
+                          ErrorText="Name is required." />
+
+            <MudTextField @bind-Value="_form.Email"
+                          Label="Email Address *"
+                          Variant="Variant.Outlined"
+                          InputType="InputType.Email"
+                          Class="mb-3"
+                          Required="true"
+                          Error="@(_submitted && string.IsNullOrWhiteSpace(_form.Email))"
+                          ErrorText="Valid email is required." />
+
+            <MudTextField @bind-Value="_form.Phone"
+                          Label="Phone"
+                          Variant="Variant.Outlined"
+                          InputType="InputType.Telephone"
+                          Class="mb-3" />
+
+            <MudTextField @bind-Value="_form.Message"
+                          Label="Message *"
+                          Variant="Variant.Outlined"
+                          Lines="5"
+                          Class="mb-4"
+                          Required="true"
+                          Error="@(_submitted && string.IsNullOrWhiteSpace(_form.Message))"
+                          ErrorText="Message is required." />
+
+            @if (!string.IsNullOrWhiteSpace(_errorMsg))
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_errorMsg</MudAlert>
+            }
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       OnClick="SubmitAsync"
+                       Disabled="_sending"
+                       StartIcon="@Icons.Material.Filled.Send">
+                @(_sending ? "Sending…" : "Send Message")
+            </MudButton>
+        }
+    </MudItem>
+
+    <!-- Contact info -->
+    <MudItem xs="12" md="5">
+        <MudPaper Outlined="true" Class="pa-5 rounded-lg">
+            <MudText Typo="Typo.h6" Class="mb-4" Style="font-weight:700;">Our Contact Details</MudText>
+
+            <div class="d-flex align-start gap-3 mb-4">
+                <MudIcon Icon="@Icons.Material.Filled.LocationOn" Color="Color.Primary" Class="mt-1" />
+                <div>
+                    <MudText Typo="Typo.subtitle2" Style="font-weight:600;">Address</MudText>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                        Zaobilaznica bb<br />
+                        80240 Tomislavgrad<br />
+                        Bosnia and Herzegovina
+                    </MudText>
+                </div>
+            </div>
+
+            <div class="d-flex align-start gap-3 mb-4">
+                <MudIcon Icon="@Icons.Material.Filled.Phone" Color="Color.Primary" Class="mt-1" />
+                <div>
+                    <MudText Typo="Typo.subtitle2" Style="font-weight:600;">Phone</MudText>
+                    <MudLink Href="tel:+38734000000" Typo="Typo.body2">+387 34 000 000</MudLink>
+                </div>
+            </div>
+
+            <div class="d-flex align-start gap-3 mb-4">
+                <MudIcon Icon="@Icons.Material.Filled.Email" Color="Color.Primary" Class="mt-1" />
+                <div>
+                    <MudText Typo="Typo.subtitle2" Style="font-weight:600;">Email</MudText>
+                    <MudLink Href="mailto:info@asgifiks.ba" Typo="Typo.body2">info@asgifiks.ba</MudLink>
+                </div>
+            </div>
+
+            <MudDivider Class="my-4" />
+
+            <MudText Typo="Typo.subtitle2" Class="mb-2" Style="font-weight:600;">Working Hours</MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">Monday – Friday: 08:00 – 16:00</MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">Saturday: 08:00 – 13:00</MudText>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private ContactFormModel _form = new();
+    private bool _sending;
+    private bool _sent;
+    private bool _submitted;
+    private string _errorMsg = string.Empty;
+
+    private async Task SubmitAsync()
+    {
+        _submitted = true;
+        _errorMsg = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(_form.Name) ||
+            string.IsNullOrWhiteSpace(_form.Email) ||
+            string.IsNullOrWhiteSpace(_form.Message))
+            return;
+
+        _sending = true;
+        try
+        {
+            var adminEmail = Configuration["Seed:AdminEmail"] ?? "admin@dwebshop.local";
+            await EmailService.SendContactFormAsync(
+                adminEmail, _form.Name, _form.Email, _form.Phone, _form.Message);
+            _sent = true;
+        }
+        catch
+        {
+            _errorMsg = "Failed to send message. Please try again later or contact us directly.";
+        }
+        finally
+        {
+            _sending = false;
+        }
+    }
+
+    private class ContactFormModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+    }
+}

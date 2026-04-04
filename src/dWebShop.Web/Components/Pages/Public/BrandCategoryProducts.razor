@@ -1,0 +1,139 @@
+@page "/brands/{BrandSlug}/categories/{CategorySlug}"
+@layout PublicLayout
+@rendermode InteractiveServer
+@using dWebShop.Application.Features.Brands.Queries
+@using dWebShop.Application.Features.Categories.Queries
+@using dWebShop.Application.Features.Products.Queries
+@inject IMediator Mediator
+@inject NavigationManager Nav
+
+<PageTitle>@(_category?.Name ?? "Products") — dWebShop</PageTitle>
+<HeadContent>
+    <meta name="description" content="Browse @(_category?.Name ?? "products") from @(_brand?.Name ?? BrandSlug)." />
+</HeadContent>
+
+<LoadingSpinner Visible="_loading" />
+
+@if (!_loading)
+{
+    @if (_category is null || _brand is null)
+    {
+        <MudAlert Severity="Severity.Warning">Category not found.</MudAlert>
+        <MudButton Href="/brands" StartIcon="@Icons.Material.Filled.ArrowBack" Class="mt-4">Back to Brands</MudButton>
+    }
+    else
+    {
+        <!-- Breadcrumbs -->
+        <MudBreadcrumbs Items="_breadcrumbs" Class="px-0 mb-4" />
+
+        <!-- Header -->
+        <MudGrid Spacing="3" Class="mb-4">
+            <MudItem xs="12" sm="8">
+                <MudText Typo="Typo.h4" Style="font-weight:700;">@_category.Name</MudText>
+                @if (!string.IsNullOrWhiteSpace(_category.Description))
+                {
+                    <MudText Typo="Typo.body1" Class="mud-text-secondary mt-1">@_category.Description</MudText>
+                }
+                <MudText Typo="Typo.caption" Class="mud-text-secondary mt-1">
+                    Brand: @_brand.Name
+                </MudText>
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <SearchBar Value="@_search"
+                           OnSearch="OnSearchChanged"
+                           Label="Search products"
+                           Placeholder="Name or SKU…" />
+            </MudItem>
+        </MudGrid>
+
+        <!-- Results -->
+        <LoadingSpinner Visible="_searchLoading" />
+
+        @if (!_searchLoading)
+        {
+            @if (_products?.Items.Count == 0)
+            {
+                <MudAlert Severity="Severity.Info">No products found in this category.</MudAlert>
+            }
+            else
+            {
+                <MudGrid Spacing="3">
+                    @foreach (var product in _products?.Items ?? [])
+                    {
+                        <MudItem xs="12" sm="6" md="4" lg="3">
+                            <ProductCard Product="product" />
+                        </MudItem>
+                    }
+                </MudGrid>
+
+                <PaginatedList CurrentPage="_page"
+                               TotalCount="_products.TotalCount"
+                               PageSize="20"
+                               OnPageChange="OnPageChanged" />
+            }
+        }
+    }
+}
+
+@code {
+    [Parameter] public string BrandSlug { get; set; } = string.Empty;
+    [Parameter] public string CategorySlug { get; set; } = string.Empty;
+
+    private BrandWithCategoriesDto? _brand;
+    private CategoryDto? _category;
+    private PagedResult<ProductListItemDto>? _products;
+    private bool _loading = true;
+    private bool _searchLoading;
+    private string _search = string.Empty;
+    private int _page = 1;
+    private List<BreadcrumbItem> _breadcrumbs = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _brand = await Mediator.Send(new GetBrandBySlugQuery(BrandSlug));
+
+        if (_brand is not null)
+        {
+            var categories = await Mediator.Send(new GetCategoriesQuery(_brand.Id));
+            _category = categories.FirstOrDefault(c => c.Slug == CategorySlug);
+        }
+
+        _breadcrumbs =
+        [
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Brands", href: "/brands"),
+            new BreadcrumbItem(_brand?.Name ?? BrandSlug, href: $"/brands/{BrandSlug}"),
+            new BreadcrumbItem(_category?.Name ?? CategorySlug, href: null, disabled: true)
+        ];
+
+        if (_category is not null)
+            await LoadProductsAsync();
+
+        _loading = false;
+    }
+
+    private async Task LoadProductsAsync()
+    {
+        _products = await Mediator.Send(
+            new GetProductsQuery(_page, 20, _brand?.Id, _category?.Id, _search));
+    }
+
+    private async Task OnSearchChanged(string search)
+    {
+        _search = search;
+        _page = 1;
+        _searchLoading = true;
+        StateHasChanged();
+        await LoadProductsAsync();
+        _searchLoading = false;
+    }
+
+    private async Task OnPageChanged(int page)
+    {
+        _page = page;
+        _searchLoading = true;
+        StateHasChanged();
+        await LoadProductsAsync();
+        _searchLoading = false;
+    }
+}

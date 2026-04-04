@@ -1,0 +1,48 @@
+@if (TotalPages > 1)
+{
+    <div class="d-flex justify-center align-center gap-2 mt-4">
+        <MudIconButton Icon="@Icons.Material.Filled.FirstPage"
+                       Disabled="@(CurrentPage <= 1)"
+                       OnClick="@(() => OnPageChange.InvokeAsync(1))"
+                       Size="Size.Small" />
+        <MudIconButton Icon="@Icons.Material.Filled.ChevronLeft"
+                       Disabled="@(CurrentPage <= 1)"
+                       OnClick="@(() => OnPageChange.InvokeAsync(CurrentPage - 1))"
+                       Size="Size.Small" />
+
+        @for (int idx = StartPage; idx <= EndPage; idx++)
+        {
+            var pg = idx;
+            <MudButton Variant="@(pg == CurrentPage ? Variant.Filled : Variant.Outlined)"
+                       Color="Color.Primary"
+                       Size="Size.Small"
+                       OnClick="@(() => OnPageChange.InvokeAsync(pg))">
+                @pg
+            </MudButton>
+        }
+
+        <MudIconButton Icon="@Icons.Material.Filled.ChevronRight"
+                       Disabled="@(CurrentPage >= TotalPages)"
+                       OnClick="@(() => OnPageChange.InvokeAsync(CurrentPage + 1))"
+                       Size="Size.Small" />
+        <MudIconButton Icon="@Icons.Material.Filled.LastPage"
+                       Disabled="@(CurrentPage >= TotalPages)"
+                       OnClick="@(() => OnPageChange.InvokeAsync(TotalPages))"
+                       Size="Size.Small" />
+    </div>
+    <MudText Typo="Typo.caption" Class="text-center mud-text-secondary mt-1 d-block">
+        Page @CurrentPage of @TotalPages (@TotalCount items)
+    </MudText>
+}
+
+@code {
+    [Parameter, EditorRequired] public int CurrentPage { get; set; }
+    [Parameter, EditorRequired] public int TotalCount { get; set; }
+    [Parameter] public int PageSize { get; set; } = 20;
+    [Parameter] public EventCallback<int> OnPageChange { get; set; }
+
+    private int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
+
+    private int StartPage => Math.Max(1, CurrentPage - 2);
+    private int EndPage => Math.Min(TotalPages, CurrentPage + 2);
+}

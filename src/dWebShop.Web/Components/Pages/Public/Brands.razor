@@ -1,0 +1,47 @@
+@page "/brands"
+@layout PublicLayout
+@rendermode InteractiveServer
+@using dWebShop.Application.Features.Brands.Queries
+@inject IMediator Mediator
+
+<PageTitle>Brands — dWebShop</PageTitle>
+<HeadContent>
+    <meta name="description" content="Browse all brands available in our catalogue." />
+</HeadContent>
+
+<MudText Typo="Typo.h4" Class="mb-1">Our Brands</MudText>
+<MudText Typo="Typo.body1" Class="mud-text-secondary mb-6">
+    Browse all product brands we carry.
+</MudText>
+
+<LoadingSpinner Visible="_loading" />
+
+@if (!_loading)
+{
+    @if (_brands.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info">No brands available yet.</MudAlert>
+    }
+    else
+    {
+        <MudGrid Spacing="3">
+            @foreach (var brand in _brands)
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    <BrandCard Brand="brand" />
+                </MudItem>
+            }
+        </MudGrid>
+    }
+}
+
+@code {
+    private List<BrandDto> _brands = [];
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _brands = await Mediator.Send(new GetBrandsQuery());
+        _loading = false;
+    }
+}

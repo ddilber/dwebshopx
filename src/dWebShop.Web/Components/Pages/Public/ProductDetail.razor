@@ -1,0 +1,160 @@
+@page "/products/{Slug}"
+@layout PublicLayout
+@rendermode InteractiveServer
+@using dWebShop.Application.Features.Products.Queries
+@inject IMediator Mediator
+@inject NavigationManager Nav
+
+<PageTitle>@(_product?.Name ?? "Product") — dWebShop</PageTitle>
+<HeadContent>
+    <meta name="description" content="@(_product?.Description ?? string.Empty)" />
+</HeadContent>
+
+<LoadingSpinner Visible="_loading" />
+
+@if (!_loading)
+{
+    @if (_product is null)
+    {
+        <MudAlert Severity="Severity.Warning">Product not found.</MudAlert>
+        <MudButton Href="/brands" StartIcon="@Icons.Material.Filled.ArrowBack" Class="mt-4">Back to Brands</MudButton>
+    }
+    else
+    {
+        <!-- Breadcrumbs -->
+        <MudBreadcrumbs Items="_breadcrumbs" Class="px-0 mb-4" />
+
+        <MudGrid Spacing="4">
+            <!-- Left: Images -->
+            <MudItem xs="12" md="5">
+                @if (_product.Images.Count > 0)
+                {
+                    <div style="background:#f5f5f5; border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center; min-height:300px;">
+                        <img src="/product_images/@_product.Images[_selectedImage].Path"
+                             alt="@_product.Name"
+                             style="max-width:100%; max-height:400px; object-fit:contain;" />
+                    </div>
+                    @if (_product.Images.Count > 1)
+                    {
+                        <div class="d-flex gap-2 mt-2 flex-wrap">
+                            @for (int i = 0; i < _product.Images.Count; i++)
+                            {
+                                var idx = i;
+                                <div @onclick="@(() => _selectedImage = idx)"
+                                     style="@($"cursor:pointer; border:2px solid {(idx == _selectedImage ? "var(--mud-palette-primary)" : "transparent")}; border-radius:4px; overflow:hidden;")">
+                                    <img src="/product_images/@_product.Images[idx].Path"
+                                         style="width:64px; height:64px; object-fit:cover;" />
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="d-flex justify-center align-center"
+                         style="background:#f5f5f5; border-radius:8px; min-height:300px;">
+                        <MudIcon Icon="@Icons.Material.Filled.Inventory2"
+                                 Style="font-size:100px;" Color="Color.Secondary" />
+                    </div>
+                }
+            </MudItem>
+
+            <!-- Right: Info -->
+            <MudItem xs="12" md="7">
+                <!-- Brand chip -->
+                @if (!string.IsNullOrWhiteSpace(_product.BrandName))
+                {
+                    <MudLink Href="@($"/brands/{_brandSlug}")" Underline="Underline.None">
+                        <MudChip T="string" Color="Color.Primary" Size="Size.Small" Variant="Variant.Outlined" Class="mb-2">
+                            @_product.BrandName
+                        </MudChip>
+                    </MudLink>
+                }
+
+                <MudText Typo="Typo.h4" Style="font-weight:700;" Class="mb-1">@_product.Name</MudText>
+
+                @if (!string.IsNullOrWhiteSpace(_product.SKU))
+                {
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary mb-2">SKU: @_product.SKU</MudText>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(_product.Description))
+                {
+                    <MudText Typo="Typo.body1" Class="mt-3 mb-4">@_product.Description</MudText>
+                }
+
+                @if (_product.Categories.Count > 0)
+                {
+                    <div class="mb-3">
+                        @foreach (var cat in _product.Categories)
+                        {
+                            <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Filled" Class="mr-1">
+                                @cat.Name
+                            </MudChip>
+                        }
+                    </div>
+                }
+
+                <!-- Specs -->
+                @if (_product.Infos.Count > 0)
+                {
+                    <MudText Typo="Typo.subtitle1" Class="mt-4 mb-2" Style="font-weight:600;">Specifications</MudText>
+                    <MudSimpleTable Dense="true" Outlined="true" Style="max-width:500px;">
+                        <tbody>
+                            @foreach (var info in _product.Infos)
+                            {
+                                <tr>
+                                    <td><strong>@info.Key</strong></td>
+                                    <td>@info.Data</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
+                }
+
+                <!-- Detail description -->
+                @if (!string.IsNullOrWhiteSpace(_product.DetailDescription))
+                {
+                    <MudText Typo="Typo.subtitle1" Class="mt-4 mb-2" Style="font-weight:600;">Details</MudText>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">@_product.DetailDescription</MudText>
+                }
+
+                <!-- Documents -->
+                <div class="mt-4">
+                    <DocumentDownload Documents="_product.Documents" />
+                </div>
+
+                <!-- Contact CTA -->
+                <MudAlert Severity="Severity.Info" Class="mt-6" Icon="@Icons.Material.Filled.Info">
+                    For pricing and availability, please
+                    <MudLink Href="/contact">contact us</MudLink>.
+                </MudAlert>
+            </MudItem>
+        </MudGrid>
+    }
+}
+
+@code {
+    [Parameter] public string Slug { get; set; } = string.Empty;
+
+    private ProductDetailDto? _product;
+    private bool _loading = true;
+    private int _selectedImage;
+    private string _brandSlug = string.Empty;
+    private List<BreadcrumbItem> _breadcrumbs = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _product = await Mediator.Send(new GetProductBySlugQuery(Slug));
+
+        // Try to get brand slug from brand name (we don't have it directly, just redirect to brands)
+        _breadcrumbs =
+        [
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Brands", href: "/brands"),
+            new BreadcrumbItem(_product?.Name ?? Slug, href: null, disabled: true)
+        ];
+
+        _loading = false;
+    }
+}
