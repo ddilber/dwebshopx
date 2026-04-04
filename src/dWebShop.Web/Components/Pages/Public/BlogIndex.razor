@@ -1,0 +1,173 @@
+@page "/blog"
+@layout PublicLayout
+@rendermode InteractiveServer
+@using dWebShop.Application.Features.Blog.Queries
+@inject IMediator Mediator
+@inject NavigationManager Nav
+
+<PageTitle>Blog — dWebShop</PageTitle>
+<HeadContent>
+    <meta name="description" content="Read our latest articles, news and updates." />
+</HeadContent>
+
+<MudText Typo="Typo.h4" Class="mb-2" Style="font-weight:700;">Blog</MudText>
+<MudText Typo="Typo.body1" Class="mud-text-secondary mb-6">Latest articles, news and updates.</MudText>
+
+<MudGrid Spacing="4">
+    <!-- Posts -->
+    <MudItem xs="12" md="9">
+        <LoadingSpinner Visible="_loading" />
+
+        @if (!_loading)
+        {
+            @if (_result is null || _result.Items.Count == 0)
+            {
+                <MudAlert Severity="Severity.Info">No posts found.</MudAlert>
+            }
+            else
+            {
+                @foreach (var post in _result.Items)
+                {
+                    <MudCard Outlined="true" Class="mb-4">
+                        <MudCardContent>
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary mb-1">
+                                @post.CreatedDate?.ToString("MMMM d, yyyy")
+                                @if (post.CategoryNames.Count > 0)
+                                {
+                                    <span> &bull; @string.Join(", ", post.CategoryNames)</span>
+                                }
+                            </MudText>
+                            <MudLink Href="@($"/blog/{post.Slug}")" Underline="Underline.None">
+                                <MudText Typo="Typo.h6" Style="font-weight:700;">@post.Title</MudText>
+                            </MudLink>
+                            @if (!string.IsNullOrWhiteSpace(post.Summary))
+                            {
+                                <MudText Typo="Typo.body2" Class="mud-text-secondary mt-1">@post.Summary</MudText>
+                            }
+                            @if (post.TagNames.Count > 0)
+                            {
+                                <MudStack Row="true" Class="mt-2" Spacing="1">
+                                    @foreach (var tag in post.TagNames)
+                                    {
+                                        <MudChip T="string" Size="Size.Small" Color="Color.Default">@tag</MudChip>
+                                    }
+                                </MudStack>
+                            }
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton Variant="Variant.Text" Color="Color.Primary"
+                                       Href="@($"/blog/{post.Slug}")"
+                                       EndIcon="@Icons.Material.Filled.ArrowForward">Read more</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                }
+
+                <!-- Pagination -->
+                @if (_result.TotalCount > _pageSize)
+                {
+                    var totalPages = (int)Math.Ceiling(_result.TotalCount / (double)_pageSize);
+                    <MudStack Row="true" Justify="Justify.Center" Class="mt-4">
+                        <MudButton Disabled="@(_page <= 1)" OnClick="PrevPage"
+                                   StartIcon="@Icons.Material.Filled.ArrowBack">Previous</MudButton>
+                        <MudText Class="mx-4 mt-1">Page @_page of @totalPages</MudText>
+                        <MudButton Disabled="@(_page >= totalPages)" OnClick="NextPage"
+                                   EndIcon="@Icons.Material.Filled.ArrowForward">Next</MudButton>
+                    </MudStack>
+                }
+            }
+        }
+    </MudItem>
+
+    <!-- Sidebar -->
+    <MudItem xs="12" md="3">
+        @if (_categories.Count > 0)
+        {
+            <MudPaper Outlined="true" Class="pa-4 mb-4">
+                <MudText Typo="Typo.subtitle1" Style="font-weight:700;" Class="mb-2">Categories</MudText>
+                <MudList T="PostCategoryDto" Dense="true">
+                    <MudListItem T="PostCategoryDto" OnClick="@(() => FilterByCategoryAsync(null))"
+                                 Icon="@Icons.Material.Filled.List">
+                        <MudText Typo="Typo.body2" Style="@(_categorySlug == null ? "font-weight:700" : "")">All</MudText>
+                    </MudListItem>
+                    @foreach (var cat in _categories)
+                    {
+                        var slug = cat.Slug;
+                        <MudListItem T="PostCategoryDto" OnClick="@(() => FilterByCategoryAsync(slug))"
+                                     Icon="@Icons.Material.Filled.Label">
+                            <MudText Typo="Typo.body2" Style="@(_categorySlug == cat.Slug ? "font-weight:700" : "")">@cat.Name</MudText>
+                        </MudListItem>
+                    }
+                </MudList>
+            </MudPaper>
+        }
+
+        @if (_tags.Count > 0)
+        {
+            <MudPaper Outlined="true" Class="pa-4">
+                <MudText Typo="Typo.subtitle1" Style="font-weight:700;" Class="mb-2">Tags</MudText>
+                <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="1">
+                    @foreach (var tag in _tags)
+                    {
+                        var slug = tag.Slug;
+                        <MudChip T="string" Size="Size.Small"
+                                 Color="@(_tagSlug == tag.Slug ? Color.Primary : Color.Default)"
+                                 OnClick="@(() => FilterByTagAsync(slug))">@tag.Name</MudChip>
+                    }
+                </MudStack>
+            </MudPaper>
+        }
+    </MudItem>
+</MudGrid>
+
+@code {
+    private bool _loading = true;
+    private PagedPostsResult? _result;
+    private List<PostCategoryDto> _categories = [];
+    private List<PostTagDto> _tags = [];
+    private int _page = 1;
+    private const int _pageSize = 10;
+    private string? _categorySlug;
+    private string? _tagSlug;
+
+    protected override async Task OnInitializedAsync()
+    {
+        (_categories, _tags) = (
+            await Mediator.Send(new GetPostCategoriesQuery()),
+            await Mediator.Send(new GetPostTagsQuery()));
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _result = await Mediator.Send(new GetPublishedPostsQuery(_page, _pageSize, _categorySlug, _tagSlug));
+        _loading = false;
+    }
+
+    private async Task FilterByCategoryAsync(string? slug)
+    {
+        _categorySlug = slug;
+        _tagSlug = null;
+        _page = 1;
+        await LoadAsync();
+    }
+
+    private async Task FilterByTagAsync(string slug)
+    {
+        _tagSlug = _tagSlug == slug ? null : slug;
+        _categorySlug = null;
+        _page = 1;
+        await LoadAsync();
+    }
+
+    private async Task PrevPage()
+    {
+        if (_page > 1) { _page--; await LoadAsync(); }
+    }
+
+    private async Task NextPage()
+    {
+        _page++;
+        await LoadAsync();
+    }
+}

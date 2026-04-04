@@ -1,0 +1,124 @@
+@page "/blog/{Slug}"
+@layout PublicLayout
+@rendermode InteractiveServer
+@using dWebShop.Application.Features.Blog.Queries
+@inject IMediator Mediator
+@inject NavigationManager Nav
+
+<PageTitle>@(_post?.Title ?? "Post") — dWebShop</PageTitle>
+@if (_post is not null)
+{
+    <HeadContent>
+        <meta name="description" content="@(!string.IsNullOrWhiteSpace(_post.MetaDescription) ? _post.MetaDescription : _post.Summary)" />
+        @if (!string.IsNullOrWhiteSpace(_post.MetaTitle))
+        {
+            <meta property="og:title" content="@_post.MetaTitle" />
+        }
+    </HeadContent>
+}
+
+<LoadingSpinner Visible="_loading" />
+
+@if (!_loading)
+{
+    @if (_post is null)
+    {
+        <MudAlert Severity="Severity.Warning">Post not found.</MudAlert>
+        <MudButton Href="/blog" StartIcon="@Icons.Material.Filled.ArrowBack" Class="mt-4">Back to Blog</MudButton>
+    }
+    else
+    {
+        <!-- Breadcrumbs -->
+        <MudBreadcrumbs Items="_breadcrumbs" Class="px-0 mb-4" />
+
+        <MudGrid Spacing="4">
+            <!-- Article -->
+            <MudItem xs="12" md="9">
+                <MudText Typo="Typo.h4" Style="font-weight:700;" Class="mb-1">@_post.Title</MudText>
+                <MudText Typo="Typo.caption" Class="mud-text-secondary mb-3">
+                    @_post.CreatedDate?.ToString("MMMM d, yyyy")
+                    @if (_post.Categories.Count > 0)
+                    {
+                        <span> &bull;
+                            @foreach (var cat in _post.Categories)
+                            {
+                                <MudLink Href="@($"/blog?category={cat.Slug}")" Underline="Underline.Hover">@cat.Name</MudLink>
+                                <span> </span>
+                            }
+                        </span>
+                    }
+                </MudText>
+
+                @if (!string.IsNullOrWhiteSpace(_post.Summary))
+                {
+                    <MudText Typo="Typo.body1" Class="mud-text-secondary mb-4" Style="font-style:italic;">@_post.Summary</MudText>
+                    <MudDivider Class="mb-4" />
+                }
+
+                <div class="blog-content">
+                    @((MarkupString)_post.Content)
+                </div>
+
+                @if (_post.Tags.Count > 0)
+                {
+                    <MudDivider Class="mt-6 mb-3" />
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary mr-2">Tags:</MudText>
+                        @foreach (var tag in _post.Tags)
+                        {
+                            <MudChip T="string" Size="Size.Small" Color="Color.Default"
+                                     Href="@($"/blog?tag={tag.Slug}")">@tag.Name</MudChip>
+                        }
+                    </MudStack>
+                }
+
+                <MudButton Href="/blog" StartIcon="@Icons.Material.Filled.ArrowBack" Class="mt-6" Variant="Variant.Outlined">
+                    Back to Blog
+                </MudButton>
+            </MudItem>
+
+            <!-- Sidebar -->
+            <MudItem xs="12" md="3">
+                @if (_categories.Count > 0)
+                {
+                    <MudPaper Outlined="true" Class="pa-4 mb-4">
+                        <MudText Typo="Typo.subtitle1" Style="font-weight:700;" Class="mb-2">Categories</MudText>
+                        <MudList T="PostCategoryDto" Dense="true">
+                            @foreach (var cat in _categories)
+                            {
+                                <MudListItem T="PostCategoryDto" Href="@($"/blog?category={cat.Slug}")"
+                                             Icon="@Icons.Material.Filled.Label">
+                                    <MudText Typo="Typo.body2">@cat.Name</MudText>
+                                </MudListItem>
+                            }
+                        </MudList>
+                    </MudPaper>
+                }
+            </MudItem>
+        </MudGrid>
+    }
+}
+
+@code {
+    [Parameter] public string Slug { get; set; } = string.Empty;
+
+    private PostDto? _post;
+    private bool _loading = true;
+    private List<PostCategoryDto> _categories = [];
+    private List<BreadcrumbItem> _breadcrumbs = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        (_post, _categories) = (
+            await Mediator.Send(new GetPostBySlugQuery(Slug)),
+            await Mediator.Send(new GetPostCategoriesQuery()));
+
+        _breadcrumbs =
+        [
+            new BreadcrumbItem("Home", href: "/"),
+            new BreadcrumbItem("Blog", href: "/blog"),
+            new BreadcrumbItem(_post?.Title ?? Slug, href: null, disabled: true)
+        ];
+        _loading = false;
+    }
+}

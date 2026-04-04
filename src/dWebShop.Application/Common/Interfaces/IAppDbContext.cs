@@ -1,3 +1,4 @@
+using dWebShop.Domain.Entities.Blog;
 using dWebShop.Domain.Entities.Orders;
 using dWebShop.Domain.Entities.Partners;
 using dWebShop.Domain.Entities.Pricing;
@@ -9,6 +10,12 @@ namespace dWebShop.Application.Common.Interfaces;
 
 public interface IAppDbContext
 {
+    DbSet<Post> Posts { get; }
+    DbSet<PostCategory> PostCategories { get; }
+    DbSet<PostTag> PostTags { get; }
+    DbSet<PostMeta> PostMetas { get; }
+    DbSet<PostComment> PostComments { get; }
+
     DbSet<Brand> Brands { get; }
     DbSet<Category> Categories { get; }
     DbSet<Tag> Tags { get; }
