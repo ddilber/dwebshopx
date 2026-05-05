@@ -117,7 +117,7 @@
         signOut() { loginStore.signOut(); },
         openLogin() { openLoginModal(); },
         closeLogin() { const el = document.getElementById('asg-login-modal-bg'); if (el) el.remove(); },
-        doSignIn() { loginStore.signIn(); window.asgShop.closeLogin(); location.reload(); },
+        doSignIn() { loginStore.signIn(); window.asgShop.closeLogin(); window.location.href = '/account'; },
         saveLastOrder(json) { sessionStorage.setItem('asg_last_order', json); },
         getLastOrderJson() {
             try { return sessionStorage.getItem('asg_last_order') || 'null'; }
