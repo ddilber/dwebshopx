@@ -1,44 +1,132 @@
 @page "/projects"
 @layout MainLayout
 
-<PageTitle>Naši Projekti — ASGifiks</PageTitle>
+<PageTitle>Projekti — A&amp;S GIFIKS</PageTitle>
 
-<div style="padding: 4rem 0; background: linear-gradient(135deg, var(--color-dark) 0%, var(--secondary-color) 100%); color: white;">
-    <div class="container">
-        <span class="section-tag" style="background: rgba(255,255,255,0.15); color: white;">PROJEKTI</span>
-        <h1 class="section-title" style="color: white; margin-top: 0.75rem;">Naši Projekti</h1>
-        <p style="color: rgba(255,255,255,0.8); max-width: 600px; font-size: 1.1rem;">
-            Više od 1000 uspješno realizovanih projekata širom Bosne i Hercegovine.
-        </p>
+<div class="asg-page">
+
+<!-- Page header -->
+<header class="asg-pageheader">
+    <div class="asg-wrap">
+        <div class="asg-pageheader-grid">
+            <div>
+                <div class="asg-eyebrow"><span class="dot"></span>Projekti &middot; 600+ realizacija od 2008</div>
+                <h1>Šta smo <em>napravili</em>.</h1>
+                <p class="asg-lede">Selekcija recentnih projekata — od stambenih kompleksa do industrijskih postrojenja. Svaki je realizovan sa materijalima iz našeg portfelja, uz tehničku podršku tima.</p>
+            </div>
+            <div class="asg-pageheader-meta">
+                <div><span>Ukupno projekata</span><b>600+</b></div>
+                <div><span>Najveći</span><b>12.000 m²</b></div>
+                <div><span>Pokrivenost</span><b>BiH</b></div>
+            </div>
+        </div>
     </div>
+</header>
+
+<!-- Projects grid with filter -->
+<section class="asg-section">
+    <div class="asg-wrap">
+        <div class="asg-pfilt">
+            @foreach (var kind in _kinds)
+            {
+                <button class="@(_filter == kind ? "active" : "")" @onclick="() => _filter = kind">@kind</button>
+            }
+        </div>
+
+        <div class="asg-pgrid">
+            @foreach (var (proj, i) in FilteredProjects.Select((p, i) => (p, i)))
+            {
+                <article class="asg-prow">
+                    <div class="asg-ph" style="height:360px">[ @proj.Kind.ToLower() &middot; @proj.Loc ]</div>
+                    <div class="meta">
+                        <span>@proj.Kind / @((i + 1).ToString("D3"))</span>
+                        <span>@proj.Year</span>
+                    </div>
+                    <h3>@proj.Title</h3>
+                    <div class="specs">
+                        <span><b>Sistem:</b> @proj.Sys</span>
+                        <span><b>@proj.Size</b></span>
+                    </div>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="asg-section asg-dark asg-tight">
+    <div class="asg-wrap">
+        <div style="display:grid; grid-template-columns:2fr 1fr; gap:64px; align-items:center;">
+            <div>
+                <h2 style="font-size:clamp(36px,4.5vw,64px); line-height:1; letter-spacing:-.025em; font-weight:700; margin:0; color:var(--asg-paper);">
+                    Spreman si <em style="font-style:normal; color:var(--asg-slate);">specificirati</em> sistem?
+                </h2>
+                <p style="color:rgba(244,241,234,.7); font-size:17px; margin:16px 0 0; max-width:48ch;">
+                    Pošalji nam tlocrt, presjek ili samo kratak opis projekta — vraćamo se u 24h.
+                </p>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <a href="/contact" class="asg-btn asg-btn-pri">
+                    Pošalji upit
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14M13 5l7 7-7 7" />
+                    </svg>
+                </a>
+                <a href="tel:+38734000000" class="asg-btn asg-btn-sec">+387 34 000 000</a>
+            </div>
+        </div>
+    </div>
+</section>
+
 </div>
 
-<div class="container" style="padding: 4rem 20px;">
-    <div class="section-header">
-        <span class="section-tag">PORTFOLIO</span>
-        <h2 class="section-title">Referentni Projekti</h2>
-        <p class="section-description">Portfolio referentnih projekata bit će uskoro dostupan. Kontaktirajte nas za detaljne informacije o našim realizacijama.</p>
-    </div>
+<style>
+    .asg-ph { background: repeating-linear-gradient(135deg, #e8e3d8 0 14px, rgba(0,0,0,.04) 14px 28px);
+        color: rgba(0,0,0,.45); display: flex; align-items: flex-end; padding: 18px;
+        font-family: var(--asg-mono); font-size: 11px; letter-spacing: .06em; text-transform: lowercase; }
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 3rem;">
-        <div style="background: var(--color-gray-light); border-radius: var(--border-radius-lg); padding: 2rem; text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">🏢</div>
-            <h3 style="font-weight: 700; color: var(--color-dark); margin-bottom: 0.5rem;">Stambeni Projekti</h3>
-            <p style="color: var(--color-gray); font-size: 0.9rem;">Fasadna izolacija stambenih zgrada i porodičnih kuća.</p>
-        </div>
-        <div style="background: var(--color-gray-light); border-radius: var(--border-radius-lg); padding: 2rem; text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">🏭</div>
-            <h3 style="font-weight: 700; color: var(--color-dark); margin-bottom: 0.5rem;">Industrijski Projekti</h3>
-            <p style="color: var(--color-gray); font-size: 0.9rem;">Zaštita industrijskih postrojenja i infrastrukture.</p>
-        </div>
-        <div style="background: var(--color-gray-light); border-radius: var(--border-radius-lg); padding: 2rem; text-align: center;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">🏛️</div>
-            <h3 style="font-weight: 700; color: var(--color-dark); margin-bottom: 0.5rem;">Javni Objekti</h3>
-            <p style="color: var(--color-gray); font-size: 0.9rem;">Škole, bolnice i javne institucije diljem BiH.</p>
-        </div>
-    </div>
+    .asg-pfilt { display: flex; gap: 0; margin-bottom: 48px; border-bottom: 1px solid var(--asg-line);
+        font-family: var(--asg-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+    .asg-pfilt button { background: transparent; border: none; padding: 14px 24px 14px 0;
+        color: var(--asg-muted); cursor: pointer; font-family: inherit; font-size: inherit;
+        letter-spacing: inherit; text-transform: inherit; border-bottom: 2px solid transparent;
+        margin-bottom: -1px; transition: all .15s; }
+    .asg-pfilt button:hover { color: var(--asg-ink); }
+    .asg-pfilt button.active { color: var(--asg-accent); border-bottom-color: var(--asg-accent); }
 
-    <div style="margin-top: 3rem; text-align: center;">
-        <a href="/contact" class="btn btn-primary">Upit za Projekat</a>
-    </div>
-</div>
+    .asg-pgrid { display: grid; grid-template-columns: repeat(2,1fr); gap: 48px 32px; }
+    .asg-prow { display: grid; grid-template-columns: 1fr; gap: 0; }
+    .asg-prow .meta { display: flex; justify-content: space-between; padding: 18px 0 14px;
+        border-bottom: 1px dashed var(--asg-line); font-family: var(--asg-mono);
+        font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--asg-muted); }
+    .asg-prow h3 { font-size: 24px; font-weight: 600; margin: 18px 0 10px; letter-spacing: -.015em; line-height: 1.2; }
+    .asg-prow .specs { display: grid; grid-template-columns: 1fr auto; gap: 16px; font-size: 13px; color: var(--asg-muted); }
+    .asg-prow .specs b { color: var(--asg-ink); font-weight: 500; }
+
+    @@media (max-width: 760px) {
+        .asg-pgrid { grid-template-columns: 1fr; }
+    }
+</style>
+
+@code {
+    private string _filter = "Sve";
+
+    private static readonly string[] _kinds = ["Sve", "Stambeni", "Industrijski", "Javni"];
+
+    private record Project(string Kind, int Year, string Title, string Loc, string Sys, string Size);
+
+    private static readonly Project[] _allProjects =
+    [
+        new("Stambeni", 2024, "Stambeno-poslovni kompleks — Mostar", "Mostar, BiH", "STO ETICS · MW 16cm", "4.200 m²"),
+        new("Industrijski", 2024, "Hidroelektrana — sanacija temelja", "Jablanica, BiH", "XYPEX Concentrate + Patch", "1.800 m²"),
+        new("Javni", 2023, "Osnovna škola — energetska obnova", "Tomislavgrad, BiH", "STO ETICS · EPS 15cm", "2.600 m²"),
+        new("Industrijski", 2023, "Vodoopskrbni rezervoar", "Livno, BiH", "XYPEX Admix + Megamix", "800 m³"),
+        new("Stambeni", 2023, "Hotelski kompleks — fasada", "Neum, BiH", "STO Decorative + Boje", "5.500 m²"),
+        new("Industrijski", 2022, "Skladišni kompleks — antikorozija", "Sarajevo, BiH", "CORTEC VpCI-369 + folije", "12.000 m²"),
+        new("Javni", 2022, "Bolnica — toplinska sanacija", "Široki Brijeg, BiH", "STO ETICS · MW 18cm", "3.400 m²"),
+        new("Industrijski", 2022, "Tunelska konstrukcija", "Konjic, BiH", "XYPEX Concentrate", "2.200 m²"),
+    ];
+
+    private IEnumerable<Project> FilteredProjects =>
+        _filter == "Sve" ? _allProjects : _allProjects.Where(p => p.Kind == _filter);
+}

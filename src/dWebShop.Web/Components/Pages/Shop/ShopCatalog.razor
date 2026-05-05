@@ -1,0 +1,119 @@
+@page "/shop"
+@layout MainLayout
+@rendermode InteractiveServer
+
+<PageTitle>Web Shop — A&amp;S GIFIKS</PageTitle>
+
+<div>
+    <section class="asg-shop-hero">
+        <div class="asg-wrap">
+            <div class="asg-shop-hero-grid">
+                <div>
+                    <div class="asg-eyebrow"><span class="dot"></span><span>Web Shop · @ShopData.Products.Length proizvoda</span></div>
+                    <h1>Profesionalna gradnja, <em>dostupna online</em>.</h1>
+                    <p class="asg-lede">
+                        Originalni STO, XYPEX i CORTEC proizvodi sa tehničkim podacima, dokumentacijom i partnerskim cijenama.
+                        Isporuka iz Tomislavgrada na cijelu BiH.
+                    </p>
+                    <form class="asg-shop-hero-search" @onsubmit="Search" style="margin-top:32px;max-width:560px">
+                        <input type="text" @bind="_search" @bind:event="oninput"
+                               placeholder="Pretraži po nazivu, šifri ili namjeni…" />
+                        <button type="submit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px">
+                                <circle cx="11" cy="11" r="7"/><path d="M20 20 L16 16"/>
+                            </svg>
+                            <span>Pretraži</span>
+                        </button>
+                    </form>
+                </div>
+                <div class="asg-shop-stats">
+                    <div><div class="n">@ShopData.Products.Length</div><div class="l">Proizvoda</div></div>
+                    <div><div class="n">@ShopData.Categories.Values.Sum(c => c.Length)</div><div class="l">Kategorija</div></div>
+                    <div><div class="n">3</div><div class="l">Brendova</div></div>
+                    <div><div class="n">24h</div><div class="l">Tehnička podrška</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="asg-shop-brands">
+        <div class="asg-wrap">
+            <div class="asg-shead" style="margin-bottom:48px">
+                <div class="asg-num">01 / Brendovi</div>
+                <div>
+                    <h2 class="asg-h2">Pregledajte po brendu</h2>
+                    <p class="asg-lede">Kategorije su organizovane po dobavljaču — kliknite za listu proizvoda.</p>
+                </div>
+            </div>
+            <div class="asg-shop-brand-grid">
+                @foreach (var brand in ShopData.Brands)
+                {
+                    var cats = ShopData.Categories.GetValueOrDefault(brand.Key, []);
+                    var count = ShopData.Products.Count(p => p.Brand == brand.Key);
+                    <a href="/shop/@brand.Key" class="asg-shop-brand">
+                        <div class="asg-shop-brand-arrow">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:16px;height:16px">
+                                <path d="M5 12 H19 M13 6 L19 12 L13 18"/>
+                            </svg>
+                        </div>
+                        <div class="asg-shop-brand-mark">@brand.Origin · od @brand.Since</div>
+                        <h3>@brand.Name</h3>
+                        <div class="tag">@brand.Tagline</div>
+                        <ul>
+                            @foreach (var cat in cats)
+                            {
+                                var catCount = ShopData.Products.Count(p => p.Brand == brand.Key && p.Category == cat.Slug);
+                                <li><span>@cat.Name</span><span>@catCount</span></li>
+                            }
+                            <li style="padding-top:8px;border-top:1px dashed var(--asg-line);margin-top:6px">
+                                <span style="font-weight:600">Ukupno proizvoda</span>
+                                <span style="color:var(--asg-ink);font-weight:600">@count</span>
+                            </li>
+                        </ul>
+                    </a>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="asg-shop-featured">
+        <div class="asg-wrap">
+            <div class="asg-shead" style="margin-bottom:48px">
+                <div class="asg-num">02 / Popularno</div>
+                <div>
+                    <h2 class="asg-h2">Najtraženiji proizvodi</h2>
+                    <p class="asg-lede">Sistemi koje partneri najčešće naručuju u sezoni.</p>
+                </div>
+            </div>
+            <div class="asg-shop-row">
+                @foreach (var p in ShopData.Products.Take(4))
+                {
+                    <ShopProductCard Product="p" IsLoggedIn="_isLoggedIn" />
+                }
+            </div>
+        </div>
+    </section>
+</div>
+
+@code {
+    [Inject] IJSRuntime JS { get; set; } = default!;
+
+    private string _search = "";
+    private bool _isLoggedIn;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        var userJson = await JS.InvokeAsync<string>("window.asgShop.getUserJson");
+        _isLoggedIn = userJson != "null";
+        StateHasChanged();
+    }
+
+    private void Search()
+    {
+        if (!string.IsNullOrWhiteSpace(_search))
+            Nav.NavigateTo($"/shop/search?q={Uri.EscapeDataString(_search.Trim())}");
+    }
+
+    [Inject] NavigationManager Nav { get; set; } = default!;
+}

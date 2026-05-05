@@ -1,47 +1,156 @@
 @page "/brands"
-@layout PublicLayout
-@rendermode InteractiveServer
-@using dWebShop.Application.Features.Brands.Queries
-@inject IMediator Mediator
+@layout MainLayout
 
-<PageTitle>Brands — dWebShop</PageTitle>
-<HeadContent>
-    <meta name="description" content="Browse all brands available in our catalogue." />
-</HeadContent>
+<PageTitle>Brendovi — A&amp;S GIFIKS</PageTitle>
 
-<MudText Typo="Typo.h4" Class="mb-1">Our Brands</MudText>
-<MudText Typo="Typo.body1" Class="mud-text-secondary mb-6">
-    Browse all product brands we carry.
-</MudText>
+<div class="asg-page">
 
-<LoadingSpinner Visible="_loading" />
+<!-- Page header -->
+<header class="asg-pageheader">
+    <div class="asg-wrap">
+        <div class="asg-pageheader-grid">
+            <div>
+                <div class="asg-eyebrow"><span class="dot"></span>Brendovi &middot; Distribucija za BiH</div>
+                <h1>Tri brenda. Tri kontinenta. <em>Jedan</em> standard.</h1>
+                <p class="asg-lede">Birali smo partnere po jednom kriteriju — proizvodi koji rade ono što obećavaju, godinama nakon ugradnje. Ne mijenjamo ih često.</p>
+            </div>
+            <div class="asg-pageheader-meta">
+                <div><span>Brendova</span><b>3</b></div>
+                <div><span>Najduže partnerstvo</span><b>STO &middot; 17 god</b></div>
+                <div><span>Status</span><b>Ovlašteni distributer</b></div>
+            </div>
+        </div>
+    </div>
+</header>
 
-@if (!_loading)
-{
-    @if (_brands.Count == 0)
-    {
-        <MudAlert Severity="Severity.Info">No brands available yet.</MudAlert>
+<!-- STO -->
+<section class="asg-section">
+    <div class="asg-wrap">
+        <div class="asg-bdrow">
+            <div class="asg-ph ph-dark" style="height:480px">[ sto aplikacija ]</div>
+            <div>
+                <div class="asg-eyebrow" style="margin-bottom:16px;"><span class="dot"></span>Njemačka &middot; od 1955</div>
+                <h2 class="bd-name">STO</h2>
+                <p class="bd-tag">Fasadni sistemi i toplinska izolacija</p>
+                <p class="bd-desc">Svjetski lider u fasadnim sistemima i toplinskoj izolaciji. Inovativna rješenja za energetsku efikasnost objekata u skladu sa europskim standardima.</p>
+                <div class="bd-stats">
+                    <div class="s"><div class="n">70+</div><div class="l">godina iskustva</div></div>
+                    <div class="s"><div class="n">5,500</div><div class="l">zaposlenih u svijetu</div></div>
+                    <div class="s"><div class="n">37</div><div class="l">zemalja distribucije</div></div>
+                    <div class="s"><div class="n">#1</div><div class="l">u ETICS sistemima</div></div>
+                </div>
+                <a href="/brands/sto" class="asg-btn asg-btn-pri">
+                    Otvori brend stranicu
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14M13 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- XYPEX -->
+<section class="asg-section asg-soft">
+    <div class="asg-wrap">
+        <div class="asg-bdrow">
+            <div class="asg-ph" style="height:480px">[ xypex aplikacija ]</div>
+            <div>
+                <div class="asg-eyebrow" style="margin-bottom:16px;"><span class="dot"></span>Kanada &middot; od 1969</div>
+                <h2 class="bd-name">XYPEX</h2>
+                <p class="bd-tag">Kristalna hidroizolacija betona</p>
+                <p class="bd-desc">Revolucionarna kristalna tehnologija koja pretvara beton u trajno hidroizolirani materijal. Aktivira se u kontaktu sa vodom i ponovo zatvara mikropukotine.</p>
+                <div class="bd-stats">
+                    <div class="s"><div class="n">55+</div><div class="l">godina razvoja</div></div>
+                    <div class="s"><div class="n">90+</div><div class="l">zemalja primjene</div></div>
+                    <div class="s"><div class="n">1B+</div><div class="l">m³ obrađenog betona</div></div>
+                    <div class="s"><div class="n">&infin;</div><div class="l">životni vijek</div></div>
+                </div>
+                <a href="/brands/xypex" class="asg-btn asg-btn-pri">
+                    Otvori brend stranicu
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14M13 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CORTEC -->
+<section class="asg-section">
+    <div class="asg-wrap">
+        <div class="asg-bdrow">
+            <div class="asg-ph ph-dark" style="height:480px">[ cortec aplikacija ]</div>
+            <div>
+                <div class="asg-eyebrow" style="margin-bottom:16px;"><span class="dot"></span>SAD &middot; od 1977</div>
+                <h2 class="bd-name">CORTEC</h2>
+                <p class="bd-tag">Zaštita od korozije — VpCI tehnologija</p>
+                <p class="bd-desc">Globalni lider u zaštiti metala od korozije pomoću isparljivih inhibitora (VpCI) — bez teških metala, ekološki prihvatljivo, primjenjivo u zatvorenim prostorima i na otvorenom.</p>
+                <div class="bd-stats">
+                    <div class="s"><div class="n">45+</div><div class="l">godina inovacije</div></div>
+                    <div class="s"><div class="n">450+</div><div class="l">patenata</div></div>
+                    <div class="s"><div class="n">70+</div><div class="l">zemalja</div></div>
+                    <div class="s"><div class="n">100%</div><div class="l">biorazgradljivo</div></div>
+                </div>
+                <a href="/brands/cortec" class="asg-btn asg-btn-pri">
+                    Otvori brend stranicu
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14M13 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="asg-section asg-dark asg-tight">
+    <div class="asg-wrap">
+        <div style="display:grid; grid-template-columns:2fr 1fr; gap:64px; align-items:center;">
+            <div>
+                <h2 style="font-size:clamp(36px,4.5vw,64px); line-height:1; letter-spacing:-.025em; font-weight:700; margin:0; color:var(--asg-paper);">
+                    Spreman si <em style="font-style:normal; color:var(--asg-slate);">specificirati</em> sistem?
+                </h2>
+                <p style="color:rgba(244,241,234,.7); font-size:17px; margin:16px 0 0; max-width:48ch;">
+                    Pošalji nam tlocrt, presjek ili samo kratak opis projekta — vraćamo se u 24h.
+                </p>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <a href="/contact" class="asg-btn asg-btn-pri">
+                    Pošalji upit
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14M13 5l7 7-7 7" />
+                    </svg>
+                </a>
+                <a href="tel:+38734000000" class="asg-btn asg-btn-sec">+387 34 000 000</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+</div>
+
+<style>
+    .asg-ph { background: repeating-linear-gradient(135deg, #e8e3d8 0 14px, rgba(0,0,0,.04) 14px 28px);
+        color: rgba(0,0,0,.45); display: flex; align-items: flex-end; padding: 18px;
+        font-family: var(--asg-mono); font-size: 11px; letter-spacing: .06em; text-transform: lowercase; }
+    .ph-dark { background: repeating-linear-gradient(135deg, #16161a 0 14px, rgba(255,255,255,.04) 14px 28px); color: rgba(255,255,255,.5); }
+
+    .asg-bdrow { display: grid; grid-template-columns: 1fr 1.4fr; gap: 64px; align-items: start; }
+    .bd-name { font-size: clamp(48px,5.5vw,80px); font-weight: 700; letter-spacing: -.03em; line-height: .95; margin: 0 0 8px; }
+    .bd-tag { font-size: 22px; color: var(--asg-accent); font-weight: 500; letter-spacing: -.01em; margin: 0 0 24px; }
+    .bd-desc { font-size: 16px; line-height: 1.6; color: var(--asg-ink); margin: 0 0 28px; }
+    .bd-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; border-top: 1px solid var(--asg-line); margin-bottom: 28px; }
+    .bd-stats .s { padding: 18px 12px 18px 0; border-right: 1px solid var(--asg-line); }
+    .bd-stats .s:last-child { border-right: none; }
+    .bd-stats .n { font-size: 24px; font-weight: 600; letter-spacing: -.02em; }
+    .bd-stats .l { font-family: var(--asg-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--asg-muted); margin-top: 4px; }
+
+    @@media (max-width: 920px) {
+        .asg-bdrow { grid-template-columns: 1fr; gap: 32px; }
+        .asg-bdrow .asg-ph { height: 280px; }
+        .bd-stats { grid-template-columns: 1fr 1fr; }
+        .bd-stats .s:nth-child(2) { border-right: none; }
     }
-    else
-    {
-        <MudGrid Spacing="3">
-            @foreach (var brand in _brands)
-            {
-                <MudItem xs="12" sm="6" md="4">
-                    <BrandCard Brand="brand" />
-                </MudItem>
-            }
-        </MudGrid>
-    }
-}
-
-@code {
-    private List<BrandDto> _brands = [];
-    private bool _loading = true;
-
-    protected override async Task OnInitializedAsync()
-    {
-        _brands = await Mediator.Send(new GetBrandsQuery());
-        _loading = false;
-    }
-}
+</style>
