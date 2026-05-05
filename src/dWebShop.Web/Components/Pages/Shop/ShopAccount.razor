@@ -1,0 +1,115 @@
+@page "/account"
+@layout MainLayout
+@rendermode InteractiveServer
+@using System.Text.Json
+
+<PageTitle>Moj nalog — Web Shop</PageTitle>
+
+<div class="asg-account">
+    <div class="asg-wrap">
+        @if (!_initialized)
+        {
+            <div style="padding:80px 0;color:var(--asg-muted);font-family:var(--asg-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase">
+                Učitavanje...
+            </div>
+        }
+        else if (_user is null)
+        {
+            <div class="asg-listing-head" style="margin-bottom:32px">
+                <div>
+                    <h1>Moj nalog</h1>
+                    <p class="asg-lede">Prijavite se za pregled vaših narudžbi i partnerskih cijena.</p>
+                </div>
+            </div>
+            <div class="asg-cart-empty">
+                <p>Niste prijavljeni.</p>
+                <button class="asg-btn asg-btn-pri" onclick="if(window.asgShop)window.asgShop.openLogin()">
+                    Prijavi se
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+                </button>
+            </div>
+        }
+        else
+        {
+            <nav class="asg-shop-crumbs">
+                <a href="/shop">Web Shop</a>
+                <span class="sep">/</span>
+                <span class="cur">Moj nalog</span>
+            </nav>
+
+            <div class="asg-listing-head" style="margin-bottom:32px">
+                <div>
+                    <div class="asg-eyebrow"><span class="dot"></span><span>@_user.PartnerType</span></div>
+                    <h1 style="margin-top:12px">Dobrodošli, @_user.Name.Split(' ')[0]</h1>
+                    <p class="asg-lede">Pregled vašeg partnerskog naloga, narudžbi i adresa.</p>
+                </div>
+            </div>
+
+            <div class="asg-account-grid">
+                <aside class="asg-account-side">
+                    <h3>@_user.Company</h3>
+                    <div style="font-size:13px;color:var(--asg-muted)">@_user.Name · @_user.Email</div>
+                    <div class="meta">
+                        <div><span>Tip naloga</span><b>@_user.PartnerType</b></div>
+                        <div><span>Tier</span><b>@_user.Tier</b></div>
+                        <div><span>Partner od</span><b>@_user.Since</b></div>
+                    </div>
+                    <button class="asg-btn asg-btn-sec" @onclick="SignOut">Odjava</button>
+                </aside>
+
+                <div>
+                    <h3 style="font-family:var(--asg-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--asg-muted);margin:0 0 16px;padding-bottom:8px;border-bottom:1px solid var(--asg-line)">
+                        Istorija narudžbi
+                    </h3>
+                    <div class="asg-account-orders">
+                        @foreach (var order in ShopData.SampleOrders)
+                        {
+                            <div class="asg-account-order">
+                                <div class="id">
+                                    #@order.Id
+                                    <small>@order.Date</small>
+                                </div>
+                                <div class="items">
+                                    @foreach (var item in order.Items)
+                                    {
+                                        <div><b>@item.Qty×</b> @item.Name</div>
+                                    }
+                                    <div style="margin-top:6px;font-family:var(--asg-mono);font-size:11px;letter-spacing:.05em">@order.Po</div>
+                                </div>
+                                <div class="status @(order.Status == "Isporučeno" ? "is-delivered" : "is-pending")">@order.Status</div>
+                                <div class="total">@ShopData.FmtPrice(order.Total)</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Inject] IJSRuntime JS { get; set; } = default!;
+    [Inject] NavigationManager Nav { get; set; } = default!;
+
+    private ShopData.ShopUser? _user;
+    private bool _initialized;
+
+    private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        var userJson = await JS.InvokeAsync<string>("window.asgShop.getUserJson");
+        if (userJson != "null")
+            _user = JsonSerializer.Deserialize<ShopData.ShopUser>(userJson, _json);
+        _initialized = true;
+        StateHasChanged();
+    }
+
+    private async Task SignOut()
+    {
+        await JS.InvokeVoidAsync("window.asgShop.signOut");
+        _user = null;
+        StateHasChanged();
+    }
+}

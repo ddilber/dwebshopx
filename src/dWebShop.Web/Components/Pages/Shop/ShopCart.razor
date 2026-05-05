@@ -1,0 +1,158 @@
+@page "/cart"
+@layout MainLayout
+@rendermode InteractiveServer
+@using System.Text.Json
+
+<PageTitle>Korpa — Web Shop</PageTitle>
+
+<div class="asg-cart-page">
+    <div class="asg-wrap">
+        <nav class="asg-shop-crumbs">
+            <a href="/shop">Web Shop</a>
+            <span class="sep">/</span>
+            <span class="cur">Korpa</span>
+        </nav>
+
+        <div class="asg-listing-head" style="margin-bottom:32px">
+            <div>
+                <div class="asg-eyebrow"><span class="dot"></span><span>Korpa</span></div>
+                <h1 style="margin-top:12px">Pregled narudžbe</h1>
+                <p class="asg-lede">Provjerite stavke prije nastavka na B2B checkout.</p>
+            </div>
+            <div class="meta">@_cart.Count @(_cart.Count == 1 ? "stavka" : "stavki")</div>
+        </div>
+
+        @if (!_initialized)
+        {
+            <div style="padding:40px 0;color:var(--asg-muted);font-family:var(--asg-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase">
+                Učitavanje...
+            </div>
+        }
+        else if (_cart.Count == 0)
+        {
+            <div class="asg-cart-empty">
+                <p>Vaša korpa je prazna.</p>
+                <a href="/shop" class="asg-btn asg-btn-pri">
+                    Pregledaj proizvode
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+                </a>
+            </div>
+        }
+        else
+        {
+            var subtotal = _cart.Sum(i => i.Qty * i.Price);
+            var tax = subtotal * 0.17m;
+            var total = subtotal + tax;
+
+            <div class="asg-cart-grid">
+                <div class="asg-cart-table">
+                    @foreach (var item in _cart)
+                    {
+                        var it = item;
+                        <div class="asg-cart-row">
+                            <div class="asg-cart-img"></div>
+                            <div class="asg-cart-info">
+                                <h5><a href="/shop/p/@it.ProductSlug">@it.ProductName</a></h5>
+                                <div class="opts">@it.OptsLabel</div>
+                            </div>
+                            <div class="asg-cart-qty">
+                                <button type="button" @onclick="() => UpdateQty(it, it.Qty - 1)">−</button>
+                                <input value="@it.Qty" @onchange="e => UpdateQtyFromInput(it, e.Value?.ToString())" />
+                                <button type="button" @onclick="() => UpdateQty(it, it.Qty + 1)">+</button>
+                            </div>
+                            <div class="asg-cart-price">
+                                @if (_isLoggedIn) { @($"{ShopData.FmtPrice(it.Price)} / {it.Uom}") } else { <text>Prijava za cijenu</text> }
+                            </div>
+                            <div class="asg-cart-line">
+                                @(_isLoggedIn ? ShopData.FmtPrice(it.Qty * it.Price) : "—")
+                            </div>
+                            <button class="asg-cart-rm" @onclick="() => RemoveItem(it)" title="Ukloni">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:16px;height:16px">
+                                    <path d="M5 7 H19 M9 7 V4 H15 V7 M7 7 L8 20 H16 L17 7"/>
+                                </svg>
+                            </button>
+                        </div>
+                    }
+                </div>
+
+                <aside class="asg-cart-summary">
+                    <h4>Sažetak</h4>
+                    @if (_isLoggedIn)
+                    {
+                        <div class="line"><span>Međuzbir</span><span>@ShopData.FmtPrice(subtotal)</span></div>
+                        <div class="line"><span>PDV (17%)</span><span>@ShopData.FmtPrice(tax)</span></div>
+                        <div class="line"><span>Dostava</span><span>Po dogovoru</span></div>
+                        <div class="line total"><span>Ukupno</span><span>@ShopData.FmtPrice(total)</span></div>
+                    }
+                    else
+                    {
+                        <div class="login-needed">
+                            Prijavite se kao B2B partner za prikaz cijena, primjenu rabata i nastavak na narudžbu.
+                        </div>
+                    }
+                    @if (_isLoggedIn)
+                    {
+                        <a href="/checkout" class="asg-btn asg-btn-pri">
+                            Nastavi na checkout
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+                        </a>
+                    }
+                    else
+                    {
+                        <button class="asg-btn asg-btn-pri" onclick="if(window.asgShop)window.asgShop.openLogin()">
+                            Prijavi se
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+                        </button>
+                    }
+                    <a href="/shop" class="asg-btn asg-btn-sec" style="margin-top:8px">Nastavi kupovinu</a>
+                </aside>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Inject] IJSRuntime JS { get; set; } = default!;
+
+    private List<ShopData.CartItem> _cart = [];
+    private bool _isLoggedIn;
+    private bool _initialized;
+
+    private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await LoadState();
+        _initialized = true;
+        StateHasChanged();
+    }
+
+    private async Task LoadState()
+    {
+        var cartJson = await JS.InvokeAsync<string>("window.asgShop.getCartJson");
+        _cart = JsonSerializer.Deserialize<List<ShopData.CartItem>>(cartJson, _json) ?? [];
+        var userJson = await JS.InvokeAsync<string>("window.asgShop.getUserJson");
+        _isLoggedIn = userJson != "null";
+    }
+
+    private async Task UpdateQty(ShopData.CartItem item, int newQty)
+    {
+        await JS.InvokeVoidAsync("window.asgShop.updateCartItem", item.SkuKey, item.ProductSlug, newQty);
+        await LoadState();
+        StateHasChanged();
+    }
+
+    private async Task UpdateQtyFromInput(ShopData.CartItem item, string? val)
+    {
+        var qty = int.TryParse(val, out var v) ? Math.Max(1, v) : 1;
+        await UpdateQty(item, qty);
+    }
+
+    private async Task RemoveItem(ShopData.CartItem item)
+    {
+        await JS.InvokeVoidAsync("window.asgShop.removeFromCart", item.SkuKey, item.ProductSlug);
+        await LoadState();
+        StateHasChanged();
+    }
+}

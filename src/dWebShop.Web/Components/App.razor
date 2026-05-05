@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bs">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link href="@Assets["_content/MudBlazor/MudBlazor.min.css"]" rel="stylesheet" />
     <link rel="stylesheet" href="@Assets["css/app.css"]" />
     <link rel="stylesheet" href="@Assets["css/landing.css"]" />
@@ -25,14 +27,9 @@
     <ReconnectModal />
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
     <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script src="/js/shop.js"></script>
     <script>
         window.scrollToTop = function() { window.scrollTo({ top: 0, behavior: "instant" }); }
-        window.initNavbarScroll = function(dotNetRef) {
-            var onScroll = function() {
-                dotNetRef.invokeMethodAsync('OnScroll', window.scrollY > 50);
-            };
-            window.addEventListener('scroll', onScroll, { passive: true });
-        };
 
         // Scroll-triggered animations for .animate-on-scroll elements
         (function() {

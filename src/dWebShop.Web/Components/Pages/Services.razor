@@ -1,64 +1,189 @@
 @page "/services"
 @layout MainLayout
 
-<PageTitle>Naše Usluge — ASGifiks</PageTitle>
+<PageTitle>Usluge — A&amp;S GIFIKS</PageTitle>
 
-<div style="padding: 4rem 0; background: linear-gradient(135deg, var(--color-dark) 0%, var(--secondary-color) 100%); color: white;">
-    <div class="container">
-        <span class="section-tag" style="background: rgba(255,255,255,0.15); color: white;">USLUGE</span>
-        <h1 class="section-title" style="color: white; margin-top: 0.75rem;">Naše Usluge</h1>
-        <p style="color: rgba(255,255,255,0.8); max-width: 600px; font-size: 1.1rem;">
-            Pružamo sveobuhvatna rješenja za sve faze gradnje — od tehničke dokumentacije do ugradnje i savjetovanja.
-        </p>
+<div class="asg-page">
+
+<!-- Page header -->
+<header class="asg-pageheader">
+    <div class="asg-wrap">
+        <div class="asg-pageheader-grid">
+            <div>
+                <div class="asg-eyebrow"><span class="dot"></span>Usluge &middot; Specifikacija &rarr; Isporuka &rarr; Nadzor</div>
+                <h1>Materijali i <em>znanje</em> kako ih ugraditi.</h1>
+                <p class="asg-lede">Ne prodajemo samo proizvode — pratimo projekat od idejne faze do finalne ugradnje. Šest područja koja pokrivamo, sa konkretnim isporučivim rezultatima na kraju svake faze.</p>
+            </div>
+            <div class="asg-pageheader-meta">
+                <div><span>Faze projekta</span><b>Spec &rarr; Nabavka &rarr; Ugradnja</b></div>
+                <div><span>Prosječni rok</span><b>5–14 dana</b></div>
+                <div><span>Tehnička podrška</span><b>Uključeno</b></div>
+            </div>
+        </div>
     </div>
+</header>
+
+<!-- Service detail rows -->
+<section class="asg-section">
+    <div class="asg-wrap">
+        @foreach (var (svc, i) in _services.Select((s, i) => (s, i)))
+        {
+            <article class="asg-svcdetail">
+                <div class="n">/ @((i + 1).ToString("D2"))</div>
+                <div>
+                    <h3>@svc.Title</h3>
+                    <p class="short">@svc.Short</p>
+                </div>
+                <div>
+                    <p class="long">@svc.Long</p>
+                    <div class="asg-deliv">
+                        <div class="deliv-head">Isporuka</div>
+                        @foreach (var d in svc.Deliverables)
+                        {
+                            <div class="d">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12.5l4.5 4.5L19 7.5" />
+                                </svg>
+                                <span>@d</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+</section>
+
+<!-- Process (dark) -->
+<section class="asg-section asg-dark">
+    <div class="asg-wrap">
+        <div class="asg-shead">
+            <div class="asg-num">04 — Proces</div>
+            <div>
+                <h2 class="asg-h2">Kako radimo.</h2>
+                <p class="asg-lede">Četiri faze. Svaka ima jasan input, output i odgovornost.</p>
+            </div>
+        </div>
+        <div class="asg-proc">
+            <div class="step">
+                <div class="num">01 / Upit</div>
+                <h4>Razgovor i obilazak</h4>
+                <p>Kratak razgovor o objektu i ciljevima. Po potrebi izlazimo na lokaciju.</p>
+            </div>
+            <div class="step">
+                <div class="num">02 / Spec</div>
+                <h4>Tehnička specifikacija</h4>
+                <p>Inženjer izrađuje preporuku sistema, proračun količina i orijentacionu cijenu — u 24h.</p>
+            </div>
+            <div class="step">
+                <div class="num">03 / Isporuka</div>
+                <h4>Logistika i materijal</h4>
+                <p>Iz centralnog skladišta u Tomislavgradu — 2–5 dana ovisno o lokaciji.</p>
+            </div>
+            <div class="step">
+                <div class="num">04 / Nadzor</div>
+                <h4>Tehnička podrška</h4>
+                <p>Inženjer dostupan tokom ugradnje. Po potrebi obuka aplikatora na licu mjesta.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="asg-section asg-dark asg-tight" style="background:var(--asg-ink); border-top:1px solid rgba(244,241,234,.12);">
+    <div class="asg-wrap">
+        <div style="display:grid; grid-template-columns:2fr 1fr; gap:64px; align-items:center;">
+            <div>
+                <h2 style="font-size:clamp(36px,4.5vw,64px); line-height:1; letter-spacing:-.025em; font-weight:700; margin:0; color:var(--asg-paper);">
+                    Spreman si <em style="font-style:normal; color:var(--asg-slate);">specificirati</em> sistem?
+                </h2>
+                <p style="color:rgba(244,241,234,.7); font-size:17px; margin:16px 0 0; max-width:48ch;">
+                    Pošalji nam tlocrt, presjek ili samo kratak opis projekta — vraćamo se u 24h sa preporukom materijala i orijentacionom cijenom.
+                </p>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <a href="/contact" class="asg-btn asg-btn-pri">
+                    Pošalji upit
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14M13 5l7 7-7 7" />
+                    </svg>
+                </a>
+                <a href="tel:+38734000000" class="asg-btn asg-btn-sec">+387 34 000 000</a>
+            </div>
+        </div>
+    </div>
+</section>
+
 </div>
 
-<div class="container" style="padding: 4rem 20px;">
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+<style>
+    .asg-svcdetail { display: grid; grid-template-columns: 80px 1fr 1.5fr; gap: 48px;
+        padding: 48px 0; border-bottom: 1px solid var(--asg-line); align-items: start; }
+    .asg-svcdetail .n { font-family: var(--asg-mono); font-size: 13px; letter-spacing: .1em;
+        color: var(--asg-accent); font-weight: 600; border-top: 2px solid var(--asg-accent); padding-top: 10px; }
+    .asg-svcdetail h3 { font-size: 32px; font-weight: 600; letter-spacing: -.02em; margin: 0 0 16px; line-height: 1.1; }
+    .asg-svcdetail .short { font-size: 17px; line-height: 1.5; color: var(--asg-ink); margin: 0; }
+    .asg-svcdetail .long { font-size: 15px; color: var(--asg-muted); line-height: 1.7; margin: 0 0 24px; }
+    .asg-deliv { display: grid; gap: 0; border-top: 1px solid var(--asg-line); }
+    .asg-deliv .deliv-head { padding: 0 0 12px; font-family: var(--asg-mono); font-size: 11px;
+        letter-spacing: .1em; text-transform: uppercase; color: var(--asg-muted); border-bottom: 1px solid var(--asg-line); }
+    .asg-deliv .d { display: flex; align-items: center; gap: 14px; padding: 14px 0;
+        border-bottom: 1px dashed var(--asg-line); font-size: 14px; }
+    .asg-deliv .d svg { color: var(--asg-accent); flex-shrink: 0; }
 
-        <div style="background: var(--color-gray-light); border-radius: var(--border-radius-lg); padding: 2rem; border: 1px solid var(--color-border);">
-            <div style="width: 56px; height: 56px; background: var(--color-primary-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; color: var(--color-primary);">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M16 3v18M2 9h20M2 15h20"/></svg>
-            </div>
-            <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--color-dark); margin: 0 0 0.75rem;">Fasadni Sistemi</h2>
-            <p style="color: var(--color-gray); font-size: 0.9rem; line-height: 1.7; margin: 0;">
-                Projektovanje i ugradnja kompletnih ETICS fasadnih sistema — od termo-izolacijskih ploča do završnih dekorativnih žbuka.
-            </p>
-        </div>
+    .asg-proc { display: grid; grid-template-columns: repeat(4,1fr); gap: 32px; }
+    .asg-proc .step { padding: 32px 24px 32px 0; border-right: 1px solid rgba(244,241,234,.12); }
+    .asg-proc .step:last-child { border-right: none; }
+    .asg-proc .num { font-family: var(--asg-mono); font-size: 11px; letter-spacing: .1em;
+        color: var(--asg-accent); margin-bottom: 18px; border-top: 2px solid var(--asg-accent);
+        padding-top: 10px; display: inline-block; }
+    .asg-proc h4 { font-size: 22px; font-weight: 600; color: var(--asg-paper); margin: 0 0 12px; letter-spacing: -.015em; }
+    .asg-proc p { font-size: 14px; color: rgba(244,241,234,.6); line-height: 1.5; margin: 0; }
 
-        <div style="background: var(--color-gray-light); border-radius: var(--border-radius-lg); padding: 2rem; border: 1px solid var(--color-border);">
-            <div style="width: 56px; height: 56px; background: var(--color-primary-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; color: var(--color-primary);">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 22v-6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M22 12h-6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg>
-            </div>
-            <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--color-dark); margin: 0 0 0.75rem;">Toplinska Izolacija</h2>
-            <p style="color: var(--color-gray); font-size: 0.9rem; line-height: 1.7; margin: 0;">
-                Savjetovanje i isporuka EPS i mineralne vune izolacijskih materijala za smanjenje toplinskih gubitaka.
-            </p>
-        </div>
+    @@media (max-width: 920px) {
+        .asg-svcdetail { grid-template-columns: 1fr; gap: 24px; }
+        .asg-proc { grid-template-columns: 1fr 1fr; }
+        .asg-proc .step:nth-child(2) { border-right: none; }
+    }
+    @@media (max-width: 760px) {
+        .asg-proc { grid-template-columns: 1fr; }
+        .asg-proc .step { border-right: none; border-bottom: 1px solid rgba(244,241,234,.12); padding: 24px 0; }
+    }
+</style>
 
-        <div style="background: var(--color-gray-light); border-radius: var(--border-radius-lg); padding: 2rem; border: 1px solid var(--color-border);">
-            <div style="width: 56px; height: 56px; background: var(--color-primary-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; color: var(--color-primary);">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            </div>
-            <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--color-dark); margin: 0 0 0.75rem;">Tehnička Dokumentacija</h2>
-            <p style="color: var(--color-gray); font-size: 0.9rem; line-height: 1.7; margin: 0;">
-                Izrada tehničke specifikacije, proračuna i projektne dokumentacije za vaš objekat prema europskim standardima.
-            </p>
-        </div>
+@code {
+    private record Service(string Title, string Short, string Long, string[] Deliverables);
 
-        <div style="background: var(--color-gray-light); border-radius: var(--border-radius-lg); padding: 2rem; border: 1px solid var(--color-border);">
-            <div style="width: 56px; height: 56px; background: var(--color-primary-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; color: var(--color-primary);">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-            </div>
-            <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--color-dark); margin: 0 0 0.75rem;">Stručno Savjetovanje</h2>
-            <p style="color: var(--color-gray); font-size: 0.9rem; line-height: 1.7; margin: 0;">
-                Individualni pristup svakom projektu uz podršku certificiranih stručnjaka, inženjera i ovlaštenih aplikatora.
-            </p>
-        </div>
+    private readonly Service[] _services =
+    [
+        new("Fasadni sistemi",
+            "Kompletni ETICS sistemi i dekorativne žbuke za energetski efikasne fasade.",
+            "Projektovanje i isporuka kompletnih ETICS sistema — od izolacijskih ploča (EPS, mineralna vuna) do mrežica, ljepila i završnih dekorativnih žbuka. Radimo na novogradnji i sanaciji postojećih objekata.",
+            ["Tehnička specifikacija sistema", "Detalji spojeva i preboja", "Proračun debljine izolacije", "Obuka aplikatora"]),
 
-    </div>
+        new("Toplinska izolacija",
+            "EPS i mineralna vuna za smanjenje toplinskih gubitaka i energetsku uštedu.",
+            "Savjetovanje i isporuka materijala za toplinsku izolaciju zidova, krova i poda. Proračun debljine prema klimatskoj zoni i namjeni objekta, u skladu sa Pravilnikom o energetskim svojstvima zgrada.",
+            ["U-vrijednost proračun", "Specifikacija ploča i debljina", "Optimizacija troškova", "Sertifikati materijala"]),
 
-    <div style="margin-top: 3rem; text-align: center;">
-        <a href="/contact" class="btn btn-primary">Zatražite Ponudu</a>
-    </div>
-</div>
+        new("Hidroizolacija betona",
+            "XYPEX kristalna hidroizolacija za temelje, podrumske zidove i rezervoare.",
+            "Trajna hidroizolacija novog i postojećeg betona. Proizvod ulazi unutar strukture betona kao integralni dio — bez folija koje se mogu oštetiti tokom ugradnje.",
+            ["Specifikacija po elementu", "Proračun doziranja", "Saniranje pukotina i prokišnjavanja", "Nadzor ugradnje"]),
+
+        new("Zaštita od korozije",
+            "CORTEC VpCI rješenja za metalne konstrukcije, opremu i armirani beton.",
+            "Pasivna zaštita metalnih i betonskih konstrukcija od korozije korištenjem VpCI tehnologije. Primjenjivo u industriji, infrastrukturi i pri skladištenju opreme.",
+            ["Identifikacija rizičnih zona", "Odabir VpCI proizvoda", "Plan aplikacije", "Praćenje učinka"]),
+
+        new("Tehnička dokumentacija",
+            "Specifikacije, proračuni i projektna dokumentacija prema EU standardima.",
+            "Izrada svih tehničkih dokumenata potrebnih za projektovanje, javne nabavke i izvođenje radova. Detalji izvedbe, tabele količina, specifikacije materijala.",
+            ["Tehnički opis sistema", "Detalji u DWG/PDF", "Tabele količina", "CE deklaracije materijala"]),
+
+        new("Stručno savjetovanje",
+            "Individualni pristup uz podršku certificiranih stručnjaka i aplikatora.",
+            "Konsultacije sa inženjerima na licu mjesta — od idejnog rješenja do finalnog izvođenja. Procjena postojećeg stanja, izbor optimalnog sistema, nadzor radova.",
+            ["Izlazak na lokaciju", "Izvještaj sa preporukama", "Tehničke konsultacije", "Obuka tima izvođača"]),
+    ];
+}

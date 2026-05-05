@@ -1,0 +1,98 @@
+@page "/order-confirmation"
+@layout MainLayout
+@rendermode InteractiveServer
+@using System.Text.Json
+@using System.Text.Json.Serialization
+
+<PageTitle>Narudžba potvrđena — Web Shop</PageTitle>
+
+@if (!_initialized)
+{
+    <div class="asg-wrap" style="padding:80px 0;color:var(--asg-muted);font-family:var(--asg-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase">
+        Učitavanje...
+    </div>
+}
+else if (_order is null)
+{
+    <div class="asg-order-conf">
+        <div class="asg-wrap">
+            <p style="color:var(--asg-muted)">Nema podataka o narudžbi. <a href="/shop">Idi na shop</a>.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="asg-order-conf">
+        <div class="asg-wrap">
+            <div class="asg-order-conf-card">
+                <div class="asg-order-conf-eyebrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         style="width:14px;height:14px;padding:2px;background:var(--asg-accent);color:var(--asg-paper);border-radius:50%">
+                        <path d="M5 12 L10 17 L19 7"/>
+                    </svg>
+                    Narudžba zaprimljena
+                </div>
+                <h1>Hvala — vaša narudžba je u pripremi.</h1>
+                <p>Poslali smo potvrdu na vaš e-mail. Naš tim će vas kontaktirati u roku od 4 radna sata sa potvrđenim rokom isporuke.</p>
+
+                <div class="asg-order-conf-meta">
+                    <div><div class="l">Broj narudžbe</div><div class="v">#@_order.Id</div></div>
+                    <div><div class="l">Datum</div><div class="v">@_order.Date</div></div>
+                    <div><div class="l">PO broj</div><div class="v">@_order.Po</div></div>
+                    <div><div class="l">Ukupno</div><div class="v">@ShopData.FmtPrice(_order.Total)</div></div>
+                </div>
+
+                <div class="asg-order-conf-actions">
+                    <a href="/account" class="asg-btn asg-btn-pri">
+                        Pregledaj narudžbe
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+                    </a>
+                    <a href="/shop" class="asg-btn asg-btn-sec">Nastavi kupovinu</a>
+                </div>
+
+                <div class="asg-order-conf-next">
+                    <h3>Šta slijedi</h3>
+                    <div class="asg-order-conf-steps">
+                        <div>
+                            <span class="num">01</span>
+                            <span><b>Potvrda · u roku od 4h</b><br /><span style="color:var(--asg-muted)">Naš tim provjerava dostupnost i šalje potvrđeni rok isporuke.</span></span>
+                        </div>
+                        <div>
+                            <span class="num">02</span>
+                            <span><b>Priprema · 1–2 radna dana</b><br /><span style="color:var(--asg-muted)">Roba se priprema u skladištu i izdaje otpremnica.</span></span>
+                        </div>
+                        <div>
+                            <span class="num">03</span>
+                            <span><b>Isporuka · 2–5 radnih dana</b><br /><span style="color:var(--asg-muted)">Dostava na navedenu adresu, račun ide poštom ili e-mailom.</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Inject] IJSRuntime JS { get; set; } = default!;
+
+    private OrderSummary? _order;
+    private bool _initialized;
+
+    private record OrderSummary(
+        [property: JsonPropertyName("id")] string Id,
+        [property: JsonPropertyName("date")] string Date,
+        [property: JsonPropertyName("po")] string Po,
+        [property: JsonPropertyName("total")] decimal Total);
+
+    private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        var orderJson = await JS.InvokeAsync<string>("window.asgShop.getLastOrderJson");
+        if (orderJson != "null")
+            _order = JsonSerializer.Deserialize<OrderSummary>(orderJson, _json);
+        _initialized = true;
+        StateHasChanged();
+    }
+}

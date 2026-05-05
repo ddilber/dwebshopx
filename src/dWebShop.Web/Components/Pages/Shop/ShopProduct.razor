@@ -1,0 +1,266 @@
+@page "/shop/p/{slug}"
+@layout MainLayout
+@rendermode InteractiveServer
+@using System.Text.Json
+
+<PageTitle>@(_product?.Name ?? "Proizvod") — Web Shop</PageTitle>
+
+@if (_product is null)
+{
+    <div class="asg-wrap" style="padding:80px 0;color:var(--asg-muted)">Proizvod nije pronađen.</div>
+}
+else
+{
+    var brand = ShopData.FindBrand(_product.Brand);
+    var cat = ShopData.FindCategory(_product.Brand, _product.Category);
+    var currentSku = ShopData.FindSku(_product, _selected);
+    var (stockLabel, stockColor) = currentSku is not null
+        ? ShopData.StockLabel(currentSku.Stock)
+        : ShopData.StockLabel("order");
+    var related = ShopData.Products.Where(p => p.Brand == _product.Brand && p.Slug != _product.Slug).Take(4).ToList();
+
+    <div class="asg-pdp">
+        <div class="asg-wrap">
+            <nav class="asg-shop-crumbs">
+                <a href="/shop">Web Shop</a><span class="sep">/</span>
+                <a href="/shop/@_product.Brand">@(brand?.Name ?? _product.Brand)</a><span class="sep">/</span>
+                <a href="/shop/@_product.Brand/@_product.Category">@(cat?.Name ?? _product.Category)</a><span class="sep">/</span>
+                <span class="cur">@_product.Name</span>
+            </nav>
+
+            <div class="asg-pdp-head">
+                <div class="asg-pdp-gallery">
+                    <div class="asg-pdp-main-img">
+                        <span class="ph">Slika @(_activeImg + 1) · @_product.Name</span>
+                    </div>
+                    <div class="asg-pdp-thumbs">
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            var idx = i;
+                            <div class="asg-pdp-thumb @(_activeImg == idx ? "active" : "")" @onclick="() => _activeImg = idx"></div>
+                        }
+                    </div>
+                </div>
+
+                <div class="asg-pdp-info">
+                    <div class="asg-eyebrow"><span class="dot"></span><span>@(brand?.Name) · @(cat?.Name)</span></div>
+                    <h1>@_product.Name</h1>
+                    <p>@_product.Short</p>
+
+                    @if (_product.Tags.Length > 0)
+                    {
+                        <div class="asg-pdp-tags">
+                            @foreach (var tag in _product.Tags)
+                            {
+                                <span class="asg-pdp-tag">@tag</span>
+                            }
+                        </div>
+                    }
+
+                    @if (_product.Options.Length > 0)
+                    {
+                        <div class="asg-pdp-options">
+                            @foreach (var opt in _product.Options)
+                            {
+                                <div class="asg-pdp-opt">
+                                    <h6>@opt.Name</h6>
+                                    <div class="asg-pdp-opt-vals">
+                                        @foreach (var val in opt.Values)
+                                        {
+                                            var v = val;
+                                            var isActive = _selected.TryGetValue(opt.Name, out var sel) && sel == v;
+                                            var avail = ShopData.IsAvailable(_product, _selected, opt.Name, v);
+                                            <button class="asg-pdp-opt-val @(isActive ? "active" : "") @(!avail ? "unavailable" : "")"
+                                                    @onclick="() => SetOpt(opt.Name, v)"
+                                                    disabled="@(!avail)">@val</button>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <div class="asg-pdp-stock">
+                        <span class="dot" style="background:@stockColor"></span>
+                        @stockLabel
+                        @if (currentSku is not null)
+                        {
+                            <span style="color:var(--asg-muted);margin-left:8px">· SKU @ShopData.SkuKey(currentSku.Opts).ToUpperInvariant()[..Math.Min(12, ShopData.SkuKey(currentSku.Opts).Length)]</span>
+                        }
+                    </div>
+
+                    <div class="asg-pdp-buybar">
+                        <div class="asg-pdp-price">
+                            <span class="label">Cijena</span>
+                            @if (_isLoggedIn && currentSku is not null)
+                            {
+                                <span class="val">@ShopData.FmtPrice(currentSku.Price)</span>
+                                <span class="uom">po @currentSku.Uom · bez PDV-a</span>
+                            }
+                            else if (currentSku is not null)
+                            {
+                                <span class="login">Prijava za partnersku cijenu</span>
+                                <span class="uom">po @currentSku.Uom</span>
+                            }
+                            else
+                            {
+                                <span class="uom">Odaberite varijantu</span>
+                            }
+                        </div>
+                        <div class="asg-pdp-qty">
+                            <button type="button" @onclick="DecrQty">−</button>
+                            <input type="number" value="@_qty" min="1"
+                                   @onchange="@(e => _qty = Math.Max(1, int.TryParse(e.Value?.ToString(), out var v) ? v : 1))" />
+                            <button type="button" @onclick="() => _qty++">+</button>
+                        </div>
+                        <button class="asg-btn asg-btn-pri" @onclick="AddToCart" disabled="@(currentSku is null)">
+                            @if (_added)
+                            {
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M5 12 L10 17 L19 7"/></svg>
+                                <span>Dodano</span>
+                            }
+                            else
+                            {
+                                <span>U korpu</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+                            }
+                        </button>
+                    </div>
+
+                    <div style="display:flex;gap:24px;font-size:13px;color:var(--asg-muted);border-top:1px solid var(--asg-line);padding-top:18px">
+                        <div><b style="color:var(--asg-ink);font-weight:600">Tehnička podrška:</b> +387 34 352 070</div>
+                        <div><b style="color:var(--asg-ink);font-weight:600">Isporuka:</b> 2–5 radnih dana</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="asg-pdp-body">
+                <div>
+                    <h3>01 / Opis proizvoda</h3>
+                    <div class="asg-pdp-desc">@_product.Desc</div>
+                </div>
+                <div>
+                    <h3>02 / Tehnički podaci</h3>
+                    <div class="asg-pdp-spec">
+                        @foreach (var row in _product.Info)
+                        {
+                            <div><span>@row.K</span><span>@row.V</span></div>
+                        }
+                    </div>
+                    @if (_product.Docs.Length > 0)
+                    {
+                        <div class="asg-pdp-docs">
+                            <h3>03 / Dokumentacija</h3>
+                            @foreach (var doc in _product.Docs)
+                            {
+                                <a href="#" class="asg-pdp-doc" @onclick:preventDefault="true">
+                                    <div class="asg-pdp-doc-icon">PDF</div>
+                                    <span>@doc.Name</span>
+                                    <span class="size">@doc.Size</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:16px;height:16px;color:var(--asg-muted)">
+                                        <path d="M12 4 V16 M6 11 L12 17 L18 11 M5 20 H19"/>
+                                    </svg>
+                                </a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @if (related.Count > 0)
+        {
+            <section class="asg-pdp-related">
+                <div class="asg-wrap">
+                    <div class="asg-shead" style="margin-bottom:40px">
+                        <div class="asg-num">04 / Povezano</div>
+                        <div>
+                            <h2 class="asg-h2">Iz iste linije</h2>
+                            <p class="asg-lede">Proizvodi koji se često koriste u istom sistemu.</p>
+                        </div>
+                    </div>
+                    <div class="asg-shop-row">
+                        @foreach (var p in related)
+                        {
+                            <ShopProductCard Product="p" IsLoggedIn="_isLoggedIn" />
+                        }
+                    </div>
+                </div>
+            </section>
+        }
+    </div>
+}
+
+@code {
+    [Inject] IJSRuntime JS { get; set; } = default!;
+
+    [Parameter] public string Slug { get; set; } = "";
+
+    private ShopData.Product? _product;
+    private Dictionary<string, string> _selected = [];
+    private int _qty = 1;
+    private int _activeImg;
+    private bool _added;
+    private bool _isLoggedIn;
+
+    protected override void OnParametersSet()
+    {
+        _product = ShopData.FindProduct(Slug);
+        if (_product is not null)
+        {
+            _selected = [];
+            if (_product.Skus.Length > 0)
+            {
+                var first = _product.Skus[0];
+                for (int i = 0; i < _product.Options.Length; i++)
+                    _selected[_product.Options[i].Name] = first.Opts[i];
+            }
+        }
+        _qty = 1;
+        _added = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        var userJson = await JS.InvokeAsync<string>("window.asgShop.getUserJson");
+        _isLoggedIn = userJson != "null";
+        StateHasChanged();
+    }
+
+    private void SetOpt(string optName, string val)
+    {
+        _selected = new Dictionary<string, string>(_selected) { [optName] = val };
+    }
+
+    private void DecrQty() => _qty = Math.Max(1, _qty - 1);
+
+    private async Task AddToCart()
+    {
+        if (_product is null) return;
+        var sku = ShopData.FindSku(_product, _selected);
+        if (sku is null) return;
+
+        var optsLabel = string.Join(" · ", _product.Options.Select((o, i) => $"{o.Name}: {sku.Opts[i]}"));
+        var skuKey = ShopData.SkuKey(sku.Opts);
+
+        await JS.InvokeVoidAsync("window.asgShop.addToCart", new
+        {
+            productSlug = _product.Slug,
+            productName = _product.Name,
+            brand = _product.Brand,
+            skuKey,
+            opts = sku.Opts,
+            optsLabel = string.IsNullOrEmpty(optsLabel) ? "—" : optsLabel,
+            uom = sku.Uom,
+            price = sku.Price,
+            qty = _qty,
+        });
+
+        _added = true;
+        StateHasChanged();
+        await Task.Delay(2200);
+        _added = false;
+        StateHasChanged();
+    }
+}

@@ -22,249 +22,301 @@ build_property.TargetFrameworkIdentifier = .NETCoreApp
 build_property.TargetFrameworkVersion = v9.0
 build_property.RootNamespace = dWebShop.Web
 build_property.RootNamespace = dWebShop.Web
-build_property.ProjectDir = /home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/
+build_property.ProjectDir = F:\PROJECTS\Blazor\dWebShopX\.claude\worktrees\sad-haslett-753c48\src\dWebShop.Web\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 9.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = /home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web
+build_property.MSBuildProjectDirectory = F:\PROJECTS\Blazor\dWebShopX\.claude\worktrees\sad-haslett-753c48\src\dWebShop.Web
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 9.0
 build_property.EnableCodeStyleSeverity = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/App.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9BcHAucmF6b3I=
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/App.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBcHAucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/AdminLayout.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvQWRtaW5MYXlvdXQucmF6b3I=
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Layout/AdminLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcQWRtaW5MYXlvdXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/LandingLayout.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvTGFuZGluZ0xheW91dC5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Layout/LandingLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTGFuZGluZ0xheW91dC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/PortalLayout.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvUG9ydGFsTGF5b3V0LnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Layout/PortalLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcUG9ydGFsTGF5b3V0LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/PublicLayout.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvUHVibGljTGF5b3V0LnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Layout/PublicLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcUHVibGljTGF5b3V0LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/About.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BYm91dC5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/About.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBYm91dC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Blog.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9CbG9nLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Admin/Blog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxCbG9nLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Brands.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9CcmFuZHMucmF6b3I=
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Admin/Brands.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxCcmFuZHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Categories.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9DYXRlZ29yaWVzLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Admin/Categories.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxDYXRlZ29yaWVzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Clients.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9DbGllbnRzLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Admin/Clients.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxDbGllbnRzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Dashboard.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9EYXNoYm9hcmQucmF6b3I=
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Admin/Dashboard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxEYXNoYm9hcmQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Orders.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9PcmRlcnMucmF6b3I=
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Admin/OrderDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxPcmRlckRldGFpbC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Pricelists.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9QcmljZWxpc3RzLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Admin/Orders.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxPcmRlcnMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/ProductEdit.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9Qcm9kdWN0RWRpdC5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Admin/Pricelists.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxQcmljZWxpc3RzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/Products.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9Qcm9kdWN0cy5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Admin/ProductEdit.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxQcm9kdWN0RWRpdC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Admin/ProductSkus.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BZG1pbi9Qcm9kdWN0U2t1cy5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Admin/Products.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxQcm9kdWN0cy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Auth/Login.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BdXRoL0xvZ2luLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Admin/ProductSkus.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxQcm9kdWN0U2t1cy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Auth/PendingApproval.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BdXRoL1BlbmRpbmdBcHByb3ZhbC5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Auth/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBdXRoXExvZ2luLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Auth/Register.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BdXRoL1JlZ2lzdGVyLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Auth/PendingApproval.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBdXRoXFBlbmRpbmdBcHByb3ZhbC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Auth/RegisterSuccess.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9BdXRoL1JlZ2lzdGVyU3VjY2Vzcy5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Auth/Register.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBdXRoXFJlZ2lzdGVyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Brands/Cortec/Cortec.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9CcmFuZHMvQ29ydGVjL0NvcnRlYy5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Auth/RegisterSuccess.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBdXRoXFJlZ2lzdGVyU3VjY2Vzcy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Brands/Sto/Sto.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9CcmFuZHMvU3RvL1N0by5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Brands/Cortec/Cortec.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xCcmFuZHNcQ29ydGVjXENvcnRlYy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Brands/Xypex/Xypex.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9CcmFuZHMvWHlwZXgvWHlwZXgucmF6b3I=
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Brands/Sto/Sto.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xCcmFuZHNcU3RvXFN0by5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Contact.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Db250YWN0LnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Brands/Xypex/Xypex.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xCcmFuZHNcWHlwZXhcWHlwZXgucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Counter.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Db3VudGVyLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Contact.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDb250YWN0LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Error.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9FcnJvci5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Counter.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDb3VudGVyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Home.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Ib21lLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Error.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xFcnJvci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/NotFound.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Ob3RGb3VuZC5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xIb21lLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Portal/Cart.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qb3J0YWwvQ2FydC5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/NotFound.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xOb3RGb3VuZC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Portal/Dashboard.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qb3J0YWwvRGFzaGJvYXJkLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Portal/Cart.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQb3J0YWxcQ2FydC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Portal/Orders.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qb3J0YWwvT3JkZXJzLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Portal/Checkout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQb3J0YWxcQ2hlY2tvdXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Portal/ProductDetail.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qb3J0YWwvUHJvZHVjdERldGFpbC5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Portal/Dashboard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQb3J0YWxcRGFzaGJvYXJkLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Portal/Products.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qb3J0YWwvUHJvZHVjdHMucmF6b3I=
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Portal/OrderDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQb3J0YWxcT3JkZXJEZXRhaWwucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Portal/Profile.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qb3J0YWwvUHJvZmlsZS5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Portal/Orders.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQb3J0YWxcT3JkZXJzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Privacy.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qcml2YWN5LnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Portal/ProductDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQb3J0YWxcUHJvZHVjdERldGFpbC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Projects.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qcm9qZWN0cy5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Portal/Products.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQb3J0YWxcUHJvZHVjdHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Public/BrandCategoryProducts.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9QdWJsaWMvQnJhbmRDYXRlZ29yeVByb2R1Y3RzLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Portal/Profile.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQb3J0YWxcUHJvZmlsZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Public/BrandDetail.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9QdWJsaWMvQnJhbmREZXRhaWwucmF6b3I=
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Privacy.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQcml2YWN5LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Public/Brands.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9QdWJsaWMvQnJhbmRzLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Projects.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQcm9qZWN0cy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Public/ProductDetail.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9QdWJsaWMvUHJvZHVjdERldGFpbC5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Public/BlogIndex.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQdWJsaWNcQmxvZ0luZGV4LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Services.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9TZXJ2aWNlcy5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Public/BlogPost.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQdWJsaWNcQmxvZ1Bvc3QucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Terms.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9UZXJtcy5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Public/BrandCategoryProducts.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQdWJsaWNcQnJhbmRDYXRlZ29yeVByb2R1Y3RzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Pages/Weather.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9XZWF0aGVyLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Public/BrandDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQdWJsaWNcQnJhbmREZXRhaWwucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/RedirectToLogin.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9SZWRpcmVjdFRvTG9naW4ucmF6b3I=
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Public/Brands.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQdWJsaWNcQnJhbmRzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Routes.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9Sb3V0ZXMucmF6b3I=
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Public/ProductDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQdWJsaWNcUHJvZHVjdERldGFpbC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/BrandCard.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvQnJhbmRDYXJkLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Services.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xTZXJ2aWNlcy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/CategoryTree.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvQ2F0ZWdvcnlUcmVlLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Shop/ShopAccount.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xTaG9wXFNob3BBY2NvdW50LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/DocumentDownload.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvRG9jdW1lbnREb3dubG9hZC5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Shop/ShopBrand.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xTaG9wXFNob3BCcmFuZC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/LoadingSpinner.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvTG9hZGluZ1NwaW5uZXIucmF6b3I=
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Shop/ShopCart.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xTaG9wXFNob3BDYXJ0LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/PaginatedList.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvUGFnaW5hdGVkTGlzdC5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Shop/ShopCatalog.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xTaG9wXFNob3BDYXRhbG9nLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/PriceDisplay.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvUHJpY2VEaXNwbGF5LnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Shop/ShopCheckout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xTaG9wXFNob3BDaGVja291dC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/ProductCard.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvUHJvZHVjdENhcmQucmF6b3I=
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Shop/ShopOrderConfirmation.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xTaG9wXFNob3BPcmRlckNvbmZpcm1hdGlvbi5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Shared/SearchBar.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TaGFyZWQvU2VhcmNoQmFyLnJhem9y
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Shop/ShopProduct.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xTaG9wXFNob3BQcm9kdWN0LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/_Imports.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9fSW1wb3J0cy5yYXpvcg==
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Terms.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xUZXJtcy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/Footer.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvRm9vdGVyLnJhem9y
-build_metadata.AdditionalFiles.CssScope = b-qxzmaehri3
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Pages/Weather.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xXZWF0aGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/MainLayout.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvTWFpbkxheW91dC5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = b-bc6v2zhcmp
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/RedirectToLogin.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSZWRpcmVjdFRvTG9naW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/Navbar.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvTmF2YmFyLnJhem9y
-build_metadata.AdditionalFiles.CssScope = b-qkhcjo4xwg
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Routes.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSb3V0ZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/NavMenu.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvTmF2TWVudS5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = b-valg02ddol
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Shared/BrandCard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTaGFyZWRcQnJhbmRDYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
 
-[/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Web/Components/Layout/ReconnectModal.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvUmVjb25uZWN0TW9kYWwucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = b-8le2fwaexp
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Shared/CategoryTree.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTaGFyZWRcQ2F0ZWdvcnlUcmVlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Shared/DocumentDownload.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTaGFyZWRcRG9jdW1lbnREb3dubG9hZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Shared/LoadingSpinner.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTaGFyZWRcTG9hZGluZ1NwaW5uZXIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Shared/PaginatedList.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTaGFyZWRcUGFnaW5hdGVkTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Shared/PriceDisplay.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTaGFyZWRcUHJpY2VEaXNwbGF5LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Shared/ProductCard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTaGFyZWRcUHJvZHVjdENhcmQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Shared/SearchBar.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTaGFyZWRcU2VhcmNoQmFyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Shared/ShopProductCard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTaGFyZWRcU2hvcFByb2R1Y3RDYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xfSW1wb3J0cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Layout/Footer.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcRm9vdGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-ff3kcs069d
+
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTWFpbkxheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-8f8i3mbm5q
+
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Layout/Navbar.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTmF2YmFyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = b-nku3og9c1x
+
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Layout/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTmF2TWVudS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-y1jv9vap4u
+
+[F:/PROJECTS/Blazor/dWebShopX/.claude/worktrees/sad-haslett-753c48/src/dWebShop.Web/Components/Layout/ReconnectModal.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcUmVjb25uZWN0TW9kYWwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-ucnipa29n4

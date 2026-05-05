@@ -1,156 +1,234 @@
 @page "/brands/{Slug}"
-@layout PublicLayout
-@rendermode InteractiveServer
-@using dWebShop.Application.Features.Brands.Queries
-@inject IMediator Mediator
-@inject NavigationManager Nav
+@layout MainLayout
 
-<PageTitle>@(_brand?.Name ?? "Brand") — dWebShop</PageTitle>
-<HeadContent>
-    <meta name="description" content="@(_brand?.Description ?? string.Empty)" />
-</HeadContent>
+<PageTitle>@(_brand?.Name ?? "Brand") — A&amp;S GIFIKS</PageTitle>
 
-<LoadingSpinner Visible="_loading" />
+<div class="asg-page">
 
-@if (!_loading)
+@if (_brand == null)
 {
-    @if (_brand is null)
-    {
-        <MudAlert Severity="Severity.Warning">Brand not found.</MudAlert>
-        <MudButton Href="/brands" StartIcon="@Icons.Material.Filled.ArrowBack" Class="mt-4">Back to Brands</MudButton>
-    }
-    else
-    {
-        <!-- Breadcrumbs -->
-        <MudBreadcrumbs Items="_breadcrumbs" Class="px-0 mb-4" />
+    <div style="padding:80px 48px; text-align:center;">
+        <p>Brand nije pronađen. <a href="/brands">Nazad na brendove</a></p>
+    </div>
+}
+else
+{
+    <!-- Page header -->
+    <header class="asg-pageheader">
+        <div class="asg-wrap">
+            <div class="asg-pageheader-grid">
+                <div>
+                    <div class="asg-eyebrow"><span class="dot"></span>@_brand.Origin &middot; @_brand.Tagline</div>
+                    <h1><em>@_brand.Name</em> — @_brand.Tagline.</h1>
+                    <p class="asg-lede">@_brand.Desc</p>
+                </div>
+                <div class="asg-pageheader-meta">
+                    <div><span>Porijeklo</span><b>@_brand.Origin</b></div>
+                    <div><span>Osnovano</span><b>@_brand.Since</b></div>
+                    <div><span>Distribucija</span><b>BiH &middot; ASGifiks</b></div>
+                </div>
+            </div>
+        </div>
+    </header>
 
-        <!-- Brand header -->
-        <MudGrid Spacing="4" Class="mb-6">
-            <MudItem xs="12" sm="3" Class="d-flex align-center justify-center">
-                @if (!string.IsNullOrWhiteSpace(_brand.LogoImage))
+    <!-- Stats (dark) -->
+    <section class="asg-section asg-dark asg-tight">
+        <div class="asg-wrap">
+            <div class="bd-stats">
+                @foreach (var s in _brand.Stats)
                 {
-                    <img src="/product_images/brands/@_brand.LogoImage"
-                         alt="@_brand.Name logo"
-                         style="max-width:200px; max-height:120px; object-fit:contain;" />
+                    <div class="bd-stat">
+                        <div class="n">@s.N</div>
+                        <div class="l">@s.L</div>
+                    </div>
                 }
-                else
-                {
-                    <MudIcon Icon="@Icons.Material.Filled.Store" Style="font-size:80px;" Color="Color.Primary" />
-                }
-            </MudItem>
-            <MudItem xs="12" sm="9">
-                <MudText Typo="Typo.h4" Style="font-weight:700;">@_brand.Name</MudText>
-                @if (!string.IsNullOrWhiteSpace(_brand.Description))
-                {
-                    <MudText Typo="Typo.body1" Class="mt-2 mud-text-secondary">@_brand.Description</MudText>
-                }
-            </MudItem>
-        </MudGrid>
+            </div>
+        </div>
+    </section>
 
-        <MudDivider Class="mb-6" />
-
-        <!-- Categories -->
-        @if (_brand.Categories.Count == 0)
-        {
-            <MudAlert Severity="Severity.Info">No categories available for this brand yet.</MudAlert>
-        }
-        else
-        {
-            <MudText Typo="Typo.h5" Class="mb-4">Product Categories</MudText>
-            <MudGrid Spacing="3">
-                @foreach (var cat in _brand.Categories.Where(c => c.ParentCategoryId == null))
+    <!-- Why -->
+    <section class="asg-section">
+        <div class="asg-wrap">
+            <div class="asg-shead">
+                <div class="asg-num">01 — Zašto @_brand.Name</div>
+                <div>
+                    <h2 class="asg-h2">Tri razloga zbog kojih radimo sa @_brand.Name.</h2>
+                </div>
+            </div>
+            <div class="bd-why">
+                @foreach (var w in _brand.Why)
                 {
-                    var subCats = _brand.Categories.Where(c => c.ParentCategoryId == cat.Id).ToList();
-                    <MudItem xs="12" sm="6" md="4">
-                        <MudCard Outlined="true">
-                            <MudCardContent>
-                                <MudLink Href="@($"/brands/{_brand.Slug}/categories/{cat.Slug}")"
-                                         Underline="Underline.None">
-                                    <MudText Typo="Typo.h6" Style="font-weight:600;">@cat.Name</MudText>
-                                </MudLink>
-                                @if (!string.IsNullOrWhiteSpace(cat.Description))
-                                {
-                                    <MudText Typo="Typo.body2" Class="mud-text-secondary mt-1">@cat.Description</MudText>
-                                }
-                                @if (subCats.Any())
-                                {
-                                    <MudList T="CategorySummaryDto" Dense="true" Class="mt-2 pa-0">
-                                        @foreach (var sub in subCats)
-                                        {
-                                            <MudListItem T="CategorySummaryDto" Value="sub"
-                                                         Icon="@Icons.Material.Filled.ChevronRight"
-                                                         Dense="true">
-                                                <MudLink Href="@($"/brands/{_brand.Slug}/categories/{sub.Slug}")"
-                                                         Underline="Underline.Hover">
-                                                    @sub.Name
-                                                </MudLink>
-                                            </MudListItem>
-                                        }
-                                    </MudList>
-                                }
-                            </MudCardContent>
-                            <MudCardActions>
-                                <MudButton Variant="Variant.Text" Color="Color.Primary"
-                                           EndIcon="@Icons.Material.Filled.ArrowForward"
-                                           Href="@($"/brands/{_brand.Slug}/categories/{cat.Slug}")">
-                                    Browse
-                                </MudButton>
-                            </MudCardActions>
-                        </MudCard>
-                    </MudItem>
+                    <div class="w">
+                        <h4>@w.T</h4>
+                        <p>@w.D</p>
+                    </div>
                 }
-            </MudGrid>
+            </div>
+        </div>
+    </section>
 
-            <!-- Categories with no parent that are children (show flat if all are leafs) -->
-            @if (!_brand.Categories.Any(c => c.ParentCategoryId == null) && _brand.Categories.Any())
-            {
-                <MudGrid Spacing="3">
-                    @foreach (var cat in _brand.Categories)
+    <!-- Products -->
+    <section class="asg-section asg-soft">
+        <div class="asg-wrap">
+            <div class="asg-shead">
+                <div class="asg-num">02 — Asortiman</div>
+                <div>
+                    <h2 class="asg-h2">Glavne proizvodne linije.</h2>
+                    <p class="asg-lede">Selekcija — kompletan asortiman dostupan na upit.</p>
+                </div>
+            </div>
+            <div class="bd-prod">
+                <div class="asg-ph ph-dark" style="height:420px">[ @_brand.Name.ToLower() proizvodi ]</div>
+                <div class="list">
+                    @for (int i = 0; i < _brand.Products.Length; i++)
                     {
-                        <MudItem xs="12" sm="6" md="4">
-                            <MudCard Outlined="true">
-                                <MudCardContent>
-                                    <MudLink Href="@($"/brands/{_brand.Slug}/categories/{cat.Slug}")"
-                                             Underline="Underline.None">
-                                        <MudText Typo="Typo.h6" Style="font-weight:600;">@cat.Name</MudText>
-                                    </MudLink>
-                                    @if (!string.IsNullOrWhiteSpace(cat.Description))
-                                    {
-                                        <MudText Typo="Typo.body2" Class="mud-text-secondary mt-1">@cat.Description</MudText>
-                                    }
-                                </MudCardContent>
-                                <MudCardActions>
-                                    <MudButton Variant="Variant.Text" Color="Color.Primary"
-                                               EndIcon="@Icons.Material.Filled.ArrowForward"
-                                               Href="@($"/brands/{_brand.Slug}/categories/{cat.Slug}")">
-                                        Browse
-                                    </MudButton>
-                                </MudCardActions>
-                            </MudCard>
-                        </MudItem>
+                        var num = (i + 1).ToString("D2");
+                        var prod = _brand.Products[i];
+                        <div class="row">
+                            <span class="num">/ @num</span>
+                            <span class="name">@prod</span>
+                            <span class="arr">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h14M13 5l7 7-7 7" />
+                                </svg>
+                            </span>
+                        </div>
                     }
-                </MudGrid>
-            }
-        }
-    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Other brands -->
+    <section class="asg-section asg-tight">
+        <div class="asg-wrap">
+            <div class="asg-num" style="display:inline-block; margin-bottom:24px;">03 — Ostali brendovi</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px;">
+                @foreach (var o in _allBrands.Where(b => b.Key != _brand.Key))
+                {
+                    <a href="/brands/@o.Key" class="other-brand">
+                        <div>
+                            <div style="font-size:32px; font-weight:700; letter-spacing:-.02em; margin-bottom:6px;">@o.Name</div>
+                            <div style="font-size:14px; color:var(--asg-muted);">@o.Tagline</div>
+                        </div>
+                        <div style="color:var(--asg-accent);">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14M13 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </a>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="asg-section asg-dark asg-tight">
+        <div class="asg-wrap">
+            <div style="display:grid; grid-template-columns:2fr 1fr; gap:64px; align-items:center;">
+                <div>
+                    <h2 style="font-size:clamp(36px,4.5vw,64px); line-height:1; letter-spacing:-.025em; font-weight:700; margin:0; color:var(--asg-paper);">
+                        Spreman si <em style="font-style:normal; color:var(--asg-slate);">specificirati</em> sistem?
+                    </h2>
+                    <p style="color:rgba(244,241,234,.7); font-size:17px; margin:16px 0 0; max-width:48ch;">
+                        Pošalji nam tlocrt ili kratak opis projekta — vraćamo se u 24h.
+                    </p>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <a href="/contact" class="asg-btn asg-btn-pri">
+                        Pošalji upit
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M13 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                    <a href="tel:+38734000000" class="asg-btn asg-btn-sec">+387 34 000 000</a>
+                </div>
+            </div>
+        </div>
+    </section>
 }
 
+</div>
+
+<style>
+    .asg-ph { background: repeating-linear-gradient(135deg, #e8e3d8 0 14px, rgba(0,0,0,.04) 14px 28px);
+        color: rgba(0,0,0,.45); display: flex; align-items: flex-end; padding: 18px;
+        font-family: var(--asg-mono); font-size: 11px; letter-spacing: .06em; text-transform: lowercase; }
+    .ph-dark { background: repeating-linear-gradient(135deg, #16161a 0 14px, rgba(255,255,255,.04) 14px 28px); color: rgba(255,255,255,.5); }
+
+    .bd-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; }
+    .bd-stat { padding: 32px 24px 32px 0; border-right: 1px solid rgba(244,241,234,.12); }
+    .bd-stat:last-child { border-right: none; }
+    .bd-stat .n { font-size: clamp(40px,4.5vw,72px); font-weight: 600; letter-spacing: -.025em; line-height: 1; color: var(--asg-paper); }
+    .bd-stat .l { font-family: var(--asg-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: rgba(244,241,234,.55); margin-top: 14px; }
+
+    .bd-why { display: grid; grid-template-columns: repeat(3,1fr); gap: 48px; }
+    .bd-why .w { padding: 32px 0 0; border-top: 2px solid var(--asg-accent); }
+    .bd-why .w h4 { font-size: 22px; font-weight: 600; letter-spacing: -.015em; margin: 0 0 14px; }
+    .bd-why .w p { font-size: 15px; color: var(--asg-muted); line-height: 1.6; margin: 0; }
+
+    .bd-prod { display: grid; grid-template-columns: 1fr 2fr; gap: 64px; align-items: start; }
+    .bd-prod .list { display: grid; gap: 0; border-top: 1px solid var(--asg-line); }
+    .bd-prod .row { display: grid; grid-template-columns: 60px 1fr auto; gap: 24px;
+        padding: 22px 0; border-bottom: 1px solid var(--asg-line); align-items: center; }
+    .bd-prod .num { font-family: var(--asg-mono); font-size: 11px; letter-spacing: .1em; color: var(--asg-muted); }
+    .bd-prod .name { font-size: 18px; font-weight: 500; letter-spacing: -.01em; }
+    .bd-prod .arr { color: var(--asg-accent); }
+
+    .other-brand { padding: 32px; border: 1px solid var(--asg-line); text-decoration: none; color: inherit;
+        display: flex; justify-content: space-between; align-items: center; transition: border-color .2s; }
+    .other-brand:hover { border-color: var(--asg-accent); text-decoration: none; color: inherit; }
+
+    @@media (max-width: 920px) {
+        .bd-stats { grid-template-columns: 1fr 1fr; }
+        .bd-stat:nth-child(2) { border-right: none; }
+        .bd-why { grid-template-columns: 1fr; }
+        .bd-prod { grid-template-columns: 1fr; gap: 32px; }
+    }
+    @@media (max-width: 760px) {
+        .other-brand { flex-direction: column; align-items: flex-start; gap: 12px; }
+    }
+</style>
+
 @code {
-    [Parameter] public string Slug { get; set; } = string.Empty;
+    [Parameter] public string Slug { get; set; } = "";
 
-    private BrandWithCategoriesDto? _brand;
-    private bool _loading = true;
-    private List<BreadcrumbItem> _breadcrumbs = [];
+    private BrandData? _brand;
 
-    protected override async Task OnInitializedAsync()
+    private record Stat(string N, string L);
+    private record Why(string T, string D);
+    private record BrandData(string Key, string Name, string Origin, string Since, string Tagline, string Desc,
+        Stat[] Stats, Why[] Why, string[] Products);
+
+    private static readonly BrandData[] _allBrands =
+    [
+        new("sto", "STO", "Njemačka", "1955", "Fasadni sistemi i toplinska izolacija",
+            "Svjetski lider u fasadnim sistemima i toplinskoj izolaciji. Inovativna rješenja za energetsku efikasnost objekata u skladu sa europskim standardima.",
+            [new("70+","godina iskustva"), new("5,500","zaposlenih u svijetu"), new("37","zemalja distribucije"), new("#1","u ETICS sistemima")],
+            [new("Sistemska rješenja","Kompletan portfolio od izolacijske ploče do završnog premaza, garantovano kao jedinstven sistem."),
+             new("Energetska efikasnost","Materijali koji značajno smanjuju toplinske gubitke i troškove grijanja."),
+             new("Tehnička podrška","Lokalni inženjerski tim za projektovanje, proračune i obuku aplikatora.")],
+            ["Fasadni ETICS sistemi", "Toplinska izolacija (EPS, MW)", "Dekorativne žbuke", "Boje, premazi i lazure", "Sanacija i obnova fasada"]),
+
+        new("xypex", "XYPEX", "Kanada", "1969", "Kristalna hidroizolacija betona",
+            "Revolucionarna kristalna tehnologija koja pretvara beton u trajno hidroizolirani materijal. Aktivira se u kontaktu sa vodom i ponovo zatvara mikropukotine.",
+            [new("55+","godina razvoja"), new("90+","zemalja primjene"), new("1B+","m³ obrađenog betona"), new("∞","životni vijek")],
+            [new("Trajna zaštita","Kristali rastu unutar betona i postaju sastavni dio strukture — ne ljušte se i ne troše."),
+             new("Samosanacija","U prisustvu vlage zatvara pukotine do 0.4 mm i nakon godina od ugradnje."),
+             new("Pitka voda","Sertifikovan za kontakt sa pitkom vodom (NSF/ANSI 61).")],
+            ["Admix dodatak za beton", "Concentrate / premazi", "Patch 'n Plug — sanacija", "Megamix hidroizolacijski mort", "Dichtungsslamm"]),
+
+        new("cortec", "CORTEC", "SAD", "1977", "Zaštita od korozije — VpCI tehnologija",
+            "Globalni lider u zaštiti metala od korozije pomoću isparljivih inhibitora (VpCI) — bez teških metala, ekološki prihvatljivo, primjenjivo u zatvorenim prostorima i na otvorenom.",
+            [new("45+","godina inovacije"), new("450+","patenata"), new("70+","zemalja"), new("100%","biorazgradljivo")],
+            [new("Ekološki održivo","Bez nitrita, fosfata i teških metala. Sigurno za radnike, okolinu i krajnje korisnike."),
+             new("Pasivna zaštita","VpCI molekuli isparavaju i formiraju zaštitni film — nije potrebno premazivati svaki ćošak."),
+             new("Industrijska primjena","Cjevovodi, armirani beton, transformatori, oprema u skladištenju i transportu.")],
+            ["VpCI folije i papir", "VpCI inhibitori", "Antikorozioni premazi", "Aditivi za beton (MCI)", "Industrijska sredstva za čišćenje"]),
+    ];
+
+    protected override void OnParametersSet()
     {
-        _brand = await Mediator.Send(new GetBrandBySlugQuery(Slug));
-        _breadcrumbs =
-        [
-            new BreadcrumbItem("Home", href: "/"),
-            new BreadcrumbItem("Brands", href: "/brands"),
-            new BreadcrumbItem(_brand?.Name ?? Slug, href: null, disabled: true)
-        ];
-        _loading = false;
+        _brand = _allBrands.FirstOrDefault(b => b.Key == Slug?.ToLower());
     }
 }

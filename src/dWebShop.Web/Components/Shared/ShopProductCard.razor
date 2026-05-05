@@ -1,0 +1,48 @@
+@using dWebShop.Web
+
+<a href="/shop/p/@Product.Slug" class="asg-pcard">
+    <div class="asg-pcard-img">
+        <span class="asg-pcard-brand">@Product.Brand.ToUpperInvariant()</span>
+        @{
+            var stockVal = Product.Skus.Any(s => s.Stock == "in") ? "in"
+                         : Product.Skus.Any(s => s.Stock == "low") ? "low" : "order";
+            var (stockLabel, stockColor) = ShopData.StockLabel(stockVal);
+        }
+        <span class="asg-pcard-stock">
+            <span class="dot" style="background:@stockColor"></span>
+            @stockLabel
+        </span>
+        <span class="ph">Slika proizvoda</span>
+    </div>
+    <div class="asg-pcard-body">
+        @{
+            var cat = ShopData.FindCategory(Product.Brand, Product.Category);
+        }
+        <div class="asg-pcard-cat">@(cat?.Name ?? "")</div>
+        <h4>@Product.Name</h4>
+        <p>@Product.Short</p>
+        <div class="asg-pcard-foot">
+            <div class="asg-pcard-price">
+                <span class="from">Cijena od</span>
+                @if (IsLoggedIn)
+                {
+                    <span class="val">@ShopData.FmtPrice(Product.Skus.Min(s => s.Price))</span>
+                }
+                else
+                {
+                    <span class="login">Prijava za cijenu</span>
+                }
+            </div>
+            <div class="asg-pcard-arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px">
+                    <path d="M5 12 H19 M13 6 L19 12 L13 18"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</a>
+
+@code {
+    [Parameter] public ShopData.Product Product { get; set; } = default!;
+    [Parameter] public bool IsLoggedIn { get; set; }
+}

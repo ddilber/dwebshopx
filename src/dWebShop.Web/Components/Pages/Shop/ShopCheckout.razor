@@ -1,0 +1,202 @@
+@page "/checkout"
+@layout MainLayout
+@rendermode InteractiveServer
+@using System.Text.Json
+
+<PageTitle>B2B Checkout — Web Shop</PageTitle>
+
+@if (!_initialized)
+{
+    <div class="asg-wrap" style="padding:80px 0;color:var(--asg-muted);font-family:var(--asg-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase">
+        Učitavanje...
+    </div>
+}
+else if (!_isLoggedIn || _cart.Count == 0)
+{
+    <div class="asg-wrap" style="padding:80px 0">
+        <p style="color:var(--asg-muted)">
+            @(!_isLoggedIn ? "Prijavite se za nastavak na checkout." : "Vaša korpa je prazna.")
+        </p>
+        <a href="/cart" class="asg-btn asg-btn-pri" style="margin-top:16px;display:inline-flex">Nazad na korpu</a>
+    </div>
+}
+else
+{
+    var subtotal = _cart.Sum(i => i.Qty * i.Price);
+    var tax = subtotal * 0.17m;
+    var deliveryCost = _delivery == "express" ? 80m : _delivery == "pickup" ? 0m : 45m;
+    var total = subtotal + tax + deliveryCost;
+
+    <div class="asg-checkout">
+        <div class="asg-wrap">
+            <nav class="asg-shop-crumbs">
+                <a href="/shop">Web Shop</a><span class="sep">/</span>
+                <a href="/cart">Korpa</a><span class="sep">/</span>
+                <span class="cur">B2B Checkout</span>
+            </nav>
+
+            <div class="asg-listing-head" style="margin-bottom:32px">
+                <div>
+                    <div class="asg-eyebrow"><span class="dot"></span><span>B2B Narudžba</span></div>
+                    <h1 style="margin-top:12px">Završetak narudžbe</h1>
+                    <p class="asg-lede">Narudžba se procesuira ručno — naš tim će vam poslati potvrdu sa rokom isporuke u roku od 4h.</p>
+                </div>
+            </div>
+
+            <div class="asg-checkout-grid">
+                <div>
+                    <section class="asg-checkout-section">
+                        <h3><span class="num">1</span>Podaci o partneru</h3>
+                        <div class="asg-form-grid">
+                            <div class="asg-field full"><label>Naziv firme</label><input @bind="_company" required /></div>
+                            <div class="asg-field"><label>PDV broj</label><input @bind="_vat" required /></div>
+                            <div class="asg-field"><label>Kontakt osoba</label><input @bind="_contactName" required /></div>
+                            <div class="asg-field"><label>E-mail</label><input type="email" @bind="_email" required /></div>
+                            <div class="asg-field"><label>Telefon</label><input @bind="_phone" required /></div>
+                        </div>
+                    </section>
+
+                    <section class="asg-checkout-section">
+                        <h3><span class="num">2</span>Adresa isporuke</h3>
+                        <div class="asg-form-grid">
+                            <div class="asg-field full"><label>Adresa</label><input @bind="_addr" required /></div>
+                            <div class="asg-field"><label>Grad</label><input @bind="_city" required /></div>
+                            <div class="asg-field"><label>Poštanski broj</label><input @bind="_zip" required /></div>
+                        </div>
+                    </section>
+
+                    <section class="asg-checkout-section">
+                        <h3><span class="num">3</span>Način isporuke</h3>
+                        <div class="asg-radio-grp">
+                            @foreach (var opt in _deliveryOptions)
+                            {
+                                var o = opt;
+                                <label class="@(_delivery == o.Val ? "active" : "")">
+                                    <input type="radio" name="delivery" value="@o.Val"
+                                           checked="@(_delivery == o.Val)"
+                                           @onchange="() => _delivery = o.Val" />
+                                    <div style="flex:1">
+                                        <div style="font-weight:600">@o.Title</div>
+                                        <div class="meta">@o.Sub</div>
+                                    </div>
+                                    <div style="font-family:var(--asg-mono);font-size:12px;font-weight:600">@o.Cost</div>
+                                </label>
+                            }
+                        </div>
+                    </section>
+
+                    <section class="asg-checkout-section">
+                        <h3><span class="num">4</span>Detalji narudžbe</h3>
+                        <div class="asg-form-grid">
+                            <div class="asg-field"><label>PO broj (opcionalno)</label><input @bind="_poNumber" placeholder="PO-2024-XXX" /></div>
+                            <div class="asg-field"><label>Željeni datum isporuke</label><input type="date" @bind="_deliveryDate" /></div>
+                            <div class="asg-field full"><label>Napomena</label><textarea @bind="_notes" placeholder="Posebne instrukcije, kontakt na lokaciji…"></textarea></div>
+                        </div>
+                    </section>
+                </div>
+
+                <aside class="asg-cart-summary">
+                    <h4>Sažetak narudžbe</h4>
+                    <div style="display:grid;gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px dashed var(--asg-line)">
+                        @foreach (var it in _cart)
+                        {
+                            <div style="display:flex;justify-content:space-between;font-size:12px;gap:12px">
+                                <span style="flex:1">@it.ProductName <span style="color:var(--asg-muted)">× @it.Qty</span></span>
+                                <span style="font-variant-numeric:tabular-nums;font-family:var(--asg-mono)">@ShopData.FmtPrice(it.Qty * it.Price)</span>
+                            </div>
+                        }
+                    </div>
+                    <div class="line"><span>Međuzbir</span><span>@ShopData.FmtPrice(subtotal)</span></div>
+                    <div class="line"><span>Dostava</span><span>@(deliveryCost == 0 ? "—" : ShopData.FmtPrice(deliveryCost))</span></div>
+                    <div class="line"><span>PDV (17%)</span><span>@ShopData.FmtPrice(tax)</span></div>
+                    <div class="line total"><span>Ukupno</span><span>@ShopData.FmtPrice(total)</span></div>
+                    <button class="asg-btn asg-btn-pri" @onclick="Submit" disabled="@_submitting">
+                        @(_submitting ? "Slanje..." : "Pošalji narudžbu")
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+                    </button>
+                    <div style="font-family:var(--asg-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--asg-muted);margin-top:14px;text-align:center">
+                        Bez online plaćanja · Račun po isporuci
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Inject] IJSRuntime JS { get; set; } = default!;
+    [Inject] NavigationManager Nav { get; set; } = default!;
+
+    private List<ShopData.CartItem> _cart = [];
+    private ShopData.ShopUser? _user;
+    private bool _isLoggedIn;
+    private bool _initialized;
+    private bool _submitting;
+
+    private string _company = "", _vat = "272123450009", _contactName = "", _email = "", _phone = "+387 63 254 887";
+    private string _addr = "Kralja Tomislava bb", _city = "Tomislavgrad", _zip = "80240";
+    private string _poNumber = "", _notes = "";
+    private DateOnly? _deliveryDate;
+    private string _delivery = "standard";
+
+    private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
+
+    private record DeliveryOpt(string Val, string Title, string Sub, string Cost);
+    private readonly DeliveryOpt[] _deliveryOptions =
+    [
+        new("standard", "Standardna isporuka",             "2–5 radnih dana · BiH",              "45.00 KM"),
+        new("express",  "Express isporuka",                "24h · samo za stavke na zalihi",      "80.00 KM"),
+        new("pickup",   "Preuzimanje u Tomislavgradu",     "Skladište · Kralja Tomislava bb",     "Bez naknade"),
+    ];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        var cartJson = await JS.InvokeAsync<string>("window.asgShop.getCartJson");
+        _cart = JsonSerializer.Deserialize<List<ShopData.CartItem>>(cartJson, _json) ?? [];
+        var userJson = await JS.InvokeAsync<string>("window.asgShop.getUserJson");
+        if (userJson != "null")
+        {
+            _user = JsonSerializer.Deserialize<ShopData.ShopUser>(userJson, _json);
+            _isLoggedIn = true;
+            _company = _user?.Company ?? "";
+            _contactName = _user?.Name ?? "";
+            _email = _user?.Email ?? "";
+        }
+        _initialized = true;
+        StateHasChanged();
+    }
+
+    private async Task Submit()
+    {
+        if (_cart.Count == 0 || !_isLoggedIn) return;
+        _submitting = true;
+        StateHasChanged();
+
+        var subtotal = _cart.Sum(i => i.Qty * i.Price);
+        var tax = subtotal * 0.17m;
+        var deliveryCost = _delivery == "express" ? 80m : _delivery == "pickup" ? 0m : 45m;
+        var total = subtotal + tax + deliveryCost;
+        var orderId = $"2024-{400 + Random.Shared.Next(99):D4}";
+
+        var order = new
+        {
+            id = orderId,
+            date = DateTime.Today.ToString("yyyy-MM-dd"),
+            po = string.IsNullOrEmpty(_poNumber) ? "—" : _poNumber,
+            items = _cart,
+            subtotal,
+            tax,
+            deliveryCost,
+            total,
+            company = _company,
+            deliveryDate = _deliveryDate.HasValue ? _deliveryDate.Value.ToString("yyyy-MM-dd") : "Po dogovoru",
+            delivery = _delivery,
+        };
+
+        var orderJson = JsonSerializer.Serialize(order);
+        await JS.InvokeVoidAsync("window.asgShop.saveLastOrder", orderJson);
+        await JS.InvokeVoidAsync("window.asgShop.clearCart");
+        Nav.NavigateTo("/order-confirmation");
+    }
+}
