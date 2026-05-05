@@ -24,25 +24,26 @@
         <li><a href="/contact" class="@IsActive("/contact")">Kontakt</a></li>
     </ul>
 
-    <div class="asg-nav-utils">
-        <a href="/cart" class="asg-cart-btn" title="Korpa">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px">
-                <path d="M3 4 H6 L8 17 H20 L22 7 H7"/><circle cx="9" cy="21" r="1.3"/><circle cx="18" cy="21" r="1.3"/>
+    <div class="asg-nav-right">
+        <div class="asg-nav-utils">
+            <a href="/cart" class="asg-cart-btn" title="Korpa">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px">
+                    <path d="M3 4 H6 L8 17 H20 L22 7 H7"/><circle cx="9" cy="21" r="1.3"/><circle cx="18" cy="21" r="1.3"/>
+                </svg>
+                <span class="asg-cart-badge" id="asg-cart-badge-count" style="display:none">0</span>
+            </a>
+            <button class="asg-login-chip" id="asg-login-chip">
+                <span class="dot"></span>
+                <span id="asg-login-chip-label">Prijava</span>
+            </button>
+        </div>
+        <a href="/contact" class="asg-nav-cta">
+            Zatraži ponudu
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14M13 5l7 7-7 7" />
             </svg>
-            <span class="asg-cart-badge" id="asg-cart-badge-count" style="display:none">0</span>
         </a>
-        <button class="asg-login-chip" id="asg-login-chip" onclick="if(window.asgShop)window.asgShop.openLogin()">
-            <span class="dot"></span>
-            <span id="asg-login-chip-label">Prijava</span>
-        </button>
     </div>
-
-    <a href="/contact" class="asg-nav-cta">
-        Zatraži ponudu
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14M13 5l7 7-7 7" />
-        </svg>
-    </a>
 
     <button class="asg-nav-hamburger @(_menuOpen ? "open" : "")" @onclick="ToggleMenu" aria-label="Meni">
         <span></span>
