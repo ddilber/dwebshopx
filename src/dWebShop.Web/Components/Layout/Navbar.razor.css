@@ -107,6 +107,14 @@
     background: var(--asg-accent);
 }
 
+/* --- Right-side group (utils + CTA) --- */
+.asg-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
 /* --- CTA button --- */
 .asg-nav-cta {
     display: inline-flex;
@@ -212,6 +220,10 @@
 
     .asg-nav-hamburger {
         display: flex;
+    }
+
+    .asg-nav-right {
+        gap: 8px;
     }
 }
 

@@ -70,6 +70,9 @@
         const u = loginStore.user;
         label.textContent = u ? u.name.split(' ')[0] : 'Prijava';
         chip.classList.toggle('is-in', !!u);
+        chip.onclick = u
+            ? () => { window.location.href = '/account'; }
+            : () => { openLoginModal(); };
     }
 
     function openLoginModal() {

@@ -695,6 +695,3 @@ a {
   display: flex; align-items: center; justify-content: center; }
 .asg-modal-close:hover { color: var(--asg-ink); }
 .asg-modal .asg-btn { width: 100%; justify-content: center; margin-top: 8px; }
-
-/* --- Mobile nav-utils --- */
-@media (max-width:920px) { .asg-login-chip { display: none; } }
