@@ -29,6 +29,8 @@
     <script src="@Assets["_framework/blazor.web.js"]"></script>
     <script src="/js/shop.js"></script>
     <script>
+        // Disable browser scroll restoration so Blazor enhanced nav always starts at top
+        if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
         window.scrollToTop = function() { window.scrollTo({ top: 0, behavior: "instant" }); }
 
         // Scroll-triggered animations for .animate-on-scroll elements
