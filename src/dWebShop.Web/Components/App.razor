@@ -55,8 +55,11 @@
             } else {
                 initScrollAnimations();
             }
-            // Re-run after Blazor enhanced navigation
-            document.addEventListener('enhancedload', initScrollAnimations);
+            // Re-run after Blazor enhanced navigation and scroll to top
+            document.addEventListener('enhancedload', function() {
+                window.scrollTo(0, 0);
+                initScrollAnimations();
+            });
         })();
     </script>
 </body>
