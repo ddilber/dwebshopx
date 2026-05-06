@@ -1,0 +1,32 @@
+@inherits LayoutComponentBase
+
+<div class="admin-shell">
+    <header class="admin-header">
+        <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="height: 100%; padding: 0 20px;">
+            <FluentLabel Style="font-size: 18px; font-weight: 600; color: white; margin: 0;">
+                dWebShop Admin
+            </FluentLabel>
+            <FluentSpacer />
+            <AuthorizeView>
+                <Authorized>
+                    <FluentLabel Style="color: rgba(255,255,255,.85); margin-right: 12px; font-size: 14px;">
+                        @context.User.Identity?.Name
+                    </FluentLabel>
+                    <form method="post" action="/logout">
+                        <AntiforgeryToken />
+                        <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Lightweight" Style="color: white;">
+                            Logout
+                        </FluentButton>
+                    </form>
+                </Authorized>
+            </AuthorizeView>
+        </FluentStack>
+    </header>
+
+    <div class="admin-body">
+        <NavMenu />
+        <main class="admin-main">
+            @Body
+        </main>
+    </div>
+</div>

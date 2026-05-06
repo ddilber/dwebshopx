@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "9IosDlg9Gs8=",
+  "dgSpecHash": "nxwE1jyS+Wo=",
   "success": true,
-  "projectFilePath": "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj",
+  "projectFilePath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\dario\\.nuget\\packages\\bouncycastle.cryptography\\2.5.1\\bouncycastle.cryptography.2.5.1.nupkg.sha512",
     "C:\\Users\\dario\\.nuget\\packages\\fluentvalidation\\12.1.1\\fluentvalidation.12.1.1.nupkg.sha512",
@@ -85,9 +85,9 @@
       "code": "NU1902",
       "level": "Warning",
       "message": "Package 'MailKit' 4.12.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-9j88-vvj5-vhgr",
-      "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj",
+      "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj",
       "warningLevel": 1,
-      "filePath": "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj",
+      "filePath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj",
       "libraryId": "MailKit",
       "targetGraphs": [
         "net9.0"

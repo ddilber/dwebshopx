@@ -1,0 +1,52 @@
+@page "/products"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Products.Queries
+@inject IMediator Mediator
+@inject NavigationManager Navigation
+
+<PageTitle>Products — dWebShop Admin</PageTitle>
+
+<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
+    <FluentLabel Style="font-size: 22px; font-weight: 600;">Products</FluentLabel>
+    <FluentSpacer />
+    <FluentButton Appearance="Appearance.Primary" IconStart="@(new Icons.Regular.Size16.Add())" OnClick="@(() => Navigation.NavigateTo("/products/new"))">
+        Add Product
+    </FluentButton>
+</FluentStack>
+<FluentDivider Style="margin-bottom: 24px;" />
+
+@if (_loading)
+{
+    <FluentProgressRing />
+}
+else if (_products is not null)
+{
+    <FluentDataGrid Items="@_products.AsQueryable()" Pagination="@_pagination" TGridItem="ProductListItemDto">
+        <PropertyColumn Title="SKU" Property="@(p => p.SKU)" Sortable="true" />
+        <PropertyColumn Title="Name" Property="@(p => p.Name)" Sortable="true" />
+        <PropertyColumn Title="Brand" Property="@(p => p.BrandName)" Sortable="true" />
+        <TemplateColumn Title="Active">
+            <FluentIcon Value="@(context.IsActive ? new Icons.Regular.Size16.CheckmarkCircle() : new Icons.Regular.Size16.DismissCircle())"
+                        Color="@(context.IsActive ? Color.Success : Color.Error)" />
+        </TemplateColumn>
+        <TemplateColumn Title="Actions">
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Edit())" OnClick="@(() => Navigation.NavigateTo($"/products/{context.Id}/edit"))">Edit</FluentButton>
+        </TemplateColumn>
+    </FluentDataGrid>
+    <FluentPaginator State="@_pagination" />
+}
+
+@code {
+    private List<ProductListItemDto>? _products;
+    private bool _loading = true;
+    private PaginationState _pagination = new() { ItemsPerPage = 20 };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Mediator.Send(new GetProductsQuery());
+        _products = result.Items.ToList();
+        _loading = false;
+    }
+}

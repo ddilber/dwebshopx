@@ -1,0 +1,97 @@
+@page "/categories"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Categories.Queries
+@using dWebShop.Application.Features.Categories.Commands
+@inject IMediator Mediator
+
+<PageTitle>Categories — dWebShop Admin</PageTitle>
+
+<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
+    <FluentLabel Style="font-size: 22px; font-weight: 600;">Categories</FluentLabel>
+    <FluentSpacer />
+    <FluentButton Appearance="Appearance.Primary" IconStart="@(new Icons.Regular.Size16.Add())" OnClick="OpenCreate">
+        Add Category
+    </FluentButton>
+</FluentStack>
+<FluentDivider Style="margin-bottom: 24px;" />
+
+@if (_loading)
+{
+    <FluentProgressRing />
+}
+else if (_categories is not null)
+{
+    <FluentDataGrid Items="@_categories.AsQueryable()" TGridItem="CategoryDto">
+        <PropertyColumn Title="Name" Property="@(c => c.Name)" Sortable="true" />
+        <PropertyColumn Title="Slug" Property="@(c => c.Slug)" />
+        <PropertyColumn Title="Parent" Property="@(c => c.ParentName)" />
+        <TemplateColumn Title="Actions">
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Edit())" OnClick="@(() => OpenEdit(context))">Edit</FluentButton>
+        </TemplateColumn>
+    </FluentDataGrid>
+}
+
+<FluentDialog @ref="_dialog" TrapFocus="true" Modal="true" PreventScroll="true">
+    <FluentDialogBody>
+        <FluentStack Orientation="Orientation.Vertical" Style="gap: 16px; padding: 8px;">
+            <FluentLabel Style="font-size: 18px; font-weight: 600;">
+                @(_editModel.Id == 0 ? "Add Category" : "Edit Category")
+            </FluentLabel>
+            <FluentTextInput @bind-Value="_editModel.Name" Label="Name" Style="width: 100%" />
+            <FluentTextInput @bind-Value="_editModel.Slug" Label="Slug" Style="width: 100%" />
+            <FluentStack Orientation="Orientation.Horizontal" Style="gap: 8px; justify-content: flex-end; margin-top: 8px;">
+                <FluentButton Appearance="Appearance.Primary" OnClick="Save">Save</FluentButton>
+                <FluentButton OnClick="@(() => _dialog?.Hide())">Cancel</FluentButton>
+            </FluentStack>
+        </FluentStack>
+    </FluentDialogBody>
+</FluentDialog>
+
+@code {
+    private List<CategoryDto>? _categories;
+    private bool _loading = true;
+    private FluentDialog? _dialog;
+    private CategoryEditModel _editModel = new();
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        var result = await Mediator.Send(new GetCategoriesQuery());
+        _categories = result.ToList();
+        _loading = false;
+    }
+
+    private void OpenCreate()
+    {
+        _editModel = new();
+        _dialog?.Show();
+    }
+
+    private void OpenEdit(CategoryDto category)
+    {
+        _editModel = new() { Id = category.Id, Name = category.Name, Slug = category.Slug };
+        _dialog?.Show();
+    }
+
+    private async Task Save()
+    {
+        if (_editModel.Id == 0)
+            await Mediator.Send(new CreateCategoryCommand { Name = _editModel.Name, Slug = _editModel.Slug });
+        else
+            await Mediator.Send(new UpdateCategoryCommand { Id = _editModel.Id, Name = _editModel.Name, Slug = _editModel.Slug });
+
+        _dialog?.Hide();
+        await LoadAsync();
+    }
+
+    private class CategoryEditModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public string Slug { get; set; } = "";
+    }
+}

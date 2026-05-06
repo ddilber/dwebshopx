@@ -1,0 +1,47 @@
+@page "/"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+
+<PageTitle>Dashboard — dWebShop Admin</PageTitle>
+
+<FluentLabel Typo="Typography.H4">Dashboard</FluentLabel>
+<FluentDivider Style="margin: 12px 0 24px;" />
+
+<FluentGrid Spacing="4">
+    <FluentGridItem xs="12" sm="6" lg="3">
+        <FluentCard>
+            <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center" Style="padding: 16px; text-align: center;">
+                <FluentIcon Value="@(new Icons.Regular.Size48.Tag())" Color="Color.Accent" />
+                <FluentLabel Typo="Typography.H3">—</FluentLabel>
+                <FluentLabel>Products</FluentLabel>
+            </FluentStack>
+        </FluentCard>
+    </FluentGridItem>
+    <FluentGridItem xs="12" sm="6" lg="3">
+        <FluentCard>
+            <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center" Style="padding: 16px; text-align: center;">
+                <FluentIcon Value="@(new Icons.Regular.Size48.ClipboardTask())" Color="Color.Accent" />
+                <FluentLabel Typo="Typography.H3">—</FluentLabel>
+                <FluentLabel>Orders</FluentLabel>
+            </FluentStack>
+        </FluentCard>
+    </FluentGridItem>
+    <FluentGridItem xs="12" sm="6" lg="3">
+        <FluentCard>
+            <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center" Style="padding: 16px; text-align: center;">
+                <FluentIcon Value="@(new Icons.Regular.Size48.Building())" Color="Color.Accent" />
+                <FluentLabel Typo="Typography.H3">—</FluentLabel>
+                <FluentLabel>Clients</FluentLabel>
+            </FluentStack>
+        </FluentCard>
+    </FluentGridItem>
+    <FluentGridItem xs="12" sm="6" lg="3">
+        <FluentCard>
+            <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center" Style="padding: 16px; text-align: center;">
+                <FluentIcon Value="@(new Icons.Regular.Size48.People())" Color="Color.Accent" />
+                <FluentLabel Typo="Typography.H3">—</FluentLabel>
+                <FluentLabel>Users</FluentLabel>
+            </FluentStack>
+        </FluentCard>
+    </FluentGridItem>
+</FluentGrid>

@@ -1,0 +1,25 @@
+<FluentNav Style="width: 220px; height: 100%; border-right: 1px solid var(--colorNeutralStroke1);">
+    <FluentNavItem Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Home())">
+        Dashboard
+    </FluentNavItem>
+
+    <FluentNavCategory Title="Catalogue" Icon="@(new Icons.Regular.Size20.Box())">
+        <FluentNavItem Href="/products" Icon="@(new Icons.Regular.Size20.Tag())">Products</FluentNavItem>
+        <FluentNavItem Href="/categories" Icon="@(new Icons.Regular.Size20.TextBulletListTree())">Categories</FluentNavItem>
+        <FluentNavItem Href="/brands" Icon="@(new Icons.Regular.Size20.BuildingShop())">Brands</FluentNavItem>
+    </FluentNavCategory>
+
+    <FluentNavCategory Title="Commerce" Icon="@(new Icons.Regular.Size20.Cart())">
+        <FluentNavItem Href="/orders" Icon="@(new Icons.Regular.Size20.ClipboardTask())">Orders</FluentNavItem>
+        <FluentNavItem Href="/pricelists" Icon="@(new Icons.Regular.Size20.Money())">Pricelists</FluentNavItem>
+        <FluentNavItem Href="/clients" Icon="@(new Icons.Regular.Size20.Building())">Clients</FluentNavItem>
+    </FluentNavCategory>
+
+    <FluentNavCategory Title="Content" Icon="@(new Icons.Regular.Size20.News())">
+        <FluentNavItem Href="/blog" Icon="@(new Icons.Regular.Size20.DocumentText())">Blog</FluentNavItem>
+    </FluentNavCategory>
+
+    <FluentNavCategory Title="System" Icon="@(new Icons.Regular.Size20.Settings())">
+        <FluentNavItem Href="/users" Icon="@(new Icons.Regular.Size20.People())">Users</FluentNavItem>
+    </FluentNavCategory>
+</FluentNav>

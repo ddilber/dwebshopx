@@ -1,0 +1,47 @@
+@page "/orders"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Orders.Queries
+@inject IMediator Mediator
+@inject NavigationManager Navigation
+
+<PageTitle>Orders — dWebShop Admin</PageTitle>
+
+<FluentLabel Style="font-size: 22px; font-weight: 600; margin-bottom: 16px; display: block;">Orders</FluentLabel>
+<FluentDivider Style="margin-bottom: 24px;" />
+
+@if (_loading)
+{
+    <FluentProgressRing />
+}
+else if (_orders is not null)
+{
+    <FluentDataGrid Items="@_orders.AsQueryable()" Pagination="@_pagination" TGridItem="AdminOrderListDto">
+        <PropertyColumn Title="Order #" Property="@(o => o.Id)" Sortable="true" />
+        <PropertyColumn Title="Client" Property="@(o => o.PartnerName)" Sortable="true" />
+        <PropertyColumn Title="Status" Property="@(o => o.Status.ToString())" Sortable="true" />
+        <PropertyColumn Title="Date" Property="@(o => o.Created.ToString("dd.MM.yyyy"))" />
+        <PropertyColumn Title="Items" Property="@(o => o.ItemCount)" />
+        <PropertyColumn Title="Total" Property="@(o => o.Total.ToString("N2"))" />
+        <TemplateColumn Title="Actions">
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Eye())" OnClick="@(() => Navigation.NavigateTo($"/orders/{context.Guid}"))">
+                View
+            </FluentButton>
+        </TemplateColumn>
+    </FluentDataGrid>
+    <FluentPaginator State="@_pagination" />
+}
+
+@code {
+    private List<AdminOrderListDto>? _orders;
+    private bool _loading = true;
+    private PaginationState _pagination = new() { ItemsPerPage = 20 };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Mediator.Send(new GetAllOrdersQuery());
+        _orders = result.Items.ToList();
+        _loading = false;
+    }
+}

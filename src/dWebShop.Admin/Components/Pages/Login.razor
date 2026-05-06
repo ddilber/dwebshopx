@@ -1,0 +1,72 @@
+@page "/login"
+@layout LoginLayout
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Identity
+@using dWebShop.Domain.Entities.Users
+@inject SignInManager<ApplicationUser> SignInManager
+@inject NavigationManager Navigation
+
+<PageTitle>Login — dWebShop Admin</PageTitle>
+
+<div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--colorNeutralBackground2);">
+    <FluentCard Style="width: 380px; padding: 32px;">
+        <FluentStack Orientation="Orientation.Vertical" Style="gap: 20px;">
+            <FluentLabel Style="font-size: 22px; font-weight: 600; text-align: center; display: block;">
+                dWebShop Admin
+            </FluentLabel>
+
+            @if (!string.IsNullOrEmpty(_error))
+            {
+                <FluentMessageBar Intent="MessageBarIntent.Error">@_error</FluentMessageBar>
+            }
+
+            <FluentTextInput @bind-Value="_email" Label="Email" TextInputType="TextInputType.Email"
+                             Placeholder="admin@dwebshop.local" Style="width: 100%" />
+
+            <FluentTextInput @bind-Value="_password" Label="Password" TextInputType="TextInputType.Password"
+                             Style="width: 100%" />
+
+            <FluentButton Appearance="Appearance.Primary" OnClick="LoginAsync" Style="width: 100%;">
+                @if (_loading) { <FluentProgressRing Style="width:16px;height:16px;" /> } else { <span>Sign In</span> }
+            </FluentButton>
+        </FluentStack>
+    </FluentCard>
+</div>
+
+@code {
+    [SupplyParameterFromQuery] private string? ReturnUrl { get; set; }
+
+    private string _email = "";
+    private string _password = "";
+    private string _error = "";
+    private bool _loading;
+
+    protected override void OnInitialized()
+    {
+        if (SignInManager.IsSignedIn(new System.Security.Claims.ClaimsPrincipal()))
+            Navigation.NavigateTo("/");
+    }
+
+    private async Task LoginAsync()
+    {
+        _loading = true;
+        _error = "";
+
+        var result = await SignInManager.PasswordSignInAsync(_email, _password, isPersistent: false, lockoutOnFailure: true);
+
+        if (result.Succeeded)
+        {
+            Navigation.NavigateTo(ReturnUrl ?? "/", forceLoad: true);
+        }
+        else if (result.IsLockedOut)
+        {
+            _error = "Account is locked. Try again later.";
+        }
+        else
+        {
+            _error = "Invalid email or password.";
+        }
+
+        _loading = false;
+    }
+}

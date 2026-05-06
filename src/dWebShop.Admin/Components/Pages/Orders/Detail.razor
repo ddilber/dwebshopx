@@ -1,0 +1,94 @@
+@page "/orders/{OrderGuid:guid}"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Orders.Queries
+@using dWebShop.Application.Features.Orders.Commands
+@using dWebShop.Domain.Entities.Orders
+@inject IMediator Mediator
+@inject NavigationManager Navigation
+
+<PageTitle>Order Detail — dWebShop Admin</PageTitle>
+
+<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
+    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowLeft())" Appearance="Appearance.Lightweight" OnClick="@(() => Navigation.NavigateTo("/orders"))">
+        Orders
+    </FluentButton>
+    <FluentLabel Style="margin-left: 8px; font-size: 20px; font-weight: 600;">
+        Order #@(_order?.Id)
+    </FluentLabel>
+</FluentStack>
+<FluentDivider Style="margin-bottom: 24px;" />
+
+@if (_loading)
+{
+    <FluentProgressRing />
+}
+else if (_order is not null)
+{
+    <FluentCard Style="margin-bottom: 24px;">
+        <FluentGrid Spacing="4" Style="padding: 8px;">
+            <FluentGridItem xs="12" sm="6">
+                <FluentLabel Style="font-weight: 600; display: block; margin-bottom: 4px;">Client</FluentLabel>
+                <FluentLabel>@_order.PartnerName</FluentLabel>
+            </FluentGridItem>
+            <FluentGridItem xs="12" sm="6">
+                <FluentLabel Style="font-weight: 600; display: block; margin-bottom: 4px;">Status</FluentLabel>
+                <FluentBadge>@_order.Status</FluentBadge>
+            </FluentGridItem>
+            <FluentGridItem xs="12" sm="6">
+                <FluentLabel Style="font-weight: 600; display: block; margin-bottom: 4px;">Date</FluentLabel>
+                <FluentLabel>@_order.Created.ToString("dd.MM.yyyy HH:mm")</FluentLabel>
+            </FluentGridItem>
+            <FluentGridItem xs="12" sm="6">
+                <FluentLabel Style="font-weight: 600; display: block; margin-bottom: 4px;">Delivery Address</FluentLabel>
+                <FluentLabel>@_order.DeliveryAddress</FluentLabel>
+            </FluentGridItem>
+            @if (!string.IsNullOrEmpty(_order.Notes))
+            {
+                <FluentGridItem xs="12">
+                    <FluentLabel Style="font-weight: 600; display: block; margin-bottom: 4px;">Notes</FluentLabel>
+                    <FluentLabel>@_order.Notes</FluentLabel>
+                </FluentGridItem>
+            }
+        </FluentGrid>
+    </FluentCard>
+
+    <FluentLabel Style="font-size: 16px; font-weight: 600; margin-bottom: 12px; display: block;">Items</FluentLabel>
+    <FluentDataGrid Items="@_order.Items.AsQueryable()" TGridItem="OrderItemDto">
+        <PropertyColumn Title="Product" Property="@(i => i.ProductName)" />
+        <PropertyColumn Title="SKU" Property="@(i => i.SKU)" />
+        <PropertyColumn Title="Qty" Property="@(i => i.Quantity)" />
+        <PropertyColumn Title="Price" Property="@(i => i.Price.ToString("N2"))" />
+    </FluentDataGrid>
+
+    <FluentDivider Style="margin: 24px 0 16px;" />
+    <FluentStack Orientation="Orientation.Horizontal" Style="gap: 8px;">
+        @if (_order.Status == OrderStatus.Pending)
+        {
+            <FluentButton Appearance="Appearance.Primary" OnClick="Accept">
+                Accept Order
+            </FluentButton>
+        }
+    </FluentStack>
+}
+
+@code {
+    [Parameter] public Guid OrderGuid { get; set; }
+
+    private OrderDetailDto? _order;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _order = await Mediator.Send(new GetOrderByGuidQuery { Guid = OrderGuid });
+        _loading = false;
+    }
+
+    private async Task Accept()
+    {
+        if (_order is null) return;
+        await Mediator.Send(new UpdateOrderStatusCommand { OrderId = _order.Id, NewStatus = OrderStatus.Accepted });
+        _order = await Mediator.Send(new GetOrderByGuidQuery { Guid = OrderGuid });
+    }
+}

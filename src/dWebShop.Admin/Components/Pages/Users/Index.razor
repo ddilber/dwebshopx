@@ -1,0 +1,79 @@
+@page "/users"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Identity
+@using dWebShop.Domain.Entities.Users
+@inject UserManager<ApplicationUser> UserManager
+
+<PageTitle>Users — dWebShop Admin</PageTitle>
+
+<FluentLabel Style="font-size: 22px; font-weight: 600; margin-bottom: 16px; display: block;">Users</FluentLabel>
+<FluentDivider Style="margin-bottom: 24px;" />
+
+@if (_loading)
+{
+    <FluentProgressRing />
+}
+else if (_users is not null)
+{
+    <FluentDataGrid Items="@_users.AsQueryable()" TGridItem="UserRow">
+        <PropertyColumn Title="Username" Property="@(u => u.UserName)" Sortable="true" />
+        <PropertyColumn Title="Email" Property="@(u => u.Email)" Sortable="true" />
+        <TemplateColumn Title="Approved">
+            <FluentIcon Value="@(context.IsApproved ? new Icons.Regular.Size16.CheckmarkCircle() : new Icons.Regular.Size16.DismissCircle())"
+                        Color="@(context.IsApproved ? Color.Success : Color.Error)" />
+        </TemplateColumn>
+        <TemplateColumn Title="Actions">
+            @if (!context.IsApproved)
+            {
+                <FluentButton Appearance="Appearance.Primary" IconStart="@(new Icons.Regular.Size16.Checkmark())"
+                              OnClick="@(() => Approve(context.Id))">
+                    Approve
+                </FluentButton>
+            }
+        </TemplateColumn>
+    </FluentDataGrid>
+}
+
+@code {
+    private List<UserRow>? _users;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        _users = UserManager.Users
+            .Select(u => new UserRow
+            {
+                Id = u.Id,
+                UserName = u.UserName ?? "",
+                Email = u.Email ?? "",
+                IsApproved = u.IsApproved
+            })
+            .OrderBy(u => u.UserName)
+            .ToList();
+        _loading = false;
+        await Task.CompletedTask;
+    }
+
+    private async Task Approve(string userId)
+    {
+        var user = await UserManager.FindByIdAsync(userId);
+        if (user is not null)
+        {
+            user.IsApproved = true;
+            await UserManager.UpdateAsync(user);
+        }
+        await LoadAsync();
+    }
+
+    private class UserRow
+    {
+        public string Id { get; set; } = "";
+        public string UserName { get; set; } = "";
+        public string Email { get; set; } = "";
+        public bool IsApproved { get; set; }
+    }
+}

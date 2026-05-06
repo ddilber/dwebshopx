@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj": {}
+    "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj": {}
   },
   "projects": {
-    "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Application\\dWebShop.Application.csproj": {
+    "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Application\\dWebShop.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Application\\dWebShop.Application.csproj",
+        "projectUniqueName": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Application\\dWebShop.Application.csproj",
         "projectName": "dWebShop.Application",
-        "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Application\\dWebShop.Application.csproj",
+        "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Application\\dWebShop.Application.csproj",
         "packagesPath": "C:\\Users\\dario\\.nuget\\packages\\",
-        "outputPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Application\\obj\\",
+        "outputPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "F:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -30,10 +30,11 @@
         },
         "frameworks": {
           "net9.0": {
+            "framework": "net9.0",
             "targetAlias": "net9.0",
             "projectReferences": {
-              "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Domain\\dWebShop.Domain.csproj": {
-                "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Domain\\dWebShop.Domain.csproj"
+              "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\dWebShop.Domain.csproj": {
+                "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\dWebShop.Domain.csproj"
               }
             }
           }
@@ -52,6 +53,7 @@
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "dependencies": {
             "FluentValidation": {
@@ -95,14 +97,14 @@
         }
       }
     },
-    "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Domain\\dWebShop.Domain.csproj": {
+    "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\dWebShop.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Domain\\dWebShop.Domain.csproj",
+        "projectUniqueName": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\dWebShop.Domain.csproj",
         "projectName": "dWebShop.Domain",
-        "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Domain\\dWebShop.Domain.csproj",
+        "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\dWebShop.Domain.csproj",
         "packagesPath": "C:\\Users\\dario\\.nuget\\packages\\",
-        "outputPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Domain\\obj\\",
+        "outputPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "F:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -121,6 +123,7 @@
         },
         "frameworks": {
           "net9.0": {
+            "framework": "net9.0",
             "targetAlias": "net9.0",
             "projectReferences": {}
           }
@@ -139,6 +142,7 @@
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "dependencies": {
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
@@ -166,14 +170,14 @@
         }
       }
     },
-    "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj": {
+    "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj",
+        "projectUniqueName": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj",
         "projectName": "dWebShop.Infrastructure",
-        "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj",
+        "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\dario\\.nuget\\packages\\",
-        "outputPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Infrastructure\\obj\\",
+        "outputPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "F:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -192,10 +196,11 @@
         },
         "frameworks": {
           "net9.0": {
+            "framework": "net9.0",
             "targetAlias": "net9.0",
             "projectReferences": {
-              "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Application\\dWebShop.Application.csproj": {
-                "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\.claude\\worktrees\\sad-haslett-753c48\\src\\dWebShop.Application\\dWebShop.Application.csproj"
+              "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Application\\dWebShop.Application.csproj": {
+                "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Application\\dWebShop.Application.csproj"
               }
             }
           }
@@ -217,6 +222,7 @@
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "dependencies": {
             "MailKit": {

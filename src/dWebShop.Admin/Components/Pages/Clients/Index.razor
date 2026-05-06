@@ -1,0 +1,58 @@
+@page "/clients"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Partners.Queries
+@inject IMediator Mediator
+@inject NavigationManager Navigation
+
+<PageTitle>Clients — dWebShop Admin</PageTitle>
+
+<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
+    <FluentLabel Style="font-size: 22px; font-weight: 600;">Clients</FluentLabel>
+    <FluentSpacer />
+    <FluentButton Appearance="Appearance.Primary" IconStart="@(new Icons.Regular.Size16.Add())" OnClick="@(() => Navigation.NavigateTo("/clients/new"))">
+        Add Client
+    </FluentButton>
+</FluentStack>
+<FluentDivider Style="margin-bottom: 24px;" />
+
+@if (_loading)
+{
+    <FluentProgressRing />
+}
+else if (_clients is not null)
+{
+    <FluentTextInput @bind-Value="_search" Placeholder="Search clients..."
+                     Style="margin-bottom: 16px; width: 300px; display: block;" />
+
+    <FluentDataGrid Items="@Filtered.AsQueryable()" Pagination="@_pagination" TGridItem="PartnerDto">
+        <PropertyColumn Title="Company" Property="@(c => c.DisplayName)" Sortable="true" />
+        <PropertyColumn Title="Email" Property="@(c => c.Email)" Sortable="true" />
+        <TemplateColumn Title="Actions">
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Edit())" OnClick="@(() => Navigation.NavigateTo($"/clients/{context.Id}"))">
+                Edit
+            </FluentButton>
+        </TemplateColumn>
+    </FluentDataGrid>
+    <FluentPaginator State="@_pagination" />
+}
+
+@code {
+    private List<PartnerDto>? _clients;
+    private bool _loading = true;
+    private string _search = "";
+    private PaginationState _pagination = new() { ItemsPerPage = 20 };
+
+    private List<PartnerDto> Filtered => string.IsNullOrWhiteSpace(_search)
+        ? _clients!
+        : _clients!.Where(c => c.DisplayName.Contains(_search, StringComparison.OrdinalIgnoreCase)
+                             || (c.Email?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false)).ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Mediator.Send(new GetPartnersQuery());
+        _clients = result.ToList();
+        _loading = false;
+    }
+}

@@ -1,0 +1,53 @@
+@page "/pricelists"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Pricelists.Queries
+@inject IMediator Mediator
+@inject NavigationManager Navigation
+
+<PageTitle>Pricelists — dWebShop Admin</PageTitle>
+
+<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
+    <FluentLabel Style="font-size: 22px; font-weight: 600;">Pricelists</FluentLabel>
+    <FluentSpacer />
+    <FluentButton Appearance="Appearance.Primary" IconStart="@(new Icons.Regular.Size16.Add())" OnClick="@(() => Navigation.NavigateTo("/pricelists/new"))">
+        Add Pricelist
+    </FluentButton>
+</FluentStack>
+<FluentDivider Style="margin-bottom: 24px;" />
+
+@if (_loading)
+{
+    <FluentProgressRing />
+}
+else if (_pricelists is not null)
+{
+    <FluentDataGrid Items="@_pricelists.AsQueryable()" TGridItem="PricelistSummaryDto">
+        <PropertyColumn Title="Name" Property="@(p => p.Name)" Sortable="true" />
+        <PropertyColumn Title="Description" Property="@(p => p.Description)" />
+        <PropertyColumn Title="Items" Property="@(p => p.ItemCount)" />
+        <PropertyColumn Title="Clients" Property="@(p => p.ClientCount)" />
+        <TemplateColumn Title="Active">
+            <FluentIcon Value="@(context.IsActive ? new Icons.Regular.Size16.CheckmarkCircle() : new Icons.Regular.Size16.DismissCircle())"
+                        Color="@(context.IsActive ? Color.Success : Color.Error)" />
+        </TemplateColumn>
+        <TemplateColumn Title="Actions">
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Edit())" OnClick="@(() => Navigation.NavigateTo($"/pricelists/{context.Id}"))">
+                Edit
+            </FluentButton>
+        </TemplateColumn>
+    </FluentDataGrid>
+}
+
+@code {
+    private List<PricelistSummaryDto>? _pricelists;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Mediator.Send(new GetPricelistsQuery());
+        _pricelists = result.ToList();
+        _loading = false;
+    }
+}

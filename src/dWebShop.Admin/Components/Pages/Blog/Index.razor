@@ -1,0 +1,51 @@
+@page "/blog"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Blog.Queries
+@inject IMediator Mediator
+@inject NavigationManager Navigation
+
+<PageTitle>Blog — dWebShop Admin</PageTitle>
+
+<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
+    <FluentLabel Style="font-size: 22px; font-weight: 600;">Blog Posts</FluentLabel>
+    <FluentSpacer />
+    <FluentButton Appearance="Appearance.Primary" IconStart="@(new Icons.Regular.Size16.Add())" OnClick="@(() => Navigation.NavigateTo("/blog/new"))">
+        New Post
+    </FluentButton>
+</FluentStack>
+<FluentDivider Style="margin-bottom: 24px;" />
+
+@if (_loading)
+{
+    <FluentProgressRing />
+}
+else if (_posts is not null)
+{
+    <FluentDataGrid Items="@_posts.AsQueryable()" Pagination="@_pagination" TGridItem="PostListItemDto">
+        <PropertyColumn Title="Title" Property="@(p => p.Title)" Sortable="true" />
+        <PropertyColumn Title="Date" Property="@(p => p.CreatedDate.HasValue ? p.CreatedDate.Value.ToString("dd.MM.yyyy") : "-")" />
+        <TemplateColumn Title="Published">
+            <FluentIcon Value="@(context.Published ? new Icons.Regular.Size16.CheckmarkCircle() : new Icons.Regular.Size16.DismissCircle())"
+                        Color="@(context.Published ? Color.Success : Color.Error)" />
+        </TemplateColumn>
+        <TemplateColumn Title="Actions">
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Edit())" OnClick="@(() => Navigation.NavigateTo($"/blog/{context.Id}"))">Edit</FluentButton>
+        </TemplateColumn>
+    </FluentDataGrid>
+    <FluentPaginator State="@_pagination" />
+}
+
+@code {
+    private List<PostListItemDto>? _posts;
+    private bool _loading = true;
+    private PaginationState _pagination = new() { ItemsPerPage = 20 };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Mediator.Send(new GetPostsQuery());
+        _posts = result.ToList();
+        _loading = false;
+    }
+}

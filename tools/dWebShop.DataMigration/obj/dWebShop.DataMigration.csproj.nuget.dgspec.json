@@ -1,33 +1,40 @@
 {
   "format": 1,
   "restore": {
-    "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/tools/dWebShop.DataMigration/dWebShop.DataMigration.csproj": {}
+    "F:\\PROJECTS\\Blazor\\dWebShopX\\tools\\dWebShop.DataMigration\\dWebShop.DataMigration.csproj": {}
   },
   "projects": {
-    "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Application/dWebShop.Application.csproj": {
+    "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Application\\dWebShop.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Application/dWebShop.Application.csproj",
+        "projectUniqueName": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Application\\dWebShop.Application.csproj",
         "projectName": "dWebShop.Application",
-        "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Application/dWebShop.Application.csproj",
-        "packagesPath": "/home/ddilber/.nuget/packages/",
-        "outputPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Application/obj/",
+        "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Application\\dWebShop.Application.csproj",
+        "packagesPath": "C:\\Users\\dario\\.nuget\\packages\\",
+        "outputPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Application\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "F:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/ddilber/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\dario\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
+            "framework": "net9.0",
             "targetAlias": "net9.0",
             "projectReferences": {
-              "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/dWebShop.Domain.csproj": {
-                "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/dWebShop.Domain.csproj"
+              "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\dWebShop.Domain.csproj": {
+                "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\dWebShop.Domain.csproj"
               }
             }
           }
@@ -46,6 +53,7 @@
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "dependencies": {
             "FluentValidation": {
@@ -85,30 +93,37 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/ddilber/.dotnet/sdk/10.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/dWebShop.Domain.csproj": {
+    "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\dWebShop.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/dWebShop.Domain.csproj",
+        "projectUniqueName": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\dWebShop.Domain.csproj",
         "projectName": "dWebShop.Domain",
-        "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/dWebShop.Domain.csproj",
-        "packagesPath": "/home/ddilber/.nuget/packages/",
-        "outputPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/obj/",
+        "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\dWebShop.Domain.csproj",
+        "packagesPath": "C:\\Users\\dario\\.nuget\\packages\\",
+        "outputPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "F:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/ddilber/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\dario\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
+            "framework": "net9.0",
             "targetAlias": "net9.0",
             "projectReferences": {}
           }
@@ -127,6 +142,7 @@
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "dependencies": {
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
@@ -150,34 +166,41 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/ddilber/.dotnet/sdk/10.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Infrastructure/dWebShop.Infrastructure.csproj": {
+    "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Infrastructure/dWebShop.Infrastructure.csproj",
+        "projectUniqueName": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj",
         "projectName": "dWebShop.Infrastructure",
-        "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Infrastructure/dWebShop.Infrastructure.csproj",
-        "packagesPath": "/home/ddilber/.nuget/packages/",
-        "outputPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Infrastructure/obj/",
+        "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\dario\\.nuget\\packages\\",
+        "outputPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "F:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/ddilber/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\dario\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
+            "framework": "net9.0",
             "targetAlias": "net9.0",
             "projectReferences": {
-              "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Application/dWebShop.Application.csproj": {
-                "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Application/dWebShop.Application.csproj"
+              "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Application\\dWebShop.Application.csproj": {
+                "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Application\\dWebShop.Application.csproj"
               }
             }
           }
@@ -199,6 +222,7 @@
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "dependencies": {
             "MailKit": {
@@ -238,37 +262,44 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/ddilber/.dotnet/sdk/10.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/tools/dWebShop.DataMigration/dWebShop.DataMigration.csproj": {
+    "F:\\PROJECTS\\Blazor\\dWebShopX\\tools\\dWebShop.DataMigration\\dWebShop.DataMigration.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/tools/dWebShop.DataMigration/dWebShop.DataMigration.csproj",
+        "projectUniqueName": "F:\\PROJECTS\\Blazor\\dWebShopX\\tools\\dWebShop.DataMigration\\dWebShop.DataMigration.csproj",
         "projectName": "dWebShop.DataMigration",
-        "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/tools/dWebShop.DataMigration/dWebShop.DataMigration.csproj",
-        "packagesPath": "/home/ddilber/.nuget/packages/",
-        "outputPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/tools/dWebShop.DataMigration/obj/",
+        "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\tools\\dWebShop.DataMigration\\dWebShop.DataMigration.csproj",
+        "packagesPath": "C:\\Users\\dario\\.nuget\\packages\\",
+        "outputPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\tools\\dWebShop.DataMigration\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "F:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/ddilber/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\dario\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
+            "framework": "net9.0",
             "targetAlias": "net9.0",
             "projectReferences": {
-              "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/dWebShop.Domain.csproj": {
-                "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/dWebShop.Domain.csproj"
+              "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\dWebShop.Domain.csproj": {
+                "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\dWebShop.Domain.csproj"
               },
-              "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Infrastructure/dWebShop.Infrastructure.csproj": {
-                "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Infrastructure/dWebShop.Infrastructure.csproj"
+              "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj": {
+                "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj"
               }
             }
           }
@@ -287,6 +318,7 @@
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "dependencies": {
             "Dapper": {
@@ -334,7 +366,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/ddilber/.dotnet/sdk/10.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

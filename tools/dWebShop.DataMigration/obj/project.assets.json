@@ -4567,35 +4567,43 @@
     ]
   },
   "packageFolders": {
-    "/home/ddilber/.nuget/packages/": {}
+    "C:\\Users\\dario\\.nuget\\packages\\": {},
+    "F:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/tools/dWebShop.DataMigration/dWebShop.DataMigration.csproj",
+      "projectUniqueName": "F:\\PROJECTS\\Blazor\\dWebShopX\\tools\\dWebShop.DataMigration\\dWebShop.DataMigration.csproj",
       "projectName": "dWebShop.DataMigration",
-      "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/tools/dWebShop.DataMigration/dWebShop.DataMigration.csproj",
-      "packagesPath": "/home/ddilber/.nuget/packages/",
-      "outputPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/tools/dWebShop.DataMigration/obj/",
+      "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\tools\\dWebShop.DataMigration\\dWebShop.DataMigration.csproj",
+      "packagesPath": "C:\\Users\\dario\\.nuget\\packages\\",
+      "outputPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\tools\\dWebShop.DataMigration\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "F:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/home/ddilber/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\dario\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "projectReferences": {
-            "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/dWebShop.Domain.csproj": {
-              "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Domain/dWebShop.Domain.csproj"
+            "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\dWebShop.Domain.csproj": {
+              "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Domain\\dWebShop.Domain.csproj"
             },
-            "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Infrastructure/dWebShop.Infrastructure.csproj": {
-              "projectPath": "/home/ddilber/.paperclip/instances/default/projects/1ce4dca5-7f13-4f8a-a525-25d9398329b0/d7664993-e2f3-462a-8bfc-822e732a68de/_default/src/dWebShop.Infrastructure/dWebShop.Infrastructure.csproj"
+            "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj": {
+              "projectPath": "F:\\PROJECTS\\Blazor\\dWebShopX\\src\\dWebShop.Infrastructure\\dWebShop.Infrastructure.csproj"
             }
           }
         }
@@ -4614,6 +4622,7 @@
     },
     "frameworks": {
       "net9.0": {
+        "framework": "net9.0",
         "targetAlias": "net9.0",
         "dependencies": {
           "Dapper": {
@@ -4661,7 +4670,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/home/ddilber/.dotnet/sdk/10.0.201/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.202/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

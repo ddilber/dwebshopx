@@ -1,0 +1,98 @@
+@page "/brands"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Brands.Queries
+@using dWebShop.Application.Features.Brands.Commands
+@inject IMediator Mediator
+
+<PageTitle>Brands — dWebShop Admin</PageTitle>
+
+<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
+    <FluentLabel Style="font-size: 22px; font-weight: 600;">Brands</FluentLabel>
+    <FluentSpacer />
+    <FluentButton Appearance="Appearance.Primary" IconStart="@(new Icons.Regular.Size16.Add())" OnClick="OpenCreate">
+        Add Brand
+    </FluentButton>
+</FluentStack>
+<FluentDivider Style="margin-bottom: 24px;" />
+
+@if (_loading)
+{
+    <FluentProgressRing />
+}
+else if (_brands is not null)
+{
+    <FluentDataGrid Items="@_brands.AsQueryable()" TGridItem="BrandDto">
+        <PropertyColumn Title="Name" Property="@(b => b.Name)" Sortable="true" />
+        <PropertyColumn Title="Slug" Property="@(b => b.Slug)" />
+        <TemplateColumn Title="Actions">
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Edit())" OnClick="@(() => OpenEdit(context))">Edit</FluentButton>
+        </TemplateColumn>
+    </FluentDataGrid>
+}
+
+<FluentDialog @ref="_dialog" TrapFocus="true" Modal="true" PreventScroll="true">
+    <FluentDialogBody>
+        <FluentStack Orientation="Orientation.Vertical" Style="gap: 16px; padding: 8px;">
+            <FluentLabel Style="font-size: 18px; font-weight: 600;">
+                @(_editModel.Id == 0 ? "Add Brand" : "Edit Brand")
+            </FluentLabel>
+            <FluentTextInput @bind-Value="_editModel.Name" Label="Name" Style="width: 100%" />
+            <FluentTextInput @bind-Value="_editModel.Slug" Label="Slug" Style="width: 100%" />
+            <FluentTextArea @bind-Value="_editModel.Description" Label="Description" Rows="4" Style="width: 100%" />
+            <FluentStack Orientation="Orientation.Horizontal" Style="gap: 8px; justify-content: flex-end; margin-top: 8px;">
+                <FluentButton Appearance="Appearance.Primary" OnClick="Save">Save</FluentButton>
+                <FluentButton OnClick="@(() => _dialog?.Hide())">Cancel</FluentButton>
+            </FluentStack>
+        </FluentStack>
+    </FluentDialogBody>
+</FluentDialog>
+
+@code {
+    private List<BrandDto>? _brands;
+    private bool _loading = true;
+    private FluentDialog? _dialog;
+    private BrandEditModel _editModel = new();
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        var result = await Mediator.Send(new GetBrandsQuery());
+        _brands = result.ToList();
+        _loading = false;
+    }
+
+    private void OpenCreate()
+    {
+        _editModel = new();
+        _dialog?.Show();
+    }
+
+    private void OpenEdit(BrandDto brand)
+    {
+        _editModel = new() { Id = brand.Id, Name = brand.Name, Slug = brand.Slug, Description = brand.Description };
+        _dialog?.Show();
+    }
+
+    private async Task Save()
+    {
+        if (_editModel.Id == 0)
+            await Mediator.Send(new CreateBrandCommand { Name = _editModel.Name, Slug = _editModel.Slug, Description = _editModel.Description });
+        else
+            await Mediator.Send(new UpdateBrandCommand { Id = _editModel.Id, Name = _editModel.Name, Slug = _editModel.Slug, Description = _editModel.Description });
+
+        _dialog?.Hide();
+        await LoadAsync();
+    }
+
+    private class BrandEditModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public string Slug { get; set; } = "";
+        public string Description { get; set; } = "";
+    }
+}

@@ -1,5 +1,4 @@
 using dWebShop.Application;
-using MudBlazor.Services;
 using dWebShop.Domain.Entities.Users;
 using dWebShop.Infrastructure;
 using dWebShop.Infrastructure.Persistence;
@@ -30,7 +29,6 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddMudServices();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
