@@ -129,5 +129,5 @@
     function init() { _updateBadge(); _updateChip(); }
     if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); }
     else { init(); }
-    document.addEventListener('enhancedload', init);
+    document.addEventListener('enhancedload', () => { window.scrollTo(0, 0); init(); });
 })();
