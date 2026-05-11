@@ -1,4 +1,5 @@
 @page "/login"
+@layout MainLayout
 
 @using dWebShop.Domain.Entities.Users
 @using Microsoft.AspNetCore.Authentication
@@ -7,39 +8,42 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject NavigationManager Navigation
 
-<PageTitle>Login</PageTitle>
+<PageTitle>Prijava — Web Shop</PageTitle>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <h2 class="mb-4">Login</h2>
+<div class="asg-login-page">
+    <div class="asg-modal">
+        <h2>Prijava partnera</h2>
+        <p>Pristupite B2B cijenama, partnerskim rabatima i istoriji narudžbi.</p>
 
-            @if (!string.IsNullOrEmpty(_errorMessage))
-            {
-                <div class="alert alert-danger">@_errorMessage</div>
-            }
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="asg-login-error">@_errorMessage</div>
+        }
 
-            <EditForm Model="Input!" FormName="login" OnValidSubmit="HandleLoginAsync" method="post">
-                <DataAnnotationsValidator />
-                <ValidationSummary class="text-danger" />
+        <EditForm Model="Input!" FormName="login" OnValidSubmit="HandleLoginAsync" method="post">
+            <DataAnnotationsValidator />
 
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <InputText id="email" @bind-Value="Input.Email" class="form-control" autocomplete="username" />
+            <div style="display:grid;gap:14px;margin-bottom:20px">
+                <div class="asg-field">
+                    <label for="email">E-mail</label>
+                    <InputText id="email" @bind-Value="Input.Email" type="email" autocomplete="username" />
                     <ValidationMessage For="() => Input.Email" />
                 </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <InputText id="password" @bind-Value="Input.Password" class="form-control" type="password" autocomplete="current-password" />
+                <div class="asg-field">
+                    <label for="password">Lozinka</label>
+                    <InputText id="password" @bind-Value="Input.Password" type="password" autocomplete="current-password" />
                     <ValidationMessage For="() => Input.Password" />
                 </div>
-
-                <button type="submit" class="btn btn-primary w-100">Log in</button>
-            </EditForm>
-
-            <div class="mt-3 text-center">
-                <a href="/register">Don't have an account? Register</a>
             </div>
+
+            <button type="submit" class="asg-btn asg-btn-pri">
+                Prijavi se
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12H19M13 6l6 6-6 6"/></svg>
+            </button>
+        </EditForm>
+
+        <div class="asg-login-footer">
+            Nemate nalog? <a href="/register">Registrujte se</a>
         </div>
     </div>
 </div>
@@ -67,17 +71,17 @@
 
         if (result.Succeeded)
         {
-            Navigation.NavigateTo("/portal", forceLoad: true);
+            Navigation.NavigateTo("/account", forceLoad: true);
             return;
         }
 
         if (result.IsNotAllowed)
         {
-            _errorMessage = "Your account is pending admin approval.";
+            _errorMessage = "Vaš nalog čeka odobrenje administratora.";
             return;
         }
 
-        _errorMessage = "Invalid email or password.";
+        _errorMessage = "Pogrešan e-mail ili lozinka.";
     }
 
     public sealed class LoginInputModel
