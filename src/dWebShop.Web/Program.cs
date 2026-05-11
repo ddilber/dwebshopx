@@ -68,11 +68,11 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-// Logout endpoint
-app.MapPost("/logout", async (SignInManager<ApplicationUser> signInManager, HttpContext context) =>
+// Logout endpoint — GET so Blazor interactive components can navigate to it directly
+app.MapGet("/logout", async (SignInManager<ApplicationUser> signInManager) =>
 {
     await signInManager.SignOutAsync();
     return Results.Redirect("/login");
-}).RequireAuthorization();
+});
 
 app.Run();

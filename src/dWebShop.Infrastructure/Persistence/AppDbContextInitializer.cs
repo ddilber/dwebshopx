@@ -1,3 +1,4 @@
+using dWebShop.Domain.Entities.Partners;
 using dWebShop.Domain.Entities.Products;
 using dWebShop.Domain.Entities.Users;
 using Microsoft.AspNetCore.Identity;
@@ -39,6 +40,7 @@ public class AppDbContextInitializer
         await SeedRolesAsync();
         await SeedAdminUserAsync();
         await SeedBrandsAsync();
+        await SeedDemoPartnerAsync();
     }
 
     private async Task SeedRolesAsync()
@@ -80,6 +82,43 @@ public class AppDbContextInitializer
         {
             _logger.LogError("Failed to create admin user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
         }
+    }
+
+    private async Task SeedDemoPartnerAsync()
+    {
+        const string email = "marin@galicgradnja.ba";
+
+        if (await _userManager.FindByEmailAsync(email) is not null)
+            return;
+
+        var partner = new Partner
+        {
+            FirstName = "Marin",
+            LastName = "Galić",
+            CompanyName = "Galić Gradnja d.o.o.",
+            Email = email,
+            Phone = string.Empty,
+            PartnerType = "B2B Partner",
+            Tier = "Silver — 8% rabat",
+            CreatedDate = new DateTime(2019, 1, 1)
+        };
+        _context.Partners.Add(partner);
+        await _context.SaveChangesAsync();
+
+        var user = new ApplicationUser
+        {
+            UserName = "marin.galic",
+            Email = email,
+            EmailConfirmed = true,
+            IsApproved = true,
+            PartnerId = partner.Id
+        };
+
+        var result = await _userManager.CreateAsync(user, "Demo@12345!");
+        if (result.Succeeded)
+            await _userManager.AddToRoleAsync(user, "Client");
+        else
+            _logger.LogError("Failed to create demo partner user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
     }
 
     private async Task SeedBrandsAsync()
