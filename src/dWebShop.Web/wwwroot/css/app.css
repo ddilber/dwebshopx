@@ -695,3 +695,10 @@ a {
   display: flex; align-items: center; justify-content: center; }
 .asg-modal-close:hover { color: var(--asg-ink); }
 .asg-modal .asg-btn { width: 100%; justify-content: center; margin-top: 8px; }
+
+/* --- Login page --- */
+.asg-login-page { min-height: calc(100vh - 120px); display: flex; align-items: center; justify-content: center; padding: 40px 24px; }
+.asg-login-page .asg-modal { position: static; }
+.asg-login-error { font-size: 13px; color: #c0392b; background: #fdf0ef; border: 1px solid #e8c8c5; padding: 10px 14px; margin-bottom: 18px; font-family: var(--asg-mono); letter-spacing: .03em; }
+.asg-login-footer { font-size: 13px; color: var(--asg-muted); margin-top: 20px; text-align: center; font-family: var(--asg-mono); letter-spacing: .04em; }
+.asg-login-footer a { color: var(--asg-ink); text-decoration: underline; }
