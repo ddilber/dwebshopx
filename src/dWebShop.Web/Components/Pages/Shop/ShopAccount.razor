@@ -1,7 +1,13 @@
 @page "/account"
 @layout MainLayout
 @rendermode InteractiveServer
-@using System.Text.Json
+
+@using dWebShop.Application.Common.Interfaces
+@using dWebShop.Domain.Entities.Partners
+@using dWebShop.Domain.Entities.Users
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.EntityFrameworkCore
 
 <PageTitle>Moj nalog — Web Shop</PageTitle>
 
@@ -23,10 +29,10 @@
             </div>
             <div class="asg-cart-empty">
                 <p>Niste prijavljeni.</p>
-                <button class="asg-btn asg-btn-pri" onclick="if(window.asgShop)window.asgShop.openLogin()">
+                <a class="asg-btn asg-btn-pri" href="/login">
                     Prijavi se
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
-                </button>
+                </a>
             </div>
         }
         else
@@ -54,7 +60,7 @@
                         <div><span>Tier</span><b>@_user.Tier</b></div>
                         <div><span>Partner od</span><b>@_user.Since</b></div>
                     </div>
-                    <button class="asg-btn asg-btn-sec" @onclick="SignOut">Odjava</button>
+                    <a class="asg-btn asg-btn-sec" href="/logout">Odjava</a>
                 </aside>
 
                 <div>
@@ -88,28 +94,42 @@
 </div>
 
 @code {
-    [Inject] IJSRuntime JS { get; set; } = default!;
-    [Inject] NavigationManager Nav { get; set; } = default!;
+    [CascadingParameter] private Task<AuthenticationState> AuthState { get; set; } = default!;
+    [Inject] private UserManager<ApplicationUser> UserManager { get; set; } = default!;
+    [Inject] private IAppDbContext Db { get; set; } = default!;
 
     private ShopData.ShopUser? _user;
     private bool _initialized;
 
-    private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (!firstRender) return;
-        var userJson = await JS.InvokeAsync<string>("window.asgShop.getUserJson");
-        if (userJson != "null")
-            _user = JsonSerializer.Deserialize<ShopData.ShopUser>(userJson, _json);
+        var auth = await AuthState;
+        if (!auth.User.Identity?.IsAuthenticated ?? true)
+        {
+            _initialized = true;
+            return;
+        }
+
+        var appUser = await UserManager.GetUserAsync(auth.User);
+        if (appUser?.PartnerId is { } partnerId)
+        {
+            var partner = await Db.Partners
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == partnerId);
+
+            if (partner is not null)
+            {
+                _user = new ShopData.ShopUser(
+                    Name: $"{partner.FirstName} {partner.LastName}",
+                    Company: partner.CompanyName,
+                    Email: appUser.Email ?? partner.Email,
+                    PartnerType: partner.PartnerType,
+                    Tier: partner.Tier,
+                    Since: partner.CreatedDate?.ToString("yyyy") ?? "—"
+                );
+            }
+        }
+
         _initialized = true;
-        StateHasChanged();
-    }
-
-    private async Task SignOut()
-    {
-        await JS.InvokeVoidAsync("window.asgShop.signOut");
-        _user = null;
-        StateHasChanged();
     }
 }
