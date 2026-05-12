@@ -1,4 +1,5 @@
 @page "/register"
+@layout MainLayout
 
 @using dWebShop.Application.Services
 @using dWebShop.Domain.Entities.Users
@@ -10,49 +11,52 @@
 @inject IConfiguration Configuration
 @inject NavigationManager Navigation
 
-<PageTitle>Register</PageTitle>
+<PageTitle>Registracija — Web Shop</PageTitle>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <h2 class="mb-4">Register</h2>
+<div class="asg-login-page">
+    <div class="asg-modal">
+        <h2>Postanite partner</h2>
+        <p>Registrujte se za pristup B2B cijenama, partnerskim rabatima i istoriji narudžbi.</p>
 
-            @if (!string.IsNullOrEmpty(_errorMessage))
-            {
-                <div class="alert alert-danger">@_errorMessage</div>
-            }
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="asg-login-error">@_errorMessage</div>
+        }
 
-            <EditForm Model="Input!" FormName="register" OnValidSubmit="HandleRegisterAsync" method="post">
-                <DataAnnotationsValidator />
-                <ValidationSummary class="text-danger" />
+        <EditForm Model="Input!" FormName="register" OnValidSubmit="HandleRegisterAsync" method="post">
+            <DataAnnotationsValidator />
 
-                <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <InputText id="username" @bind-Value="Input.UserName" class="form-control" autocomplete="username" />
+            <div style="display:grid;gap:14px;margin-bottom:20px">
+                <div class="asg-field">
+                    <label for="username">Korisničko ime</label>
+                    <InputText id="username" @bind-Value="Input.UserName" autocomplete="username" />
                     <ValidationMessage For="() => Input.UserName" />
                 </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <InputText id="email" @bind-Value="Input.Email" class="form-control" autocomplete="email" />
+                <div class="asg-field">
+                    <label for="email">E-mail</label>
+                    <InputText id="email" @bind-Value="Input.Email" type="email" autocomplete="email" />
                     <ValidationMessage For="() => Input.Email" />
                 </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <InputText id="password" @bind-Value="Input.Password" class="form-control" type="password" autocomplete="new-password" />
+                <div class="asg-field">
+                    <label for="password">Lozinka</label>
+                    <InputText id="password" @bind-Value="Input.Password" type="password" autocomplete="new-password" />
                     <ValidationMessage For="() => Input.Password" />
                 </div>
-                <div class="mb-3">
-                    <label for="confirm-password" class="form-label">Confirm Password</label>
-                    <InputText id="confirm-password" @bind-Value="Input.ConfirmPassword" class="form-control" type="password" autocomplete="new-password" />
+                <div class="asg-field">
+                    <label for="confirm-password">Potvrda lozinke</label>
+                    <InputText id="confirm-password" @bind-Value="Input.ConfirmPassword" type="password" autocomplete="new-password" />
                     <ValidationMessage For="() => Input.ConfirmPassword" />
                 </div>
-
-                <button type="submit" class="btn btn-primary w-100">Register</button>
-            </EditForm>
-
-            <div class="mt-3 text-center">
-                <a href="/login">Already have an account? Log in</a>
             </div>
+
+            <button type="submit" class="asg-btn asg-btn-pri">
+                Registruj se
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12H19M13 6l6 6-6 6"/></svg>
+            </button>
+        </EditForm>
+
+        <div class="asg-login-footer">
+            Već imate nalog? <a href="/login">Prijavite se</a>
         </div>
     </div>
 </div>
@@ -117,7 +121,7 @@
         public string Password { get; set; } = "";
 
         [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
+        [System.ComponentModel.DataAnnotations.Compare(nameof(Password), ErrorMessage = "Lozinke se ne podudaraju.")]
         [System.ComponentModel.DataAnnotations.DataType(System.ComponentModel.DataAnnotations.DataType.Password)]
         public string ConfirmPassword { get; set; } = "";
     }
