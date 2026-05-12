@@ -1,7 +1,9 @@
 @page "/register"
 @layout MainLayout
 
+@using dWebShop.Application.Common.Interfaces
 @using dWebShop.Application.Services
+@using dWebShop.Domain.Entities.Partners
 @using dWebShop.Domain.Entities.Users
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.Extensions.Configuration
@@ -9,12 +11,13 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject IEmailService EmailService
 @inject IConfiguration Configuration
+@inject IAppDbContext Db
 @inject NavigationManager Navigation
 
 <PageTitle>Registracija — Web Shop</PageTitle>
 
 <div class="asg-login-page">
-    <div class="asg-modal">
+    <div class="asg-modal" style="max-width:520px">
         <h2>Postanite partner</h2>
         <p>Registrujte se za pristup B2B cijenama, partnerskim rabatima i istoriji narudžbi.</p>
 
@@ -27,11 +30,36 @@
             <DataAnnotationsValidator />
 
             <div style="display:grid;gap:14px;margin-bottom:20px">
-                <div class="asg-field">
-                    <label for="username">Korisničko ime</label>
-                    <InputText id="username" @bind-Value="Input.UserName" autocomplete="username" />
-                    <ValidationMessage For="() => Input.UserName" />
+
+                <div style="font-family:var(--asg-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--asg-muted);padding-bottom:6px;border-bottom:1px solid var(--asg-line)">Podaci o partneru</div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                    <div class="asg-field">
+                        <label for="firstname">Ime</label>
+                        <InputText id="firstname" @bind-Value="Input.FirstName" autocomplete="given-name" />
+                        <ValidationMessage For="() => Input.FirstName" />
+                    </div>
+                    <div class="asg-field">
+                        <label for="lastname">Prezime</label>
+                        <InputText id="lastname" @bind-Value="Input.LastName" autocomplete="family-name" />
+                        <ValidationMessage For="() => Input.LastName" />
+                    </div>
                 </div>
+
+                <div class="asg-field">
+                    <label for="company">Naziv firme</label>
+                    <InputText id="company" @bind-Value="Input.CompanyName" autocomplete="organization" />
+                    <ValidationMessage For="() => Input.CompanyName" />
+                </div>
+
+                <div class="asg-field">
+                    <label for="phone">Telefon</label>
+                    <InputText id="phone" @bind-Value="Input.Phone" type="tel" autocomplete="tel" />
+                    <ValidationMessage For="() => Input.Phone" />
+                </div>
+
+                <div style="font-family:var(--asg-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--asg-muted);padding-bottom:6px;border-bottom:1px solid var(--asg-line);margin-top:6px">Podaci za prijavu</div>
+
                 <div class="asg-field">
                     <label for="email">E-mail</label>
                     <InputText id="email" @bind-Value="Input.Email" type="email" autocomplete="email" />
@@ -77,11 +105,24 @@
 
     private async Task HandleRegisterAsync()
     {
+        var partner = new Partner
+        {
+            FirstName = Input!.FirstName,
+            LastName = Input.LastName,
+            CompanyName = Input.CompanyName,
+            Email = Input.Email,
+            Phone = Input.Phone,
+            CreatedDate = DateTime.UtcNow
+        };
+        Db.Partners.Add(partner);
+        await Db.SaveChangesAsync();
+
         var user = new ApplicationUser
         {
-            UserName = Input!.UserName,
+            UserName = Input.Email,
             Email = Input.Email,
-            IsApproved = false
+            IsApproved = false,
+            PartnerId = partner.Id
         };
 
         var result = await UserManager.CreateAsync(user, Input.Password);
@@ -91,36 +132,48 @@
             var adminEmail = Configuration["Seed:AdminEmail"] ?? "admin@dwebshop.local";
             try
             {
-                await EmailService.SendRegistrationNotificationToAdminAsync(adminEmail, Input.Email, Input.UserName);
+                await EmailService.SendRegistrationNotificationToAdminAsync(adminEmail, Input.Email, $"{Input.FirstName} {Input.LastName}");
             }
-            catch
-            {
-                // Email notification failure should not block registration
-            }
+            catch { }
 
             Navigation.NavigateTo("/register-success", forceLoad: true);
             return;
         }
+
+        // User creation failed — remove the partner row we just inserted
+        Db.Partners.Remove(partner);
+        await Db.SaveChangesAsync();
 
         _errorMessage = string.Join("; ", result.Errors.Select(e => e.Description));
     }
 
     public sealed class RegisterInputModel
     {
-        [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.StringLength(50, MinimumLength = 3)]
-        public string UserName { get; set; } = "";
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Ime je obavezno.")]
+        [System.ComponentModel.DataAnnotations.StringLength(100)]
+        public string FirstName { get; set; } = "";
 
-        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Prezime je obavezno.")]
+        [System.ComponentModel.DataAnnotations.StringLength(100)]
+        public string LastName { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Naziv firme je obavezan.")]
+        [System.ComponentModel.DataAnnotations.StringLength(200)]
+        public string CompanyName { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.StringLength(50)]
+        public string Phone { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "E-mail je obavezan.")]
         [System.ComponentModel.DataAnnotations.EmailAddress]
         public string Email { get; set; } = "";
 
-        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Lozinka je obavezna.")]
         [System.ComponentModel.DataAnnotations.StringLength(100, MinimumLength = 8)]
         [System.ComponentModel.DataAnnotations.DataType(System.ComponentModel.DataAnnotations.DataType.Password)]
         public string Password { get; set; } = "";
 
-        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Potvrda lozinke je obavezna.")]
         [System.ComponentModel.DataAnnotations.Compare(nameof(Password), ErrorMessage = "Lozinke se ne podudaraju.")]
         [System.ComponentModel.DataAnnotations.DataType(System.ComponentModel.DataAnnotations.DataType.Password)]
         public string ConfirmPassword { get; set; } = "";
