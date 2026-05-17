@@ -4,6 +4,7 @@
 @using MediatR
 @using dWebShop.Application.Features.Orders.Queries
 @using dWebShop.Application.Features.Orders.Commands
+@using dWebShop.Application.Features.Products.Queries
 @using dWebShop.Domain.Entities.Orders
 @inject IMediator Mediator
 @inject NavigationManager Navigation
@@ -41,6 +42,12 @@ else
                           OnClick="@(() => Navigation.NavigateTo("/orders"))">Back</FluentButton>
             <FluentButton Appearance="ButtonAppearance.Transparent" IconStart="@(new Icons.Regular.Size16.ArrowDownload())">Print invoice</FluentButton>
             <FluentButton Appearance="ButtonAppearance.Transparent" IconStart="@(new Icons.Regular.Size16.Mail())">Resend confirmation</FluentButton>
+            <select class="admin-search-input" style="min-width: 130px;" @onchange="OnStatusChanged">
+                @foreach (var s in Enum.GetValues<OrderStatus>())
+                {
+                    <option value="@s" selected="@(_order.Status == s)">@s</option>
+                }
+            </select>
             @if (NextStatus.HasValue)
             {
                 <FluentButton Appearance="ButtonAppearance.Primary"
@@ -87,7 +94,13 @@ else
             <FluentCard>
                 <div class="order-card-head">
                     <span class="order-card-title">Items</span>
-                    <span style="color: var(--colorNeutralForeground3); font-size: 13px;">@_order.Items.Count items · @_order.Items.Sum(i => i.Price * i.Quantity).ToString("C2")</span>
+                    <div style="display:flex; align-items:center; gap: 12px;">
+                        <span style="color: var(--colorNeutralForeground3); font-size: 13px;">@_order.Items.Count items · @_order.Items.Sum(i => i.Price * i.Quantity).ToString("C2")</span>
+                        <FluentButton Appearance="ButtonAppearance.Transparent"
+                                      IconStart="@(new Icons.Regular.Size16.Add())"
+                                      Style="font-size: 12px;"
+                                      OnClick="OpenAddItem">Add item</FluentButton>
+                    </div>
                 </div>
                 <div class="order-items">
                     @foreach (var item in _order.Items)
@@ -261,6 +274,104 @@ else
     </div>
 }
 
+@if (_addItemDialogOpen)
+{
+    <div class="img-picker-overlay" @onclick="CloseAddItem">
+        <div class="img-picker-dialog" style="width: 500px;" @onclick:stopPropagation="true">
+            <div class="img-picker-header">
+                <span style="font-size: 18px; font-weight: 600;">Add item</span>
+                <FluentButton Appearance="ButtonAppearance.Transparent" IconStart="@(new Icons.Regular.Size16.Dismiss())" OnClick="CloseAddItem" />
+            </div>
+            <div style="padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+
+                @* Product search *@
+                <div style="display: flex; gap: 8px;">
+                    <input class="admin-search-input" style="flex: 1;"
+                           @bind="_productSearch"
+                           @bind:event="oninput"
+                           @onkeyup="@(async e => { if (e.Key == "Enter") await SearchProducts(); })"
+                           placeholder="Search products by name or SKU…" />
+                    <FluentButton Appearance="ButtonAppearance.Transparent"
+                                  IconStart="@(new Icons.Regular.Size16.Search())"
+                                  OnClick="SearchProducts">Search</FluentButton>
+                </div>
+
+                @* Search results *@
+                @if (_productSearchResults is not null)
+                {
+                    @if (_productSearchResults.Count == 0)
+                    {
+                        <div style="font-size: 13px; color: var(--colorNeutralForeground3);">No products found.</div>
+                    }
+                    else
+                    {
+                        <div style="display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto;">
+                            @foreach (var p in _productSearchResults)
+                            {
+                                var prod = p;
+                                var isSelected = _selectedProduct?.Id == prod.Id;
+                                <div class="oi-row @(isSelected ? "is-selected" : "")"
+                                     style="cursor: pointer; border-radius: 6px; padding: 8px; @(isSelected ? "background: var(--colorBrandBackground2);" : "")"
+                                     @onclick="@(() => SelectProduct(prod))">
+                                    <div class="oi-main">
+                                        <div class="oi-name">@prod.Name</div>
+                                        <div class="oi-sub"><span class="oi-mono">@prod.SKU</span></div>
+                                    </div>
+                                    @if (prod.MinPrice.HasValue)
+                                    {
+                                        <div class="oi-price">@prod.MinPrice.Value.ToString("C2")</div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+
+                @* SKU + Qty + Price (shown once a product is selected) *@
+                @if (_selectedProduct is not null && _skuOptions is not null)
+                {
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label style="font-size: 12px; font-weight: 500; color: var(--colorNeutralForeground2);">SKU</label>
+                        <select class="admin-search-input" @onchange="OnSkuChanged">
+                            @foreach (var sku in _skuOptions)
+                            {
+                                <option value="@sku.Id" selected="@(_selectedSkuId == sku.Id)">
+                                    @sku.SKU@(string.IsNullOrWhiteSpace(sku.Name) ? "" : $" — {sku.Name}") · @sku.Price.ToString("C2")
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 12px; font-weight: 500; color: var(--colorNeutralForeground2);">Quantity</label>
+                            <input class="admin-search-input" type="number" min="1" style="width:100%;"
+                                   @bind="_addItemQty" />
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 12px; font-weight: 500; color: var(--colorNeutralForeground2);">Unit price</label>
+                            <input class="admin-search-input" type="number" min="0" step="0.01" style="width:100%;"
+                                   @bind="_addItemPrice" />
+                        </div>
+                    </div>
+                }
+
+                @if (_addItemError is not null)
+                {
+                    <div class="create-order-error">@_addItemError</div>
+                }
+            </div>
+            <div class="img-picker-footer">
+                <FluentButton Appearance="ButtonAppearance.Primary"
+                              OnClick="SaveAddItem"
+                              Disabled="@(_addItemSaving || _selectedProduct is null || !_selectedSkuId.HasValue)">
+                    @(_addItemSaving ? "Adding…" : "Add item")
+                </FluentButton>
+                <FluentButton OnClick="CloseAddItem">Cancel</FluentButton>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     [Parameter] public Guid OrderGuid { get; set; }
 
@@ -323,6 +434,99 @@ else
         await Mediator.Send(new UpdateOrderStatusCommand(_order.Id, NextStatus.Value));
         _order = await Mediator.Send(new GetOrderByGuidQuery(OrderGuid));
         StateHasChanged();
+    }
+
+    private async Task OnStatusChanged(ChangeEventArgs e)
+    {
+        if (_order is null) return;
+        if (Enum.TryParse<OrderStatus>(e.Value?.ToString(), out var newStatus) && newStatus != _order.Status)
+        {
+            await Mediator.Send(new UpdateOrderStatusCommand(_order.Id, newStatus));
+            _order = await Mediator.Send(new GetOrderByGuidQuery(OrderGuid));
+            StateHasChanged();
+        }
+    }
+
+    // ── Add item ──────────────────────────────────────────
+    private bool _addItemDialogOpen;
+    private bool _addItemSaving;
+    private string? _addItemError;
+    private string _productSearch = "";
+    private List<ProductListItemDto>? _productSearchResults;
+    private ProductListItemDto? _selectedProduct;
+    private List<OrderItemSkuDto>? _skuOptions;
+    private int? _selectedSkuId;
+    private decimal _addItemQty = 1;
+    private decimal _addItemPrice;
+
+    private void OpenAddItem()
+    {
+        _productSearch = "";
+        _productSearchResults = null;
+        _selectedProduct = null;
+        _skuOptions = null;
+        _selectedSkuId = null;
+        _addItemQty = 1;
+        _addItemPrice = 0;
+        _addItemError = null;
+        _addItemDialogOpen = true;
+    }
+
+    private void CloseAddItem()
+    {
+        _addItemDialogOpen = false;
+        _addItemError = null;
+    }
+
+    private async Task SearchProducts()
+    {
+        if (string.IsNullOrWhiteSpace(_productSearch)) return;
+        var result = await Mediator.Send(new GetProductsQuery(Search: _productSearch, Count: 10, IncludePrice: true));
+        _productSearchResults = result.Items;
+        _selectedProduct = null;
+        _skuOptions = null;
+        _selectedSkuId = null;
+    }
+
+    private async Task SelectProduct(ProductListItemDto product)
+    {
+        _selectedProduct = product;
+        _skuOptions = await Mediator.Send(new GetSkusForOrderItemQuery(product.Id));
+        var first = _skuOptions.FirstOrDefault();
+        _selectedSkuId = first?.Id;
+        _addItemPrice = first?.Price ?? 0;
+    }
+
+    private void OnSkuChanged(ChangeEventArgs e)
+    {
+        if (!int.TryParse(e.Value?.ToString(), out var skuId)) return;
+        _selectedSkuId = skuId;
+        var sku = _skuOptions?.FirstOrDefault(s => s.Id == skuId);
+        if (sku is not null) _addItemPrice = sku.Price;
+    }
+
+    private async Task SaveAddItem()
+    {
+        if (_order is null || _selectedProduct is null || !_selectedSkuId.HasValue) return;
+        _addItemSaving = true;
+        _addItemError = null;
+        try
+        {
+            await Mediator.Send(new AddOrderItemCommand(
+                _order.Id,
+                _selectedProduct.Id,
+                _selectedSkuId.Value,
+                _addItemQty,
+                _addItemPrice));
+            _addItemDialogOpen = false;
+            _order = await Mediator.Send(new GetOrderByGuidQuery(OrderGuid));
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            _addItemError = ex.Message;
+        }
+        _addItemSaving = false;
     }
 
     private bool _addrDialogOpen;
