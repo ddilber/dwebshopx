@@ -23,6 +23,7 @@ builder.Host.UseSerilog();
 builder.WebHost.UseStaticWebAssets();
 
 builder.Services.AddMemoryCache();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
@@ -64,6 +65,27 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+app.MapPost("/account/login", async (
+    HttpContext ctx,
+    SignInManager<ApplicationUser> signInManager,
+    UserManager<ApplicationUser> userManager) =>
+{
+    var form = await ctx.Request.ReadFormAsync();
+    var email = form["email"].ToString();
+    var password = form["password"].ToString();
+    var returnUrl = form["returnUrl"].ToString();
+
+    var user = await userManager.FindByEmailAsync(email);
+    var userName = user?.UserName ?? email;
+    var result = await signInManager.PasswordSignInAsync(userName, password, isPersistent: false, lockoutOnFailure: true);
+
+    if (result.Succeeded)
+        return Results.Redirect(string.IsNullOrEmpty(returnUrl) ? "/" : returnUrl);
+
+    var error = result.IsLockedOut ? "Account is locked. Try again later." : "Invalid email or password.";
+    return Results.Redirect($"/login?error={Uri.EscapeDataString(error)}");
+}).DisableAntiforgery();
 
 app.MapPost("/logout", async (SignInManager<ApplicationUser> signInManager) =>
 {

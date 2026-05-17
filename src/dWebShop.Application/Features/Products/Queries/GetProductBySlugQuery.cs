@@ -26,10 +26,10 @@ public class GetProductBySlugQueryHandler(IAppDbContext db) : IRequestHandler<Ge
 
         var pd = p.ProductDetails;
         return new ProductDetailDto(
-            p.Id, p.Name, p.SKU, p.ExtRef, p.Slug, p.Description, p.IsActive,
+            p.Id, p.Name, p.SKU, p.ExtRef, p.Slug, p.Description, p.Status, p.IsFeatured,
             p.BrandId, p.Brand?.Name,
             pd?.DetailDescription ?? string.Empty,
-            pd?.Images?.Select(i => new ProductImageDto(i.Id, i.Path, i.Description)).ToList() ?? [],
+            pd?.Images?.OrderBy(i => i.SortOrder).Select(i => new ProductImageDto(i.Id, i.Path, i.Description, i.SortOrder)).ToList() ?? [],
             pd?.Documents?.Select(d => new ProductDocumentDto(d.Id, d.Name, d.Path, d.Description)).ToList() ?? [],
             pd?.Information?.Select(i => new ProductInfoDto(i.Id, i.Key, i.Data)).ToList() ?? [],
             p.Categories?.Select(c => new CategoryRefDto(c.Id, c.Name)).ToList() ?? []);

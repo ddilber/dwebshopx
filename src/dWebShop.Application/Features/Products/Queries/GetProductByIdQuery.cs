@@ -1,16 +1,18 @@
 using dWebShop.Application.Common.Interfaces;
+using dWebShop.Domain.Entities.Products;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace dWebShop.Application.Features.Products.Queries;
 
-public record ProductImageDto(int Id, string Path, string Description);
+public record ProductImageDto(int Id, string Path, string Description, int SortOrder);
 public record ProductDocumentDto(int Id, string Name, string Path, string Description);
 public record ProductInfoDto(int Id, string Key, string Data);
 public record CategoryRefDto(int Id, string Name);
 
 public record ProductDetailDto(
-    int Id, string Name, string SKU, string ExtRef, string Slug, string Description, bool IsActive,
+    int Id, string Name, string SKU, string ExtRef, string Slug, string Description,
+    ProductStatus Status, bool IsFeatured,
     int? BrandId, string? BrandName,
     string DetailDescription,
     List<ProductImageDto> Images,
@@ -40,10 +42,10 @@ public class GetProductByIdQueryHandler(IAppDbContext db) : IRequestHandler<GetP
 
         var pd = p.ProductDetails;
         return new ProductDetailDto(
-            p.Id, p.Name, p.SKU, p.ExtRef, p.Slug, p.Description, p.IsActive,
+            p.Id, p.Name, p.SKU, p.ExtRef, p.Slug, p.Description, p.Status, p.IsFeatured,
             p.BrandId, p.Brand?.Name,
             pd?.DetailDescription ?? string.Empty,
-            pd?.Images?.Select(i => new ProductImageDto(i.Id, i.Path, i.Description)).ToList() ?? [],
+            pd?.Images?.OrderBy(i => i.SortOrder).Select(i => new ProductImageDto(i.Id, i.Path, i.Description, i.SortOrder)).ToList() ?? [],
             pd?.Documents?.Select(d => new ProductDocumentDto(d.Id, d.Name, d.Path, d.Description)).ToList() ?? [],
             pd?.Information?.Select(i => new ProductInfoDto(i.Id, i.Key, i.Data)).ToList() ?? [],
             p.Categories?.Select(c => new CategoryRefDto(c.Id, c.Name)).ToList() ?? []);

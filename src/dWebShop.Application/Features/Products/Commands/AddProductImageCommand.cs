@@ -19,7 +19,12 @@ public class AddProductImageCommandHandler(IAppDbContext db) : IRequestHandler<A
             await db.SaveChangesAsync(ct);
         }
 
-        var image = new ProductImage { Path = request.Path, Description = request.Description, ProductDetailsId = details.Id };
+        var maxSort = await db.ProductImages
+            .Where(i => i.ProductDetailsId == details.Id)
+            .Select(i => (int?)i.SortOrder)
+            .MaxAsync(ct) ?? 0;
+
+        var image = new ProductImage { Path = request.Path, Description = request.Description, ProductDetailsId = details.Id, SortOrder = maxSort + 1 };
         db.ProductImages.Add(image);
         await db.SaveChangesAsync(ct);
         return image.Id;

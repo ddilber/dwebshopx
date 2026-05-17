@@ -3,45 +3,215 @@
 @rendermode InteractiveServer
 @using MediatR
 @using dWebShop.Application.Features.Orders.Queries
+@using dWebShop.Domain.Entities.Orders
 @inject IMediator Mediator
 @inject NavigationManager Navigation
 
 <PageTitle>Orders — dWebShop Admin</PageTitle>
 
-<FluentLabel Style="font-size: 22px; font-weight: 600; margin-bottom: 16px; display: block;">Orders</FluentLabel>
-<FluentDivider Style="margin-bottom: 24px;" />
+<div class="page-head">
+    <div>
+        <div class="fui-breadcrumb">
+            <span class="fui-breadcrumb-item">Commerce</span>
+            <span class="fui-breadcrumb-sep">/</span>
+            <span>Orders</span>
+        </div>
+        <h1 class="page-title">Orders</h1>
+        <p class="page-sub">@_totalCount orders</p>
+    </div>
+    <div class="page-actions">
+        <button class="ds-btn ds-btn-subtle">Export</button>
+        <button class="ds-btn">+ Create order</button>
+    </div>
+</div>
 
-@if (_loading)
-{
-    <FluentProgressRing />
-}
-else if (_orders is not null)
-{
-    <FluentDataGrid Items="@_orders.AsQueryable()" Pagination="@_pagination" TGridItem="AdminOrderListDto">
-        <PropertyColumn Title="Order #" Property="@(o => o.Id)" Sortable="true" />
-        <PropertyColumn Title="Client" Property="@(o => o.PartnerName)" Sortable="true" />
-        <PropertyColumn Title="Status" Property="@(o => o.Status.ToString())" Sortable="true" />
-        <PropertyColumn Title="Date" Property="@(o => o.Created.ToString("dd.MM.yyyy"))" />
-        <PropertyColumn Title="Items" Property="@(o => o.ItemCount)" />
-        <PropertyColumn Title="Total" Property="@(o => o.Total.ToString("N2"))" />
-        <TemplateColumn Title="Actions">
-            <FluentButton IconStart="@(new Icons.Regular.Size16.Eye())" OnClick="@(() => Navigation.NavigateTo($"/orders/{context.Guid}"))">
-                View
-            </FluentButton>
-        </TemplateColumn>
-    </FluentDataGrid>
-    <FluentPaginator State="@_pagination" />
-}
+<div class="list-card">
+    <div style="padding: 0 var(--sp-16);">
+        <div class="ds-tabs">
+            <button class="ds-tab @(_tab == "all" ? "is-active" : "")" @onclick='() => SetTab("all")'>
+                All <span class="ds-tab-count">@_totalCount</span>
+            </button>
+            <button class="ds-tab @(_tab == "pending" ? "is-active" : "")" @onclick='() => SetTab("pending")'>
+                Pending <span class="ds-tab-count">@_pendingCount</span>
+            </button>
+            <button class="ds-tab @(_tab == "processing" ? "is-active" : "")" @onclick='() => SetTab("processing")'>
+                Processing <span class="ds-tab-count">@_processingCount</span>
+            </button>
+            <button class="ds-tab @(_tab == "shipped" ? "is-active" : "")" @onclick='() => SetTab("shipped")'>
+                Shipped <span class="ds-tab-count">@_shippedCount</span>
+            </button>
+            <button class="ds-tab @(_tab == "delivered" ? "is-active" : "")" @onclick='() => SetTab("delivered")'>
+                Delivered <span class="ds-tab-count">@_deliveredCount</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="list-controls">
+        <div class="list-search">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" style="color:var(--fg-4);flex-shrink:0">
+                <path d="M8.5 3a5.5 5.5 0 014.383 8.823l3.647 3.647a.75.75 0 01-1.06 1.06l-3.647-3.647A5.5 5.5 0 118.5 3zm0 1.5a4 4 0 100 8 4 4 0 000-8z"/>
+            </svg>
+            <input placeholder="Search by order #, customer, email…" @bind="_search" @bind:event="oninput" @onkeyup="OnSearch" />
+        </div>
+        <div class="list-controls-right">
+            <button class="ds-btn ds-btn-subtle ds-btn-sm">This week</button>
+        </div>
+    </div>
+
+    @if (_loading)
+    {
+        <div style="padding: 48px; text-align: center; color: var(--fg-3);">Loading…</div>
+    }
+    else if (_orders.Count == 0)
+    {
+        <div style="padding: 48px; text-align: center; color: var(--fg-3);">No orders found.</div>
+    }
+    else
+    {
+        <table class="ds-table">
+            <thead>
+                <tr>
+                    <th class="ds-th">Order #</th>
+                    <th class="ds-th">Customer</th>
+                    <th class="ds-th">Date</th>
+                    <th class="ds-th" style="text-align:right">Items</th>
+                    <th class="ds-th" style="text-align:right">Total</th>
+                    <th class="ds-th">Status</th>
+                    <th class="ds-th"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in _orders)
+                {
+                    <tr class="ds-tr" style="cursor:pointer" @onclick="() => OpenOrder(o.Guid)">
+                        <td class="ds-td"><span class="mono">#@o.Id</span></td>
+                        <td class="ds-td">
+                            <div class="cust-cell">
+                                <div class="tbl-avatar">@GetInitials(o.PartnerName)</div>
+                                <div>
+                                    <div>@(string.IsNullOrWhiteSpace(o.PartnerName) ? "—" : o.PartnerName)</div>
+                                    <div class="cust-sub">@o.PartnerEmail</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="ds-td">@o.Created.ToString("dd MMM yyyy")</td>
+                        <td class="ds-td" style="text-align:right">@o.ItemCount</td>
+                        <td class="ds-td" style="text-align:right; font-weight:600">@o.Total.ToString("N2")</td>
+                        <td class="ds-td">
+                            @switch (o.Status)
+                            {
+                                case OrderStatus.Pending:
+                                    <span class="ds-badge ds-badge-warning">Pending</span>
+                                    break;
+                                case OrderStatus.Confirmed:
+                                    <span class="ds-badge ds-badge-brand">Processing</span>
+                                    break;
+                                case OrderStatus.Shipped:
+                                    <span class="ds-badge ds-badge-info">Shipped</span>
+                                    break;
+                                case OrderStatus.Delivered:
+                                    <span class="ds-badge ds-badge-success">Delivered</span>
+                                    break;
+                                case OrderStatus.Cancelled:
+                                    <span class="ds-badge ds-badge-neutral">Cancelled</span>
+                                    break;
+                            }
+                        </td>
+                        <td class="ds-td">
+                            <button class="row-action" @onclick:stopPropagation="true">···</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="list-foot">
+            <span>Showing @_orders.Count of @_tabCount</span>
+            <div class="pager">
+                <button class="list-page-btn" disabled="@(_page <= 1)" @onclick="PrevPage">‹</button>
+                @for (int i = 1; i <= _totalPages; i++)
+                {
+                    var pg = i;
+                    <button class="list-page-btn @(pg == _page ? "is-active" : "")" @onclick="() => GoPage(pg)">@pg</button>
+                }
+                <button class="list-page-btn" disabled="@(_page >= _totalPages)" @onclick="NextPage">›</button>
+            </div>
+        </div>
+    }
+</div>
 
 @code {
-    private List<AdminOrderListDto>? _orders;
+    private List<AdminOrderListDto> _orders = [];
     private bool _loading = true;
-    private PaginationState _pagination = new() { ItemsPerPage = 20 };
+    private string _tab = "all";
+    private string _search = "";
+    private int _page = 1;
+    private const int PageSize = 20;
+    private int _totalCount, _tabCount, _totalPages;
+    private int _pendingCount, _processingCount, _shippedCount, _deliveredCount;
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Mediator.Send(new GetAllOrdersQuery());
-        _orders = result.Items.ToList();
+        await LoadTabCounts();
+        await LoadOrders();
+    }
+
+    private async Task LoadTabCounts()
+    {
+        var all = await Mediator.Send(new GetAllOrdersQuery(1, 1));
+        _totalCount = all.TotalCount;
+        var pending = await Mediator.Send(new GetAllOrdersQuery(1, 1, Status: OrderStatus.Pending));
+        _pendingCount = pending.TotalCount;
+        var processing = await Mediator.Send(new GetAllOrdersQuery(1, 1, Status: OrderStatus.Confirmed));
+        _processingCount = processing.TotalCount;
+        var shipped = await Mediator.Send(new GetAllOrdersQuery(1, 1, Status: OrderStatus.Shipped));
+        _shippedCount = shipped.TotalCount;
+        var delivered = await Mediator.Send(new GetAllOrdersQuery(1, 1, Status: OrderStatus.Delivered));
+        _deliveredCount = delivered.TotalCount;
+    }
+
+    private async Task LoadOrders()
+    {
+        _loading = true;
+        var statusFilter = _tab switch {
+            "pending"    => (OrderStatus?)OrderStatus.Pending,
+            "processing" => (OrderStatus?)OrderStatus.Confirmed,
+            "shipped"    => (OrderStatus?)OrderStatus.Shipped,
+            "delivered"  => (OrderStatus?)OrderStatus.Delivered,
+            _            => (OrderStatus?)null
+        };
+        var result = await Mediator.Send(new GetAllOrdersQuery(_page, PageSize, _search, statusFilter));
+        _orders = result.Items;
+        _tabCount = result.TotalCount;
+        _totalPages = Math.Max(1, (int)Math.Ceiling(_tabCount / (double)PageSize));
         _loading = false;
+    }
+
+    private async Task SetTab(string tab)
+    {
+        _tab = tab;
+        _page = 1;
+        await LoadOrders();
+    }
+
+    private async Task OnSearch(KeyboardEventArgs _)
+    {
+        _page = 1;
+        await LoadOrders();
+    }
+
+    private async Task PrevPage() { if (_page > 1) { _page--; await LoadOrders(); } }
+    private async Task NextPage() { if (_page < _totalPages) { _page++; await LoadOrders(); } }
+    private async Task GoPage(int p) { _page = p; await LoadOrders(); }
+
+    private void OpenOrder(Guid guid) => Navigation.NavigateTo("/orders/" + guid);
+
+    private static string GetInitials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length >= 2
+            ? $"{parts[0][0]}{parts[^1][0]}".ToUpper()
+            : name[..Math.Min(2, name.Length)].ToUpper();
     }
 }

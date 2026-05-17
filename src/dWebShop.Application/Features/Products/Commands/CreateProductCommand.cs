@@ -5,7 +5,7 @@ using MediatR;
 
 namespace dWebShop.Application.Features.Products.Commands;
 
-public record CreateProductCommand(string Name, string SKU, string ExtRef, string Slug, string Description, bool IsActive, int? BrandId, List<int>? CategoryIds) : IRequest<int>;
+public record CreateProductCommand(string Name, string SKU, string ExtRef, string Slug, string Description, ProductStatus Status, bool IsFeatured, int? BrandId, List<int>? CategoryIds) : IRequest<int>;
 
 public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
 {
@@ -28,7 +28,8 @@ public class CreateProductCommandHandler(IAppDbContext db) : IRequestHandler<Cre
             ExtRef = request.ExtRef,
             Slug = request.Slug,
             Description = request.Description,
-            IsActive = request.IsActive,
+            Status = request.Status,
+            IsFeatured = request.IsFeatured,
             BrandId = request.BrandId,
             ProductDetails = new ProductDetails { DetailDescription = string.Empty },
         };

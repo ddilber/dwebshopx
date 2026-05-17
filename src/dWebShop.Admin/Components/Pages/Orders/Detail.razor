@@ -8,69 +8,240 @@
 @inject IMediator Mediator
 @inject NavigationManager Navigation
 
-<PageTitle>Order Detail — dWebShop Admin</PageTitle>
-
-<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
-    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowLeft())" Appearance="Appearance.Lightweight" OnClick="@(() => Navigation.NavigateTo("/orders"))">
-        Orders
-    </FluentButton>
-    <FluentLabel Style="margin-left: 8px; font-size: 20px; font-weight: 600;">
-        Order #@(_order?.Id)
-    </FluentLabel>
-</FluentStack>
-<FluentDivider Style="margin-bottom: 24px;" />
+<PageTitle>Order @(_order is null ? "…" : $"#{_order.Id}") — dWebShop Admin</PageTitle>
 
 @if (_loading)
 {
-    <FluentProgressRing />
+    <div style="padding: 48px; text-align: center; color: var(--fg-3);">Loading…</div>
 }
-else if (_order is not null)
+else if (_order is null)
 {
-    <FluentCard Style="margin-bottom: 24px;">
-        <FluentGrid Spacing="4" Style="padding: 8px;">
-            <FluentGridItem xs="12" sm="6">
-                <FluentLabel Style="font-weight: 600; display: block; margin-bottom: 4px;">Client</FluentLabel>
-                <FluentLabel>@_order.PartnerName</FluentLabel>
-            </FluentGridItem>
-            <FluentGridItem xs="12" sm="6">
-                <FluentLabel Style="font-weight: 600; display: block; margin-bottom: 4px;">Status</FluentLabel>
-                <FluentBadge>@_order.Status</FluentBadge>
-            </FluentGridItem>
-            <FluentGridItem xs="12" sm="6">
-                <FluentLabel Style="font-weight: 600; display: block; margin-bottom: 4px;">Date</FluentLabel>
-                <FluentLabel>@_order.Created.ToString("dd.MM.yyyy HH:mm")</FluentLabel>
-            </FluentGridItem>
-            <FluentGridItem xs="12" sm="6">
-                <FluentLabel Style="font-weight: 600; display: block; margin-bottom: 4px;">Delivery Address</FluentLabel>
-                <FluentLabel>@_order.DeliveryAddress</FluentLabel>
-            </FluentGridItem>
-            @if (!string.IsNullOrEmpty(_order.Notes))
+    <div style="padding: 48px; text-align: center; color: var(--fg-3);">Order not found.</div>
+}
+else
+{
+    <div class="page-head">
+        <div>
+            <div class="fui-breadcrumb">
+                <a class="fui-breadcrumb-item" href="/orders">Commerce</a>
+                <span class="fui-breadcrumb-sep">/</span>
+                <a class="fui-breadcrumb-item" href="/orders">Orders</a>
+                <span class="fui-breadcrumb-sep">/</span>
+                <span>#@_order.Id</span>
+            </div>
+            <div class="detail-title-row">
+                <h1 class="page-title">#@_order.Id</h1>
+                @switch (_order.Status)
+                {
+                    case OrderStatus.Pending:
+                        <span class="ds-badge ds-badge-warning">Pending</span>
+                        break;
+                    case OrderStatus.Confirmed:
+                        <span class="ds-badge ds-badge-brand">Processing</span>
+                        break;
+                    case OrderStatus.Shipped:
+                        <span class="ds-badge ds-badge-info">Shipped</span>
+                        break;
+                    case OrderStatus.Delivered:
+                        <span class="ds-badge ds-badge-success">Delivered</span>
+                        break;
+                    case OrderStatus.Cancelled:
+                        <span class="ds-badge ds-badge-neutral">Cancelled</span>
+                        break;
+                }
+                <span class="ds-badge ds-badge-success">Paid</span>
+            </div>
+            <p class="page-sub">Placed @_order.Created.ToString("MMM d, yyyy") · @_order.Items.Count items</p>
+        </div>
+        <div class="page-actions">
+            <button class="ds-btn ds-btn-subtle" @onclick='() => Navigation.NavigateTo("/orders")'>← Back</button>
+            @if (_order.Status == OrderStatus.Pending)
             {
-                <FluentGridItem xs="12">
-                    <FluentLabel Style="font-weight: 600; display: block; margin-bottom: 4px;">Notes</FluentLabel>
-                    <FluentLabel>@_order.Notes</FluentLabel>
-                </FluentGridItem>
+                <button class="ds-btn" @onclick="() => UpdateStatus(OrderStatus.Confirmed)" disabled="@_updating">Confirm order</button>
             }
-        </FluentGrid>
-    </FluentCard>
+            else if (_order.Status == OrderStatus.Confirmed)
+            {
+                <button class="ds-btn" @onclick="() => UpdateStatus(OrderStatus.Shipped)" disabled="@_updating">Mark shipped</button>
+            }
+            else if (_order.Status == OrderStatus.Shipped)
+            {
+                <button class="ds-btn" @onclick="() => UpdateStatus(OrderStatus.Delivered)" disabled="@_updating">Mark delivered</button>
+            }
+        </div>
+    </div>
 
-    <FluentLabel Style="font-size: 16px; font-weight: 600; margin-bottom: 12px; display: block;">Items</FluentLabel>
-    <FluentDataGrid Items="@_order.Items.AsQueryable()" TGridItem="OrderItemDto">
-        <PropertyColumn Title="Product" Property="@(i => i.ProductName)" />
-        <PropertyColumn Title="SKU" Property="@(i => i.SKU)" />
-        <PropertyColumn Title="Qty" Property="@(i => i.Quantity)" />
-        <PropertyColumn Title="Price" Property="@(i => i.Price.ToString("N2"))" />
-    </FluentDataGrid>
+    <!-- Timeline -->
+    <div class="ds-card" style="margin-bottom: var(--sp-16);">
+        <div class="timeline">
+            <div class="tl-step is-done">
+                <div class="tl-dot">@CheckIcon</div>
+                <div class="tl-meta">
+                    <div class="tl-label">Placed</div>
+                    <div class="tl-time">@_order.Created.ToString("MMM d, HH:mm")</div>
+                </div>
+            </div>
+            <div class="tl-step is-done">
+                <div class="tl-dot">@CheckIcon</div>
+                <div class="tl-meta">
+                    <div class="tl-label">Paid</div>
+                    <div class="tl-time">@_order.Created.ToString("MMM d, HH:mm")</div>
+                </div>
+            </div>
+            <div class="tl-step @(IsProcessingDone ? "is-done" : "")">
+                <div class="tl-dot">@if (IsProcessingDone) { @CheckIcon } else { <span>3</span> }</div>
+                <div class="tl-meta">
+                    <div class="tl-label">Processing</div>
+                    <div class="tl-time">—</div>
+                </div>
+            </div>
+            <div class="tl-step @(IsShippedDone ? "is-done" : "")">
+                <div class="tl-dot">@if (IsShippedDone) { @CheckIcon } else { <span>4</span> }</div>
+                <div class="tl-meta">
+                    <div class="tl-label">Shipped</div>
+                    <div class="tl-time">—</div>
+                </div>
+            </div>
+            <div class="tl-step is-last @(IsDeliveredDone ? "is-done" : "")">
+                <div class="tl-dot">@if (IsDeliveredDone) { @CheckIcon } else { <span>5</span> }</div>
+                <div class="tl-meta">
+                    <div class="tl-label">Delivered</div>
+                    <div class="tl-time">—</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <FluentDivider Style="margin: 24px 0 16px;" />
-    <FluentStack Orientation="Orientation.Horizontal" Style="gap: 8px;">
-        @if (_order.Status == OrderStatus.Pending)
-        {
-            <FluentButton Appearance="Appearance.Primary" OnClick="Accept">
-                Accept Order
-            </FluentButton>
-        }
-    </FluentStack>
+    <!-- Detail grid -->
+    <div class="detail-grid">
+        <div class="detail-main">
+
+            <!-- Items -->
+            <div class="ds-card">
+                <div class="card-head">
+                    <div class="card-title">Items</div>
+                    <span style="font-size:var(--fs-300);color:var(--fg-3);">@_order.Items.Count items · @_order.Total.ToString("N2")</span>
+                </div>
+                <div class="order-items">
+                    @foreach (var item in _order.Items)
+                    {
+                        <div class="oi-row">
+                            <div class="oi-thumb">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="24" height="24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 3.75h18A.75.75 0 0121.75 4.5v15a.75.75 0 01-.75.75h-18a.75.75 0 01-.75-.75v-15A.75.75 0 013 3.75z"/>
+                                </svg>
+                            </div>
+                            <div class="oi-main">
+                                <div class="oi-name">@item.ProductName</div>
+                                <div class="oi-sub"><span class="mono">@item.SKU</span></div>
+                            </div>
+                            <div class="oi-qty">×@item.Quantity.ToString("G29")</div>
+                            <div class="oi-price">@item.Price.ToString("N2")</div>
+                        </div>
+                    }
+                </div>
+                <div class="order-totals">
+                    <div><span>Subtotal</span><span>@_order.Total.ToString("N2")</span></div>
+                    <div class="grand"><span>Total</span><span>@_order.Total.ToString("N2")</span></div>
+                </div>
+            </div>
+
+            <!-- Activity -->
+            <div class="ds-card">
+                <div class="card-title" style="margin-bottom:var(--sp-16);">Activity</div>
+                <div class="activity">
+                    <div class="act-row">
+                        <div class="act-avatar">S</div>
+                        <div class="act-main">
+                            <div><b>System</b> Order placed</div>
+                            <div class="act-time">@_order.Created.ToString("MMM d · HH:mm")</div>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(_order.Notes))
+                    {
+                        <div class="act-row">
+                            <div class="act-avatar">N</div>
+                            <div class="act-main">
+                                <div><b>Note</b> @_order.Notes</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="note-input">
+                    <div class="act-avatar">A</div>
+                    <input class="ds-input" style="flex:1" placeholder="Add an internal note…" @bind="_note" />
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-side">
+
+            <!-- Customer -->
+            <div class="ds-card">
+                <div class="card-title" style="margin-bottom:var(--sp-12);">Customer</div>
+                <div class="cust-block">
+                    <div class="order-avatar">@GetInitials(_order.PartnerName)</div>
+                    <div>
+                        <div class="cust-block-name">@(string.IsNullOrWhiteSpace(_order.PartnerName) ? "—" : _order.PartnerName)</div>
+                        <div class="cust-block-sub">Customer</div>
+                    </div>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(_order.PartnerEmail))
+                {
+                    <div class="kv">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                            <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z"/>
+                            <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z"/>
+                        </svg>
+                        <span>@_order.PartnerEmail</span>
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(_order.PartnerPhone))
+                {
+                    <div class="kv">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                            <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 013.5 2h1.148a1.5 1.5 0 011.465 1.175l.716 3.223a1.5 1.5 0 01-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 006.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 011.767-1.052l3.223.716A1.5 1.5 0 0118 15.352V16.5a1.5 1.5 0 01-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 012.43 8.326 13.019 13.019 0 012 5V3.5z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>@_order.PartnerPhone</span>
+                    </div>
+                }
+            </div>
+
+            <!-- Shipping address -->
+            <div class="ds-card">
+                <div class="card-title" style="margin-bottom:var(--sp-12);">Shipping address</div>
+                @if (!string.IsNullOrWhiteSpace(_order.DeliveryAddress))
+                {
+                    <div class="addr">@_order.DeliveryAddress</div>
+                }
+                else
+                {
+                    <p style="font-size:var(--fs-300);color:var(--fg-3);">No delivery address set.</p>
+                }
+            </div>
+
+            <!-- Payment -->
+            <div class="ds-card">
+                <div class="card-title" style="margin-bottom:var(--sp-12);">Payment</div>
+                <div class="kv">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                        <path fill-rule="evenodd" d="M2.5 4A1.5 1.5 0 001 5.5V6h18v-.5A1.5 1.5 0 0017.5 4h-15zM19 8.5H1v6A1.5 1.5 0 002.5 16h15a1.5 1.5 0 001.5-1.5v-6zM3 13.25a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm4.75-.75a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Payment on delivery</span>
+                </div>
+                <span class="ds-badge ds-badge-success" style="margin-top:var(--sp-8);">
+                    Captured · @_order.Total.ToString("N2")
+                </span>
+            </div>
+
+            <!-- Tags -->
+            <div class="ds-card">
+                <div class="card-title" style="margin-bottom:var(--sp-12);">Tags</div>
+                <div class="tag-input">
+                    <input placeholder="Add tag…" />
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
 @code {
@@ -78,17 +249,38 @@ else if (_order is not null)
 
     private OrderDetailDto? _order;
     private bool _loading = true;
+    private bool _updating;
+    private string _note = "";
+
+    private bool IsProcessingDone => _order?.Status is OrderStatus.Confirmed or OrderStatus.Shipped or OrderStatus.Delivered;
+    private bool IsShippedDone => _order?.Status is OrderStatus.Shipped or OrderStatus.Delivered;
+    private bool IsDeliveredDone => _order?.Status == OrderStatus.Delivered;
 
     protected override async Task OnInitializedAsync()
     {
-        _order = await Mediator.Send(new GetOrderByGuidQuery { Guid = OrderGuid });
+        _order = await Mediator.Send(new GetOrderByGuidQuery(OrderGuid));
         _loading = false;
     }
 
-    private async Task Accept()
+    private async Task UpdateStatus(OrderStatus newStatus)
     {
-        if (_order is null) return;
-        await Mediator.Send(new UpdateOrderStatusCommand { OrderId = _order.Id, NewStatus = OrderStatus.Accepted });
-        _order = await Mediator.Send(new GetOrderByGuidQuery { Guid = OrderGuid });
+        if (_order is null || _updating) return;
+        _updating = true;
+        await Mediator.Send(new UpdateOrderStatusCommand(_order.Id, newStatus));
+        _order = await Mediator.Send(new GetOrderByGuidQuery(OrderGuid));
+        _updating = false;
     }
+
+    private static string GetInitials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length >= 2
+            ? $"{parts[0][0]}{parts[^1][0]}".ToUpper()
+            : name[..Math.Min(2, name.Length)].ToUpper();
+    }
+
+    private RenderFragment CheckIcon => @<svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12">
+        <path d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"/>
+    </svg>;
 }

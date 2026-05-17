@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("dWebShop.DataMigration")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b2970cd38c59e5ce85461a9604872c119555e8c0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8f3b0ad4bc41c5151d50736ff5b5fe65053bd0f8")]
 [assembly: System.Reflection.AssemblyProductAttribute("dWebShop.DataMigration")]
 [assembly: System.Reflection.AssemblyTitleAttribute("dWebShop.DataMigration")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -3,50 +3,419 @@
 @rendermode InteractiveServer
 @using MediatR
 @using dWebShop.Application.Features.Products.Queries
+@using dWebShop.Application.Features.Brands.Queries
+@using dWebShop.Application.Features.Categories.Queries
+@using dWebShop.Domain.Entities.Products
 @inject IMediator Mediator
 @inject NavigationManager Navigation
 
 <PageTitle>Products — dWebShop Admin</PageTitle>
 
-<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
-    <FluentLabel Style="font-size: 22px; font-weight: 600;">Products</FluentLabel>
-    <FluentSpacer />
-    <FluentButton Appearance="Appearance.Primary" IconStart="@(new Icons.Regular.Size16.Add())" OnClick="@(() => Navigation.NavigateTo("/products/new"))">
-        Add Product
-    </FluentButton>
-</FluentStack>
-<FluentDivider Style="margin-bottom: 24px;" />
+<div class="page-head">
+    <div>
+        <div class="fui-breadcrumb">
+            <span class="fui-breadcrumb-item">Catalogue</span>
+            <span class="fui-breadcrumb-sep">/</span>
+            <span>Products</span>
+        </div>
+        <h1 class="page-title">Products</h1>
+        <p class="page-sub">@pagination.TotalItemCount products in catalogue</p>
+    </div>
+    <div class="page-actions">
+        <button class="ds-btn" @onclick="@(() => Navigation.NavigateTo("/products/new"))">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"/>
+            </svg>
+            Add product
+        </button>
+    </div>
+</div>
 
-@if (_loading)
-{
-    <FluentProgressRing />
-}
-else if (_products is not null)
-{
-    <FluentDataGrid Items="@_products.AsQueryable()" Pagination="@_pagination" TGridItem="ProductListItemDto">
-        <PropertyColumn Title="SKU" Property="@(p => p.SKU)" Sortable="true" />
-        <PropertyColumn Title="Name" Property="@(p => p.Name)" Sortable="true" />
-        <PropertyColumn Title="Brand" Property="@(p => p.BrandName)" Sortable="true" />
-        <TemplateColumn Title="Active">
-            <FluentIcon Value="@(context.IsActive ? new Icons.Regular.Size16.CheckmarkCircle() : new Icons.Regular.Size16.DismissCircle())"
-                        Color="@(context.IsActive ? Color.Success : Color.Error)" />
-        </TemplateColumn>
-        <TemplateColumn Title="Actions">
-            <FluentButton IconStart="@(new Icons.Regular.Size16.Edit())" OnClick="@(() => Navigation.NavigateTo($"/products/{context.Id}/edit"))">Edit</FluentButton>
-        </TemplateColumn>
+<div class="list-card">
+    <div class="ds-tabs" style="padding: 0 var(--sp-16);">
+        <button class="ds-tab @(_tab == "all" ? "is-active" : "")" @onclick='() => SetTab("all")'>
+            All @if (_tab == "all"){ <span class="ds-tab-count">@pagination.TotalItemCount</span>}
+        </button>
+        <button class="ds-tab @(_tab == "active" ? "is-active" : "")" @onclick='() => SetTab("active")'>
+            Active
+        </button>
+        <button class="ds-tab @(_tab == "low" ? "is-active" : "")" @onclick='() => SetTab("low")'>
+            Low stock
+        </button>
+        <button class="ds-tab @(_tab == "out" ? "is-active" : "")" @onclick='() => SetTab("out")'>
+            Out of stock
+        </button>
+    </div>
+
+    <div class="list-toolbar">
+        <div class="list-search">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" style="color:var(--fg-4);flex-shrink:0">
+                <path d="M8.5 3a5.5 5.5 0 014.383 8.823l3.647 3.647a.75.75 0 01-1.06 1.06l-3.647-3.647A5.5 5.5 0 118.5 3zm0 1.5a4 4 0 100 8 4 4 0 000-8z"/>
+            </svg>
+            <input placeholder="Search name or SKU…" @bind="_search" @bind:event="oninput" @onkeyup="OnSearch" />
+        </div>
+        <div class="list-controls-right">
+
+            <!-- Category filter -->
+            <div class="filter-wrap">
+                <button class="ds-btn ds-btn-subtle @(_selectedCategoryIds.Count > 0 ? "is-filtered" : "")"
+                        @onclick='() => ToggleFilter("category")'>
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                        <path d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3 5a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm2 5a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z"/>
+                    </svg>
+                    Category
+                    @if (_selectedCategoryIds.Count > 0)
+                    {
+                        <span class="filter-badge">@_selectedCategoryIds.Count</span>
+                    }
+                </button>
+                @if (_openFilter == "category")
+                {
+                    <div class="filter-drop">
+                        <div class="filter-drop-head">
+                            <span>Category</span>
+                            @if (_selectedCategoryIds.Count > 0)
+                            {
+                                <button class="filter-clear" @onclick="ClearCategories">Clear</button>
+                            }
+                        </div>
+                        @if (_categories.Count == 0)
+                        {
+                            <div class="filter-empty">No categories found</div>
+                        }
+                        @foreach (var cat in _categories)
+                        {
+                            var catId = cat.Id;
+                            <label class="filter-item">
+                                <input type="checkbox"
+                                       checked="@_selectedCategoryIds.Contains(catId)"
+                                       @onchange="e => ToggleCategoryId(catId, (bool)e.Value!)" />
+                                @cat.Name
+                                @if (!string.IsNullOrWhiteSpace(cat.ParentName))
+                                {
+                                    <span class="filter-item-sub">@cat.ParentName</span>
+                                }
+                            </label>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Brand filter -->
+            <div class="filter-wrap">
+                <button class="ds-btn ds-btn-subtle @(_selectedBrandIds.Count > 0 ? "is-filtered" : "")"
+                        @onclick='() => ToggleFilter("brand")'>
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                        <path d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3 5a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm2 5a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z"/>
+                    </svg>
+                    Brand
+                    @if (_selectedBrandIds.Count > 0)
+                    {
+                        <span class="filter-badge">@_selectedBrandIds.Count</span>
+                    }
+                </button>
+                @if (_openFilter == "brand")
+                {
+                    <div class="filter-drop">
+                        <div class="filter-drop-head">
+                            <span>Brand</span>
+                            @if (_selectedBrandIds.Count > 0)
+                            {
+                                <button class="filter-clear" @onclick="ClearBrands">Clear</button>
+                            }
+                        </div>
+                        @if (_brands.Count == 0)
+                        {
+                            <div class="filter-empty">No brands found</div>
+                        }
+                        @foreach (var brand in _brands)
+                        {
+                            var brandId = brand.Id;
+                            <label class="filter-item">
+                                <input type="checkbox"
+                                       checked="@_selectedBrandIds.Contains(brandId)"
+                                       @onchange="e => ToggleBrandId(brandId, (bool)e.Value!)" />
+                                @brand.Name
+                            </label>
+                        }
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+
+    @if (_openFilter != "")
+    {
+        <div class="filter-backdrop" @onclick="CloseFilter"></div>
+    }
+
+    <FluentDataGrid @ref="grid"
+                TGridItem="ProductListItemDto"
+                ItemsProvider="RefreshItemsAsync"
+                Loading="_loading"
+                ResizableColumns=true
+                ResizeType="DataGridResizeType.Discrete"
+                GridTemplateColumns="50% 0.4fr 0.3fr 0.3fr"
+                RowSize="DataGridRowSize.Medium"                
+                OnRowClick="HandleRowClick"
+                Pagination="@pagination"                
+                ShowHover="true"
+                HeaderCellAsButtonWithMenu="true">
+            <TemplateColumn Tooltip="true" TooltipText="@(c => "Product: " + c.Name)" Title="Product" Align="DataGridCellAlignment.Start">
+                    <div class="tbl-name-cell" style="width: 100%; justify-content: flex-start; text-align: left;">
+                        <div class="tbl-thumb">
+                            @if (context.PrimaryImage is not null)
+                            {
+                                <img src="@context.PrimaryImage" alt="" />
+                            }
+                            else
+                            {
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                    <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm0 1.5h12a.5.5 0 01.5.5v6.586l-2.793-2.793a1 1 0 00-1.414 0L9.5 11.586 8.207 10.293a1 1 0 00-1.414 0L3.5 13.793V5a.5.5 0 01.5-.5zm3 3a1 1 0 110 2 1 1 0 010-2z" />
+                                </svg>
+                            }
+                        </div>
+                        <div>
+                            <div class="tbl-name">@context.Name</div>
+                            <div class="tbl-sku">@context.SKU</div>
+                        </div>
+                    </div>
+            </TemplateColumn>
+            <PropertyColumn Property="@(c => c.BrandName ?? "—")" Sortable="true" Filtered="!string.IsNullOrWhiteSpace(nameFilter)" Tooltip="true" Title="Brand">
+            </PropertyColumn>
+            <PropertyColumn Property="@(c => c.MinPrice)" Sortable="true" Align="DataGridCellAlignment.Start" Tooltip="true" TooltipText="@(c => "Price: " + c.MinPrice)" Title="Price"/>
+            <TemplateColumn Title="Status" Align="DataGridCellAlignment.Center">
+                @switch (context.Status)
+                {
+                    case ProductStatus.Active:
+                        <span class="ds-badge ds-badge-success">Active</span>
+                        break;
+                    case ProductStatus.Archived:
+                        <span class="ds-badge ds-badge-neutral">Archived</span>
+                        break;
+                    default:
+                        <span class="ds-badge ds-badge-warning">Draft</span>
+                        break;
+                }
+            </TemplateColumn>
+@*             <TemplateColumn Align="DataGridCellAlignment.End">
+				<button class="ds-btn ds-btn-subtle" @onclick="@(() => Navigation.NavigateTo($"/products/{context.Slug}"))">Edit</button>
+            </TemplateColumn>
+ *@            
     </FluentDataGrid>
-    <FluentPaginator State="@_pagination" />
-}
+
+    <div class="list-foot">
+        <span>There are <strong>@(pagination.TotalItemCount ?? 0)</strong> rows</span>
+        <FluentPaginator State="@pagination" Class="pager">
+            <SummaryTemplate>
+
+            </SummaryTemplate>
+            <PaginationTextTemplate>
+                This is page <strong>@(pagination.CurrentPageIndex + 1)</strong> out of a total of <strong>@(pagination.LastPageIndex + 1)</strong> pages
+            </PaginationTextTemplate>
+        </FluentPaginator>
+    </div>
+
+        
+
+@*         <table class="ds-table">
+            <thead>
+                <tr>
+                    <th class="ds-th" style="width: 42%">Product</th>
+                    <th class="ds-th">Brand</th>
+                    <th class="ds-th">Price</th>
+                    <th class="ds-th">Status</th>
+                    <th class="ds-th" style="width: 80px; text-align: right"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in _products!)
+                {
+                    <tr class="ds-tr">
+                        <td class="ds-td">
+                            <div class="tbl-name-cell">
+                                <div class="tbl-thumb">
+                                    @if (p.PrimaryImage is not null)
+                                    {
+                                        <img src="@p.PrimaryImage" alt="" />
+                                    }
+                                    else
+                                    {
+                                        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                            <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm0 1.5h12a.5.5 0 01.5.5v6.586l-2.793-2.793a1 1 0 00-1.414 0L9.5 11.586 8.207 10.293a1 1 0 00-1.414 0L3.5 13.793V5a.5.5 0 01.5-.5zm3 3a1 1 0 110 2 1 1 0 010-2z"/>
+                                        </svg>
+                                    }
+                                </div>
+                                <div>
+                                    <div class="tbl-name">@p.Name</div>
+                                    <div class="tbl-sku">@p.SKU</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="ds-td is-muted">@(p.BrandName ?? "—")</td>
+                        <td class="ds-td">@(p.MinPrice.HasValue ? $"${p.MinPrice:N2}" : "—")</td>
+                        <td class="ds-td">
+                            @switch (p.Status)
+                            {
+                                case ProductStatus.Active:
+                                    <span class="ds-badge ds-badge-success">Active</span>
+                                    break;
+                                case ProductStatus.Archived:
+                                    <span class="ds-badge ds-badge-neutral">Archived</span>
+                                    break;
+                                default:
+                                    <span class="ds-badge ds-badge-warning">Draft</span>
+                                    break;
+                            }
+                        </td>
+                        <td class="ds-td" style="text-align: right">
+                            <button class="ds-btn ds-btn-subtle" @onclick="@(() => Navigation.NavigateTo($"/products/{p.Id}"))">Edit</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="list-foot">
+            <span>Showing @_products!.Count of @_totalCount products</span>
+            <div class="list-pages">
+                <button class="list-page-btn" disabled="@(_page == 1)" @onclick="PrevPage">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">
+                        <path d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/>
+                    </svg>
+                </button>
+                @for (int i = 1; i <= _totalPages; i++)
+                {
+                    var pg = i;
+                    <button class="list-page-btn @(_page == pg ? "is-active" : "")" @onclick="@(() => GoToPage(pg))">@pg</button>
+                }
+                <button class="list-page-btn" disabled="@(_page >= _totalPages)" @onclick="NextPage">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">
+                        <path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/>
+                    </svg>
+                </button>
+            </div>
+        </div> *@
+</div>
 
 @code {
-    private List<ProductListItemDto>? _products;
+
     private bool _loading = true;
-    private PaginationState _pagination = new() { ItemsPerPage = 20 };
+    private string _tab = "all";
+    private string _search = "";
+    private ProductStatus? _statusFilter = null;
+
+    private int _page = 1;
+    private int _totalPages = 1;
+    bool _clearItems = false;
+
+    FluentDataGrid<ProductListItemDto> grid = default!;
+    string nameFilter = string.Empty;
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+
+    Func<ProductListItemDto, string?> rowClass = x => x.Status == ProductStatus.Draft ? null : null;
+    Func<ProductListItemDto, string?> rowStyle = x => x.Status == ProductStatus.Active ? null : null;
+
+    // Filter state
+    private List<BrandDto> _brands = [];
+    private List<CategoryDto> _categories = [];
+    private HashSet<int> _selectedBrandIds = [];
+    private HashSet<int> _selectedCategoryIds = [];
+    private string _openFilter = "";
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Mediator.Send(new GetProductsQuery());
-        _products = result.Items.ToList();
-        _loading = false;
+        _brands = await Mediator.Send(new GetBrandsQuery());
+        _categories = await Mediator.Send(new GetCategoriesQuery());
     }
+
+    private async Task LoadAsync()
+    {
+        if (grid is not null)
+            await grid.RefreshDataAsync();
+    }
+
+    protected async ValueTask<GridItemsProviderResult<ProductListItemDto>> RefreshItemsAsync(GridItemsProviderRequest<ProductListItemDto> req)
+    {
+        _loading = true;
+        await InvokeAsync(StateHasChanged);
+
+        string? sort = null;
+        var s = req.GetSortByProperties().FirstOrDefault();
+        if (req.SortByColumn != null && !string.IsNullOrEmpty(s.PropertyName))
+            sort = s.PropertyName + (s.Direction == DataGridSortDirection.Ascending ? ":asc" : ":desc");
+
+        var result = await Mediator.Send(new GetProductsQuery(
+            StartIndex: req.StartIndex,
+            Count: req.Count ?? 10,
+            Search: string.IsNullOrEmpty(_search) ? null : _search,
+            Status: _statusFilter,
+            Sort: sort,
+            BrandIds: _selectedBrandIds.Count > 0 ? [.. _selectedBrandIds] : null,
+            CategoryIds: _selectedCategoryIds.Count > 0 ? [.. _selectedCategoryIds] : null,
+            IncludePrice: true));
+
+        await pagination.SetTotalItemCountAsync(result.TotalCount);
+
+        _loading = false;
+        await InvokeAsync(StateHasChanged);
+
+        return GridItemsProviderResult.From(result.Items, result.TotalCount);
+    }
+
+    private void HandleRowClick(FluentDataGridRow<ProductListItemDto> row)
+    {
+        Console.WriteLine($"[Custom comparer] Row focused: {row.Item?.Name}");
+        Navigation.NavigateTo($"/products/{row.Item.Slug}");
+    }
+
+    private async Task SetTab(string tab) 
+    { 
+        _tab = tab; _page = 1;
+        if (_tab.Equals("active"))
+            _statusFilter = ProductStatus.Active;
+        else
+            _statusFilter = null;
+
+		await LoadAsync();
+    }
+
+    private async Task OnSearch() { _page = 1; await LoadAsync(); }
+    private async Task PrevPage() { if (_page > 1) { _page--; await LoadAsync(); } }
+    private async Task NextPage() { if (_page < _totalPages) { _page++; await LoadAsync(); } }
+    private async Task GoToPage(int pg) { _page = pg; await LoadAsync(); }
+
+    // Filter helpers
+    private void ToggleFilter(string name) =>
+        _openFilter = _openFilter == name ? "" : name;
+
+    private void CloseFilter() => _openFilter = "";
+
+    private async Task ToggleBrandId(int id, bool add)
+    {
+        if (add) _selectedBrandIds.Add(id); else _selectedBrandIds.Remove(id);
+        await LoadAsync();
+    }
+
+    private async Task ToggleCategoryId(int id, bool add)
+    {
+        if (add) _selectedCategoryIds.Add(id); else _selectedCategoryIds.Remove(id);
+        await LoadAsync();
+    }
+
+    private async Task ClearBrands()
+    {
+        _selectedBrandIds.Clear();
+        await LoadAsync();
+    }
+
+    private async Task ClearCategories()
+    {
+        _selectedCategoryIds.Clear();
+        await LoadAsync();
+    }
+
 }
+

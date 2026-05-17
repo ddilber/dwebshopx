@@ -112,7 +112,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>
             e.HasMany(x => x.Categories)
                 .WithMany(x => x.Products);
             e.HasMany(x => x.Tags)
-                .WithMany(x => x.Products);
+                .WithMany(x => x.Products)
+                .UsingEntity("ProductTags");
+            e.Property(x => x.Status).HasConversion<int>();
             e.Property(x => x.Name).HasMaxLength(300).IsRequired();
             e.Property(x => x.SKU).HasMaxLength(100);
             e.Property(x => x.Slug).HasMaxLength(300).IsRequired();
@@ -161,7 +163,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>
                 .WithMany(x => x.ProductSkus)
                 .HasForeignKey(x => x.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
+            e.Property(x => x.Gtin).HasMaxLength(14);
             e.Property(x => x.Price).HasPrecision(18, 4);
+            e.Property(x => x.CompareAtPrice).HasPrecision(18, 4);
+            e.Property(x => x.CostPrice).HasPrecision(18, 4);
             e.Property(x => x.Tax).HasPrecision(18, 4);
         });
 

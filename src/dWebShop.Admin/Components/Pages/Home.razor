@@ -1,47 +1,347 @@
 @page "/"
 @attribute [Authorize(Roles = "Admin")]
 @rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Products.Queries
+@using dWebShop.Application.Features.Orders.Queries
+@using dWebShop.Application.Features.Partners.Queries
+@inject IMediator Mediator
+@inject NavigationManager Nav
 
 <PageTitle>Dashboard — dWebShop Admin</PageTitle>
 
-<FluentLabel Typo="Typography.H4">Dashboard</FluentLabel>
-<FluentDivider Style="margin: 12px 0 24px;" />
+<div class="page-head">
+    <div>
+        <h1 class="page-title">Dashboard</h1>
+        <div class="page-sub">Here's what's happening with your store today.</div>
+    </div>
+    <div class="page-actions">
+        <a href="/products/new" class="ds-btn">+ New product</a>
+    </div>
+</div>
 
-<FluentGrid Spacing="4">
-    <FluentGridItem xs="12" sm="6" lg="3">
-        <FluentCard>
-            <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center" Style="padding: 16px; text-align: center;">
-                <FluentIcon Value="@(new Icons.Regular.Size48.Tag())" Color="Color.Accent" />
-                <FluentLabel Typo="Typography.H3">—</FluentLabel>
-                <FluentLabel>Products</FluentLabel>
-            </FluentStack>
-        </FluentCard>
-    </FluentGridItem>
-    <FluentGridItem xs="12" sm="6" lg="3">
-        <FluentCard>
-            <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center" Style="padding: 16px; text-align: center;">
-                <FluentIcon Value="@(new Icons.Regular.Size48.ClipboardTask())" Color="Color.Accent" />
-                <FluentLabel Typo="Typography.H3">—</FluentLabel>
-                <FluentLabel>Orders</FluentLabel>
-            </FluentStack>
-        </FluentCard>
-    </FluentGridItem>
-    <FluentGridItem xs="12" sm="6" lg="3">
-        <FluentCard>
-            <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center" Style="padding: 16px; text-align: center;">
-                <FluentIcon Value="@(new Icons.Regular.Size48.Building())" Color="Color.Accent" />
-                <FluentLabel Typo="Typography.H3">—</FluentLabel>
-                <FluentLabel>Clients</FluentLabel>
-            </FluentStack>
-        </FluentCard>
-    </FluentGridItem>
-    <FluentGridItem xs="12" sm="6" lg="3">
-        <FluentCard>
-            <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Center" Style="padding: 16px; text-align: center;">
-                <FluentIcon Value="@(new Icons.Regular.Size48.People())" Color="Color.Accent" />
-                <FluentLabel Typo="Typography.H3">—</FluentLabel>
-                <FluentLabel>Users</FluentLabel>
-            </FluentStack>
-        </FluentCard>
-    </FluentGridItem>
-</FluentGrid>
+@if (_loading)
+{
+    <div style="padding: 40px; text-align: center; color: var(--fg-3);">Loading…</div>
+}
+else
+{
+    <!-- KPI row -->
+    <div class="dash-kpis">
+        <div class="ds-card">
+            <div class="kpi-card">
+                <div class="kpi-row">
+                    <span class="kpi-label">Products</span>
+                    <span class="kpi-icon" style="background:var(--accent-tint-10);color:var(--accent-rest);">
+                        @IcoTag
+                    </span>
+                </div>
+                <div class="kpi-value">@_productCount</div>
+                <div class="kpi-delta up">↑ active catalogue</div>
+            </div>
+        </div>
+        <div class="ds-card">
+            <div class="kpi-card">
+                <div class="kpi-row">
+                    <span class="kpi-label">Orders</span>
+                    <span class="kpi-icon" style="background:#DFF6DD;color:#107C10;">
+                        @IcoCart
+                    </span>
+                </div>
+                <div class="kpi-value">@_orderCount</div>
+                <div class="kpi-delta up">↑ total placed</div>
+            </div>
+        </div>
+        <div class="ds-card">
+            <div class="kpi-card">
+                <div class="kpi-row">
+                    <span class="kpi-label">Clients</span>
+                    <span class="kpi-icon" style="background:#F3EEFF;color:#8764B8;">
+                        @IcoUsers
+                    </span>
+                </div>
+                <div class="kpi-value">@_clientCount</div>
+                <div class="kpi-delta up">↑ registered</div>
+            </div>
+        </div>
+        <div class="ds-card">
+            <div class="kpi-card">
+                <div class="kpi-row">
+                    <span class="kpi-label">Revenue (mock)</span>
+                    <span class="kpi-icon" style="background:#FEEBD6;color:#D83B01;">
+                        @IcoMoney
+                    </span>
+                </div>
+                <div class="kpi-value">$48,392</div>
+                <div class="kpi-delta up">+12.4% <span class="kpi-period">vs last month</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main dashboard grid -->
+    <div class="dash-grid">
+
+        <!-- Sales chart -->
+        <div class="ds-card dash-chart-card">
+            <div class="card-head">
+                <div>
+                    <div class="card-title">Sales over time</div>
+                    <div class="card-sub">Revenue and orders, last 30 days</div>
+                </div>
+            </div>
+            <svg viewBox="0 0 720 220" class="sales-chart" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="rev-grad" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0%" stop-color="var(--accent-rest)" stop-opacity="0.25"/>
+                        <stop offset="100%" stop-color="var(--accent-rest)" stop-opacity="0"/>
+                    </linearGradient>
+                </defs>
+                <!-- Grid lines -->
+                <line x1="28" x2="692" y1="28" y2="28" stroke="var(--stroke-1)" stroke-dasharray="2 4"/>
+                <line x1="28" x2="692" y1="74" y2="74" stroke="var(--stroke-1)" stroke-dasharray="2 4"/>
+                <line x1="28" x2="692" y1="120" y2="120" stroke="var(--stroke-1)" stroke-dasharray="2 4"/>
+                <line x1="28" x2="692" y1="166" y2="166" stroke="var(--stroke-1)" stroke-dasharray="2 4"/>
+                <line x1="28" x2="692" y1="192" y2="192" stroke="var(--stroke-1)" stroke-dasharray="2 4"/>
+                <!-- Revenue area -->
+                <path d="M28,163 L51,167 L74,157 L97,145 L120,153 L143,138 L166,130 L189,141 L212,149 L235,132 L258,122 L281,111 L304,115 L327,124 L350,99 L373,85 L396,91 L419,102 L442,75 L465,62 L488,67 L511,80 L534,55 L557,35 L580,42 L603,52 L626,28 L649,35 L672,40 L692,28 L692,192 L28,192 Z" fill="url(#rev-grad)"/>
+                <path d="M28,163 L51,167 L74,157 L97,145 L120,153 L143,138 L166,130 L189,141 L212,149 L235,132 L258,122 L281,111 L304,115 L327,124 L350,99 L373,85 L396,91 L419,102 L442,75 L465,62 L488,67 L511,80 L534,55 L557,35 L580,42 L603,52 L626,28 L649,35 L672,40 L692,28" fill="none" stroke="var(--accent-rest)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Orders line (dashed purple) -->
+                <path d="M28,181 L51,182 L74,178 L97,175 L120,177 L143,172 L166,169 L189,174 L212,177 L235,168 L258,164 L281,158 L304,160 L327,165 L350,153 L373,146 L396,149 L419,155 L442,141 L465,135 L488,138 L511,145 L534,131 L557,118 L580,122 L603,129 L626,112 L649,117 L672,121 L692,108" fill="none" stroke="#8764B8" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"/>
+                <!-- X-axis labels -->
+                <text x="28" y="214" text-anchor="middle" font-size="10" fill="var(--fg-3)">Apr 8</text>
+                <text x="181" y="214" text-anchor="middle" font-size="10" fill="var(--fg-3)">Apr 15</text>
+                <text x="360" y="214" text-anchor="middle" font-size="10" fill="var(--fg-3)">Apr 22</text>
+                <text x="539" y="214" text-anchor="middle" font-size="10" fill="var(--fg-3)">Apr 29</text>
+                <text x="692" y="214" text-anchor="middle" font-size="10" fill="var(--fg-3)">May 7</text>
+                <!-- Latest point -->
+                <circle cx="692" cy="28" r="5" fill="var(--bg-layer)" stroke="var(--accent-rest)" stroke-width="2"/>
+            </svg>
+            <div class="dash-chart-legend">
+                <span class="legend-row"><i style="background:var(--accent-rest)"></i>Revenue</span>
+                <span class="legend-row"><i style="background:#8764B8"></i>Orders</span>
+            </div>
+        </div>
+
+        <!-- Channel donut -->
+        <div class="ds-card dash-channels">
+            <div class="card-head">
+                <div class="card-title">Sales by channel</div>
+            </div>
+            <div class="donut-wrap">
+                <svg viewBox="0 0 160 160" width="160" height="160">
+                    <!-- Web 64% -->
+                    <circle cx="80" cy="80" r="56" fill="none" stroke="var(--accent-rest)" stroke-width="20"
+                            stroke-dasharray="225.8 128.3" stroke-dashoffset="0" transform="rotate(-90 80 80)"/>
+                    <!-- Mobile 27% -->
+                    <circle cx="80" cy="80" r="56" fill="none" stroke="#8764B8" stroke-width="20"
+                            stroke-dasharray="95.2 459" stroke-dashoffset="-225.8" transform="rotate(-90 80 80)"/>
+                    <!-- POS 7% -->
+                    <circle cx="80" cy="80" r="56" fill="none" stroke="#107C10" stroke-width="20"
+                            stroke-dasharray="24.7 530.5" stroke-dashoffset="-321" transform="rotate(-90 80 80)"/>
+                    <!-- Other 2% -->
+                    <circle cx="80" cy="80" r="56" fill="none" stroke="#F7630C" stroke-width="20"
+                            stroke-dasharray="7.1 548.1" stroke-dashoffset="-345.7" transform="rotate(-90 80 80)"/>
+                    <text x="80" y="76" text-anchor="middle" font-size="22" font-weight="600" fill="var(--fg-1)">$48k</text>
+                    <text x="80" y="94" text-anchor="middle" font-size="11" fill="var(--fg-3)">total revenue</text>
+                </svg>
+            </div>
+            <div class="dash-channels-list">
+                <div class="ch-row">
+                    <span class="ch-dot" style="background:var(--accent-rest)"></span>
+                    <span>Web storefront</span>
+                    <span class="ch-pct">64%</span>
+                    <span class="ch-val">$31,204</span>
+                </div>
+                <div class="ch-row">
+                    <span class="ch-dot" style="background:#8764B8"></span>
+                    <span>Mobile app</span>
+                    <span class="ch-pct">27%</span>
+                    <span class="ch-val">$12,840</span>
+                </div>
+                <div class="ch-row">
+                    <span class="ch-dot" style="background:#107C10"></span>
+                    <span>Point of sale</span>
+                    <span class="ch-pct">7%</span>
+                    <span class="ch-val">$3,440</span>
+                </div>
+                <div class="ch-row">
+                    <span class="ch-dot" style="background:#F7630C"></span>
+                    <span>Marketplaces</span>
+                    <span class="ch-pct">2%</span>
+                    <span class="ch-val">$908</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent orders -->
+        <div class="ds-card dash-orders">
+            <div class="card-head">
+                <div>
+                    <div class="card-title">Recent orders</div>
+                    <div class="card-sub">Last @_recentOrders.Count placed</div>
+                </div>
+                <a href="/orders" class="ds-btn ds-btn-subtle">View all →</a>
+            </div>
+            <div class="mini-table">
+                @foreach (var o in _recentOrders)
+                {
+                    <div class="mini-row">
+                        <span class="shell-avatar" style="width:28px;height:28px;font-size:11px;background:@AvatarColor(o.PartnerName)">
+                            @(o.PartnerName.Length > 0 ? o.PartnerName[0].ToString().ToUpper() : "?")
+                        </span>
+                        <div>
+                            <div class="mini-name">@(o.PartnerName.Length > 0 ? o.PartnerName : "Guest")</div>
+                            <div class="mini-sub">@o.Guid.ToString()[..8]… · @o.ItemCount items</div>
+                        </div>
+                        <span class="ds-badge @OrderStatusClass(o.Status)">@o.Status</span>
+                        <div class="mini-amt">@o.Total.ToString("C")</div>
+                    </div>
+                }
+                @if (_recentOrders.Count == 0)
+                {
+                    <div style="color:var(--fg-3);padding:20px 0;text-align:center;">No orders yet.</div>
+                }
+            </div>
+        </div>
+
+        <!-- Top products (static design data) -->
+        <div class="ds-card dash-top">
+            <div class="card-head">
+                <div class="card-title">Top products</div>
+                <span class="ds-badge ds-badge-brand">By revenue</span>
+            </div>
+            <div class="top-list">
+                @foreach (var (name, rev, units, trend, i) in _topProducts.Select((p,i) => (p.Name, p.Rev, p.Units, p.Trend, i+1)))
+                {
+                    <div class="top-row">
+                        <div class="top-rank">@i</div>
+                        <div>
+                            <div class="top-name">@name</div>
+                            <div class="top-sub">@units units</div>
+                        </div>
+                        <div class="top-rev">@rev.ToString("C0")</div>
+                        <span class="ds-badge @(trend > 0 ? "ds-badge-success" : "ds-badge-danger")">
+                            @(trend > 0 ? "+" : "")@trend%
+                        </span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        <div class="ds-card dash-alerts">
+            <div class="card-head">
+                <div class="card-title">Needs attention</div>
+                <span class="ds-badge ds-badge-warning">4 items</span>
+            </div>
+            <div class="alert-list">
+                <div class="alert-row">
+                    <span class="alert-icon warn">@IcoBox</span>
+                    <div class="alert-main">
+                        <div class="alert-title">8 products low on stock</div>
+                        <div class="alert-sub">Linen Button Shirt, Merino Beanie, +6 more</div>
+                    </div>
+                    <a href="/products" class="ds-btn ds-btn-subtle">Review</a>
+                </div>
+                <div class="alert-row">
+                    <span class="alert-icon danger">@IcoCart</span>
+                    <div class="alert-main">
+                        <div class="alert-title">3 products out of stock</div>
+                        <div class="alert-sub">Ceramic Pour-Over Set is the most-viewed</div>
+                    </div>
+                    <a href="/products" class="ds-btn ds-btn-subtle">Review</a>
+                </div>
+                <div class="alert-row">
+                    <span class="alert-icon info">@IcoReceipt</span>
+                    <div class="alert-main">
+                        <div class="alert-title">@(_pendingOrders) orders pending fulfillment</div>
+                        <div class="alert-sub">Check orders list for details</div>
+                    </div>
+                    <a href="/orders" class="ds-btn ds-btn-subtle">Open</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="ds-card dash-quick">
+            <div class="card-head">
+                <div class="card-title">Quick actions</div>
+            </div>
+            <div class="quick-grid">
+                <button class="quick-tile" @onclick='() => Nav.NavigateTo("/products")'>
+                    <span class="quick-icon">@IcoTag</span>
+                    <span class="quick-label">Add product</span>
+                </button>
+                <button class="quick-tile" @onclick='() => Nav.NavigateTo("/orders")'>
+                    <span class="quick-icon">@IcoReceipt</span>
+                    <span class="quick-label">View orders</span>
+                </button>
+                <button class="quick-tile" @onclick='() => Nav.NavigateTo("/clients/new")'>
+                    <span class="quick-icon">@IcoUsers</span>
+                    <span class="quick-label">New client</span>
+                </button>
+                <button class="quick-tile" @onclick='() => Nav.NavigateTo("/blog")'>
+                    <span class="quick-icon">@IcoDoc</span>
+                    <span class="quick-label">Write post</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+}
+
+@code {
+    private bool _loading = true;
+    private int _productCount;
+    private int _orderCount;
+    private int _clientCount;
+    private int _pendingOrders;
+    private List<AdminOrderListDto> _recentOrders = new();
+
+    private record TopProduct(string Name, decimal Rev, int Units, int Trend);
+    private readonly List<TopProduct> _topProducts =
+    [
+        new("Wool Crew Sweater",    8924,  100, 12),
+        new("Walnut Cutting Board", 6480,  90,   8),
+        new("Cast Iron Skillet",    5104,  88,  -3),
+        new("Linen Pillowcase Pair",4536,  84,   5),
+        new("Stainless Travel Bottle",3520,110,  21),
+    ];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var products = await Mediator.Send(new GetProductsQuery(StartIndex: 0, Count: 1));
+        var orders   = await Mediator.Send(new GetAllOrdersQuery(Page: 1, PageSize: 6));
+        var clients  = await Mediator.Send(new GetPartnersQuery());
+
+        _productCount = products.TotalCount;
+        _orderCount   = orders.TotalCount;
+        _recentOrders = orders.Items;
+        _clientCount  = clients.Count;
+        _pendingOrders = _recentOrders.Count(o => o.Status == Domain.Entities.Orders.OrderStatus.Pending);
+        _loading = false;
+    }
+
+    private static string OrderStatusClass(Domain.Entities.Orders.OrderStatus s) => s switch
+    {
+        Domain.Entities.Orders.OrderStatus.Pending   => "ds-badge-warning",
+        Domain.Entities.Orders.OrderStatus.Confirmed => "ds-badge-info",
+        Domain.Entities.Orders.OrderStatus.Shipped   => "ds-badge-brand",
+        Domain.Entities.Orders.OrderStatus.Delivered => "ds-badge-success",
+        Domain.Entities.Orders.OrderStatus.Cancelled => "ds-badge-danger",
+        _ => "ds-badge-neutral",
+    };
+
+    private static readonly string[] AvatarColors = ["#0F6CBD","#107C10","#8764B8","#D83B01","#BC4B09","#038387"];
+    private static string AvatarColor(string name) =>
+        name.Length > 0 ? AvatarColors[Math.Abs(name[0]) % AvatarColors.Length] : "#616161";
+
+    // Inline SVG icon fragments used in markup
+    private RenderFragment IcoTag     => __b => { __b.AddMarkupContent(0, @"<svg viewBox=""0 0 20 20"" fill=""currentColor"" width=""16"" height=""16""><path d=""M4 3h6.586a1 1 0 01.707.293l6 6a1 1 0 010 1.414l-5.586 5.586a1 1 0 01-1.414 0l-6-6A1 1 0 014 9.586V3z""/></svg>"); };
+    private RenderFragment IcoCart    => __b => { __b.AddMarkupContent(0, @"<svg viewBox=""0 0 20 20"" fill=""currentColor"" width=""16"" height=""16""><path d=""M3 2.5a.75.75 0 000 1.5h1.33l2.474 8.626A2.25 2.25 0 008.97 14.5h5.56a2.25 2.25 0 002.166-1.628l1.15-4.025A.75.75 0 0017.125 8H5.73l-.47-1.634A.75.75 0 004.536 6H3V2.5zm5.5 12a1 1 0 110 2 1 1 0 010-2zm5.5 0a1 1 0 110 2 1 1 0 010-2z""/></svg>"); };
+    private RenderFragment IcoUsers   => __b => { __b.AddMarkupContent(0, @"<svg viewBox=""0 0 20 20"" fill=""currentColor"" width=""16"" height=""16""><path d=""M9 6a3 3 0 11-6 0 3 3 0 016 0zm-9 9a6 6 0 1112 0H0zm16-9a3 3 0 11-6 0 3 3 0 016 0zm-5.5 9a6.5 6.5 0 00-1.74-4.21A5 5 0 0115 11a5 5 0 014.5 2.83A6.9 6.9 0 0120 15h-9.5z""/></svg>"); };
+    private RenderFragment IcoMoney   => __b => { __b.AddMarkupContent(0, @"<svg viewBox=""0 0 20 20"" fill=""currentColor"" width=""16"" height=""16""><path d=""M10 2a8 8 0 100 16A8 8 0 0010 2zm.75 4.5v.84c.98.22 1.75.96 1.75 1.91s-.74 1.61-1.75 1.85v2.56c.56-.15.96-.51.96-.86a.75.75 0 011.5 0c0 1.14-1.02 2-2.46 2.2V15.5a.75.75 0 01-1.5 0v-.84C8.27 14.44 7.5 13.7 7.5 12.75s.74-1.61 1.75-1.85V8.34c-.56.15-.96.51-.96.86a.75.75 0 01-1.5 0c0-1.14 1.02-2 2.46-2.2V6.5a.75.75 0 011.5 0z""/></svg>"); };
+    private RenderFragment IcoReceipt => __b => { __b.AddMarkupContent(0, @"<svg viewBox=""0 0 20 20"" fill=""currentColor"" width=""16"" height=""16""><path d=""M4 3a1 1 0 00-1 1v12a1 1 0 001.576.82L6 15.57l1.42.95a1 1 0 001.16 0L10 15.57l1.42.95a1 1 0 001.16 0L14 15.57l1.42.95A1 1 0 0017 16V4a1 1 0 00-1-1H4zm2 4h8v1.5H6V7zm0 3h8v1.5H6V10zm0 3h5v1.5H6V13z""/></svg>"); };
+    private RenderFragment IcoDoc     => __b => { __b.AddMarkupContent(0, @"<svg viewBox=""0 0 20 20"" fill=""currentColor"" width=""16"" height=""16""><path d=""M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V7.414A2 2 0 0017.414 6L14 2.586A2 2 0 0012.586 2H4zm0 1.5h8v4a.5.5 0 00.5.5h4V16a.5.5 0 01-.5.5H4a.5.5 0 01-.5-.5V4a.5.5 0 01.5-.5zm8.5 3.5V3.621L15.879 7H12.5zM6 10.5h8v1H6v-1zm0 2.5h5v1H6v-1z""/></svg>"); };
+    private RenderFragment IcoBox     => __b => { __b.AddMarkupContent(0, @"<svg viewBox=""0 0 20 20"" fill=""currentColor"" width=""16"" height=""16""><path d=""M10 1.5l8 4v9l-8 4-8-4v-9l8-4zm0 1.73L4.06 6.25 10 9.27l5.94-3.02L10 3.23zm-7 4.08v7.19L9.25 17.3V10.1L3 7.31zm8.75 2.79v7.2L17 14.5V7.31l-5.25 2.79z""/></svg>"); };
+}

@@ -1,0 +1,107 @@
+@page "/clients/{Id:int}"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Partners.Queries
+@using dWebShop.Application.Features.Partners.Commands
+@inject IMediator Mediator
+@inject NavigationManager Navigation
+
+<PageTitle>Edit Client — dWebShop Admin</PageTitle>
+
+@if (_loading)
+{
+    <FluentProgressRing />
+}
+else if (_notFound)
+{
+    <FluentMessageBar Intent="MessageBarIntent.Error">Client not found.</FluentMessageBar>
+}
+else
+{
+    <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
+        <FluentLabel Style="font-size: 22px; font-weight: 600;">Edit Client</FluentLabel>
+    </FluentStack>
+    <FluentDivider Style="margin-bottom: 24px;" />
+
+    <div style="max-width: 560px;">
+        <FluentStack Orientation="Orientation.Vertical" Style="gap: 16px;">
+
+            @if (!string.IsNullOrEmpty(_error))
+            {
+                <FluentMessageBar Intent="MessageBarIntent.Error">@_error</FluentMessageBar>
+            }
+
+            @if (!string.IsNullOrEmpty(_success))
+            {
+                <FluentMessageBar Intent="MessageBarIntent.Success">@_success</FluentMessageBar>
+            }
+
+            <FluentTextInput @bind-Value="_firstName" Label="First Name" Style="width: 100%" />
+            <FluentTextInput @bind-Value="_lastName" Label="Last Name" Style="width: 100%" />
+            <FluentTextInput @bind-Value="_companyName" Label="Company Name" Style="width: 100%" />
+            <FluentTextInput @bind-Value="_email" Label="Email" TextInputType="TextInputType.Email" Style="width: 100%" />
+            <FluentTextInput @bind-Value="_phone" Label="Phone" Style="width: 100%" />
+
+            <FluentStack Orientation="Orientation.Horizontal" Style="gap: 8px; margin-top: 8px;">
+                <FluentButton Appearance="ButtonAppearance.Primary" OnClick="SaveAsync">
+                    @if (_saving) { <FluentProgressRing Style="width:16px;height:16px;" /> } else { <span>Save Changes</span> }
+                </FluentButton>
+                <FluentButton OnClick="@(() => Navigation.NavigateTo("/clients"))">Back to Clients</FluentButton>
+            </FluentStack>
+
+        </FluentStack>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private string _firstName = "";
+    private string _lastName = "";
+    private string _companyName = "";
+    private string _email = "";
+    private string _phone = "";
+    private string _error = "";
+    private string _success = "";
+    private bool _loading = true;
+    private bool _notFound;
+    private bool _saving;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var partner = await Mediator.Send(new GetPartnerByIdQuery(Id));
+        if (partner is null)
+        {
+            _notFound = true;
+        }
+        else
+        {
+            _firstName = partner.FirstName;
+            _lastName = partner.LastName;
+            _companyName = partner.CompanyName;
+            _email = partner.Email;
+            _phone = partner.Phone;
+        }
+        _loading = false;
+    }
+
+    private async Task SaveAsync()
+    {
+        _error = "";
+        _success = "";
+        _saving = true;
+
+        try
+        {
+            await Mediator.Send(new UpdatePartnerCommand(Id, _firstName, _lastName, _companyName, _email, _phone));
+            _success = "Client updated successfully.";
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+
+        _saving = false;
+    }
+}

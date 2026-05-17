@@ -1,0 +1,72 @@
+@page "/clients/new"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Partners.Commands
+@inject IMediator Mediator
+@inject NavigationManager Navigation
+
+<PageTitle>New Client — dWebShop Admin</PageTitle>
+
+<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
+    <FluentLabel Style="font-size: 22px; font-weight: 600;">New Client</FluentLabel>
+</FluentStack>
+<FluentDivider Style="margin-bottom: 24px;" />
+
+<div style="max-width: 560px;">
+    <FluentStack Orientation="Orientation.Vertical" Style="gap: 16px;">
+
+        @if (!string.IsNullOrEmpty(_error))
+        {
+            <FluentMessageBar Intent="MessageBarIntent.Error">@_error</FluentMessageBar>
+        }
+
+        <FluentTextInput @bind-Value="_firstName" Label="First Name" Style="width: 100%" />
+        <FluentTextInput @bind-Value="_lastName" Label="Last Name" Style="width: 100%" />
+        <FluentTextInput @bind-Value="_companyName" Label="Company Name" Style="width: 100%" />
+        <FluentTextInput @bind-Value="_email" Label="Email" TextInputType="TextInputType.Email" Style="width: 100%" />
+        <FluentTextInput @bind-Value="_phone" Label="Phone" Style="width: 100%" />
+
+        <FluentStack Orientation="Orientation.Horizontal" Style="gap: 8px; margin-top: 8px;">
+            <FluentButton Appearance="ButtonAppearance.Primary" OnClick="SaveAsync">
+                @if (_saving) { <FluentProgressRing Style="width:16px;height:16px;" /> } else { <span>Create Client</span> }
+            </FluentButton>
+            <FluentButton OnClick="@(() => Navigation.NavigateTo("/clients"))">Cancel</FluentButton>
+        </FluentStack>
+
+    </FluentStack>
+</div>
+
+@code {
+    private string _firstName = "";
+    private string _lastName = "";
+    private string _companyName = "";
+    private string _email = "";
+    private string _phone = "";
+    private string _error = "";
+    private bool _saving;
+
+    private async Task SaveAsync()
+    {
+        _error = "";
+
+        if (string.IsNullOrWhiteSpace(_firstName) && string.IsNullOrWhiteSpace(_lastName) && string.IsNullOrWhiteSpace(_companyName))
+        {
+            _error = "At least one of First Name, Last Name, or Company Name is required.";
+            return;
+        }
+
+        _saving = true;
+
+        try
+        {
+            var id = await Mediator.Send(new CreatePartnerCommand(_firstName, _lastName, _companyName, _email, _phone));
+            Navigation.NavigateTo($"/clients/{id}");
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+            _saving = false;
+        }
+    }
+}

@@ -7,8 +7,13 @@ public class ProductSku : BaseAuditableEntity
     public string SKU { get; set; } = string.Empty;
     public string ExtRef { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public decimal Tax { get; set; }
+    public string Gtin { get; set; } = string.Empty;
     public decimal Price { get; set; }
+    public decimal? CompareAtPrice { get; set; }
+    public decimal? CostPrice { get; set; }
+    public decimal Tax { get; set; }
+    public int StockQuantity { get; set; }
+    public int LowStockThreshold { get; set; } = 5;
     public string? ImagePath { get; set; }
     public int? ProductId { get; set; }
     public ICollection<SkuOptionValue>? SkuOptionValues { get; set; }

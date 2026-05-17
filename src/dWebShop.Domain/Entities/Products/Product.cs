@@ -2,6 +2,8 @@ using dWebShop.Domain.Common;
 
 namespace dWebShop.Domain.Entities.Products;
 
+public enum ProductStatus { Draft = 0, Active = 1, Archived = 2 }
+
 public class Product : BaseAuditableEntity
 {
     public string Name { get; set; } = string.Empty;
@@ -9,7 +11,8 @@ public class Product : BaseAuditableEntity
     public string ExtRef { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public bool IsActive { get; set; }
+    public ProductStatus Status { get; set; } = ProductStatus.Draft;
+    public bool IsFeatured { get; set; }
     public int? BrandId { get; set; }
     public Brand? Brand { get; set; }
     public ProductDetails? ProductDetails { get; set; }
@@ -40,6 +43,7 @@ public class ProductImage : BaseAuditableEntity
     public string Path { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public int? ProductDetailsId { get; set; }
+    public int SortOrder { get; set; }
 }
 
 public class ProductDocument : BaseAuditableEntity

@@ -17,7 +17,7 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.4")
+                .HasAnnotation("ProductVersion", "9.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
@@ -229,7 +229,7 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                     b.ToTable("PostPostTag");
                 });
 
-            modelBuilder.Entity("ProductTag", b =>
+            modelBuilder.Entity("ProductTags", b =>
                 {
                     b.Property<int>("ProductsId")
                         .HasColumnType("int");
@@ -241,7 +241,7 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("ProductTag");
+                    b.ToTable("ProductTags");
                 });
 
             modelBuilder.Entity("dWebShop.Domain.Entities.Blog.Post", b =>
@@ -1005,7 +1005,7 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsFeatured")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
@@ -1022,6 +1022,9 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("varchar(300)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<int?>("UpdatedBy")
                         .HasColumnType("int");
@@ -1136,6 +1139,9 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<int?>("ProductDetailsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SortOrder")
                         .HasColumnType("int");
 
                     b.Property<int?>("UpdatedBy")
@@ -1271,6 +1277,14 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal?>("CompareAtPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("CostPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
@@ -1281,8 +1295,16 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Gtin")
+                        .IsRequired()
+                        .HasMaxLength(14)
+                        .HasColumnType("varchar(14)");
+
                     b.Property<string>("ImagePath")
                         .HasColumnType("longtext");
+
+                    b.Property<int>("LowStockThreshold")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1298,6 +1320,9 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                     b.Property<string>("SKU")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("StockQuantity")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("Tax")
                         .HasPrecision(18, 4)
@@ -1698,7 +1723,7 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ProductTag", b =>
+            modelBuilder.Entity("ProductTags", b =>
                 {
                     b.HasOne("dWebShop.Domain.Entities.Products.Product", null)
                         .WithMany()

@@ -1,0 +1,83 @@
+{
+  "contentSchemaId": "ImageMetadata",
+  "layerSchemaIds": [],
+  "content": {
+    "width": 3084,
+    "height": 3084,
+    "widthInInch": 10.279999732971191,
+    "heightInInch": 10.279999732971191,
+    "widthInCm": 26.1112003326416,
+    "heightInCm": 26.1112003326416,
+    "colorSpace": "Rgb",
+    "colorProfile": "sRGB IEC61966-2.1",
+    "bitsPerPixel": 24,
+    "bitsPerChannel": 8,
+    "channels": "Rgb",
+    "pixelFormat": "Format24bppRgb",
+    "hasAlpha": false,
+    "isIndexed": false,
+    "isExtended": false,
+    "horizontalResolution": 300.0,
+    "verticalResolution": 300.0,
+    "totalFrames": 0,
+    "totalUnspecifiedTiffExtraChannels": 0,
+    "hasExifData": true,
+    "hasIptcData": true,
+    "hasAdobeResourceData": true,
+    "hasXmpData": true,
+    "uncompressedSizeInBytes": 28533168,
+    "fileExtension": ".tif",
+    "fileName": "116520_21878.tif",
+    "filePath": "",
+    "fileSizeInBytes": 4661224,
+    "sha1Hash": "45D702D21DC4A7015434A0EDBEE4DBD4270113CD"
+  },
+  "metadata": {},
+  "id": "761d011ae7214c61964b266dfc9dafd2",
+  "contentPermissionSetIds": [
+    "a2227a6454fc4cbabd307ac4822617d3"
+  ],
+  "outputs": [
+    {
+      "kind": "OutputViewItem",
+      "outputFormatId": "jpg250px",
+      "contentId": "761d011ae7214c61964b266dfc9dafd2",
+      "renderingState": "Failed",
+      "detail": {
+        "kind": "OutputDataImageViewItem",
+        "width": 0,
+        "height": 0,
+        "fileExtension": ".jpg",
+        "originalFileName": "116520_21878.jpg"
+      },
+      "attemptsLeft": 3,
+      "fileVersion": 0,
+      "dynamicRendering": true
+    }
+  ],
+  "audit": {
+    "creationDate": "2022-11-17T11:33:25.0443596Z",
+    "modificationDate": "2022-12-09T15:00:06.9723945Z",
+    "createdByUser": {
+      "id": "ea59fda5568c4ce98cb858172f883ea7",
+      "firstName": "cp-support34",
+      "lastName": "Picturepark",
+      "emailAddress": "cp-support34@picturepark.com",
+      "isDeleted": false
+    },
+    "modifiedByUser": {
+      "id": "ea59fda5568c4ce98cb858172f883ea7",
+      "firstName": "cp-support34",
+      "lastName": "Picturepark",
+      "emailAddress": "cp-support34@picturepark.com",
+      "isDeleted": false
+    }
+  },
+  "ownerTokenId": "141f93deae904e4fa79041167b5a584f",
+  "contentType": "Bitmap",
+  "lifeCycle": "Active",
+  "activity": {
+    "creationDate": "2022-11-17T11:33:25.0443596Z",
+    "modificationDate": "2022-12-09T15:00:06.9723945Z"
+  }
+}

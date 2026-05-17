@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace dWebShop.Application.Common.Interfaces;
 
-public interface IAppDbContext
+public interface IAppDbContext : IAsyncDisposable
 {
     DbSet<Post> Posts { get; }
     DbSet<PostCategory> PostCategories { get; }

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using dWebShop.Application.Common.Interfaces;
 
 namespace dWebShop.Infrastructure;
 
@@ -18,8 +19,13 @@ public static class DependencyInjection
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
         var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
-        services.AddDbContext<AppDbContext>(options =>
-            options.UseMySql(connectionString, serverVersion));
+        services.AddDbContextFactory<AppDbContext>(options =>
+            options.UseMySql(connectionString, serverVersion,
+                mySqlOptions => mySqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+
+        // Keep scoped registration for Identity and other scoped consumers
+        services.AddScoped<AppDbContext>(sp =>
+            sp.GetRequiredService<IDbContextFactory<AppDbContext>>().CreateDbContext());
 
         services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
         {
@@ -35,7 +41,8 @@ public static class DependencyInjection
 
         services.AddScoped<AppDbContextInitializer>();
         services.AddScoped<IEmailService, SmtpEmailService>();
-        services.AddScoped<dWebShop.Application.Common.Interfaces.IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
+        services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
+        services.AddSingleton<IAppDbContextFactory, AppDbContextFactoryAdapter>();
         services.AddScoped<dWebShop.Application.Services.IPricingService, dWebShop.Infrastructure.Services.PricingService>();
 
         return services;

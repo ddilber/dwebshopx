@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace dWebShop.Application.Features.ProductSkus.Queries;
 
 public record SkuOptionValueDto(int Id, string OptionName, string OptionValueName);
-public record ProductSkuDto(int Id, string SKU, string ExtRef, string Name, decimal Price, decimal Tax, string? ImagePath, List<SkuOptionValueDto> Options);
+public record ProductSkuDto(int Id, string SKU, string ExtRef, string Name, string Gtin, decimal Price, decimal? CompareAtPrice, decimal? CostPrice, decimal Tax, int StockQuantity, int LowStockThreshold, string? ImagePath, List<SkuOptionValueDto> Options);
 public record ProductOptionValueDto(int Id, string Name);
 public record ProductOptionDto(int Id, string Name, bool IsNamePart, List<ProductOptionValueDto> Values);
 
@@ -35,7 +35,7 @@ public class GetProductSkusQueryHandler(IAppDbContext db) : IRequestHandler<GetP
             .ToListAsync(ct);
 
         var skuDtos = skus.Select(s => new ProductSkuDto(
-            s.Id, s.SKU, s.ExtRef, s.Name, s.Price, s.Tax, s.ImagePath,
+            s.Id, s.SKU, s.ExtRef, s.Name, s.Gtin, s.Price, s.CompareAtPrice, s.CostPrice, s.Tax, s.StockQuantity, s.LowStockThreshold, s.ImagePath,
             s.SkuOptionValues?.Select(sov => new SkuOptionValueDto(
                 sov.Id,
                 sov.ProductOption?.Name ?? string.Empty,
@@ -59,6 +59,6 @@ public class GetAllSkusQueryHandler(IAppDbContext db) : IRequestHandler<GetAllSk
         await db.ProductSkus
             .AsNoTracking()
             .OrderBy(s => s.SKU)
-            .Select(s => new ProductSkuDto(s.Id, s.SKU, s.ExtRef, s.Name, s.Price, s.Tax, s.ImagePath, new List<SkuOptionValueDto>()))
+            .Select(s => new ProductSkuDto(s.Id, s.SKU, s.ExtRef, s.Name, s.Gtin, s.Price, s.CompareAtPrice, s.CostPrice, s.Tax, s.StockQuantity, s.LowStockThreshold, s.ImagePath, new List<SkuOptionValueDto>()))
             .ToListAsync(ct);
 }

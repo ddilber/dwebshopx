@@ -1,0 +1,928 @@
+
+@page "/products/{Slug}"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Products.Queries
+@using dWebShop.Application.Features.Products.Commands
+@using dWebShop.Domain.Entities.Products
+@using dWebShop.Application.Features.Brands.Queries
+@using dWebShop.Application.Features.Categories.Queries
+@using dWebShop.Application.Features.ProductSkus.Queries
+@using dWebShop.Application.Features.ProductSkus.Commands
+@using dWebShop.Admin.Components.Shared
+@inject IMediator Mediator
+@inject NavigationManager Navigation
+
+<PageTitle>@(_isNew ? "New product" : _form.Name) — dWebShop Admin</PageTitle>
+
+
+<ImagePickerDialog @ref="_imagePicker" OnAccepted="HandleImages" SubFolder="product_images" />
+<ImagePickerDialog @ref="_skuImagePicker" OnAccepted="HandleSkuImage" SubFolder="product_images" SingleSelect="true" />
+
+@if (_loading)
+{
+    <div style="padding: 48px; text-align: center; color: var(--fg-3);">Loading…</div>
+}
+else
+{
+    <div class="page-head">
+        <div style="display:flex;align-items:center;gap:var(--sp-16)">
+            @if (PrimaryImage is not null)
+            {
+                <img src="@PrimaryImage" alt="@_form.Name"
+                     style="width:64px;height:64px;object-fit:cover;border-radius:var(--r-md);border:1px solid var(--stroke-1);flex-shrink:0;" />
+            }
+            <div>
+            <div class="fui-breadcrumb">
+                <a href="/products" style="color:var(--fg-3);text-decoration:none">Products</a>
+                <span class="fui-breadcrumb-sep">/</span>
+                <span>@(_isNew ? "New product" : _form.Name)</span>
+            </div>
+            <h1 class="page-title">@(_isNew ? "New product" : _form.Name)</h1>
+            @if (!_isNew)
+            {
+                <p class="page-sub">SKU @_form.Sku</p>
+            }
+            </div>
+        </div>
+        <div class="page-actions">
+            <button class="ds-btn ds-btn-subtle" @onclick="@(() => Navigation.NavigateTo("/products"))">Cancel</button>
+            <button class="ds-btn" style="background:var(--accent-rest);color:white;border-color:var(--accent-rest)" @onclick="SaveAsync" disabled="@_saving">
+                @if (_saving) { <span>Saving…</span> } else { <span>Save</span> }
+            </button>
+        </div>
+    </div>
+
+    @if (_error is not null)
+    {
+        <div style="background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger);border-radius:var(--r-md);padding:var(--sp-12) var(--sp-16);margin-bottom:var(--sp-16);font-size:var(--fs-300)">
+            @_error
+        </div>
+    }
+    @if (_saved)
+    {
+        <div style="background:var(--success-bg);color:var(--success);border:1px solid var(--success);border-radius:var(--r-md);padding:var(--sp-12) var(--sp-16);margin-bottom:var(--sp-16);font-size:var(--fs-300)">
+            Product saved successfully.
+        </div>
+    }
+
+    <!-- Tab row -->
+    <div class="ds-tabs" style="margin-bottom: var(--sp-24);">
+        <button class="ds-tab @(_activeTab == 0 ? "is-active" : "")" @onclick="@(() => _activeTab = 0)">General</button>
+        <button class="ds-tab @(_activeTab == 1 ? "is-active" : "")" @onclick="@(() => _activeTab = 1)">Media</button>
+        <button class="ds-tab @(_activeTab == 2 ? "is-active" : "")" @onclick="@(() => _activeTab = 2)">Pricing &amp; Inventory</button>
+        <button class="ds-tab @(_activeTab == 3 ? "is-active" : "")" @onclick="@(() => _activeTab = 3)">Variants</button>
+        <button class="ds-tab @(_activeTab == 4 ? "is-active" : "")" @onclick="@(() => _activeTab = 4)">SEO</button>
+    </div>
+
+    <div class="detail-grid">
+
+        <!-- MAIN COLUMN -->
+        <div class="detail-main">
+
+            @if (_activeTab == 0)
+            {
+                <!-- General -->
+                <div class="ds-card">
+                    <div class="card-head">
+                        <div class="card-title">Basic information</div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field span-2">
+                            <label class="field-label">Product name *</label>
+                            <input class="ds-input" placeholder="e.g. Premium Wireless Headphones" @bind="_form.Name" />
+                        </div>
+@*                         <div class="field">
+                            <label class="field-label">SKU</label>
+                            <input class="ds-input" placeholder="e.g. PRD-001" @bind="_form.Sku" />
+                        </div>
+                        <div class="field">
+                            <label class="field-label">External reference</label>
+                            <input class="ds-input" placeholder="e.g. ERP-12345" @bind="_form.ExtRef" />
+                        </div>
+ *@                        <div class="field span-2">
+                            <label class="field-label">URL slug *</label>
+                            <input class="ds-input" placeholder="e.g. premium-wireless-headphones" @bind="_form.Slug" />
+                            <span class="field-hint">Used in product URLs. Lowercase letters, numbers and hyphens only.</span>
+                        </div>
+                        <div class="field span-2">
+                            <label class="field-label">Short description</label>
+                            <textarea class="ds-textarea" rows="3" placeholder="Brief product summary shown in listings…" @bind="_form.Description"></textarea>
+                        </div>
+                        <div class="field span-2">
+                            <label class="field-label">Full description</label>
+                            <textarea class="ds-textarea" rows="6" placeholder="Detailed product description, features and specifications…" @bind="_form.DetailDescription"></textarea>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (_activeTab == 1)
+            {
+                <!-- Media -->
+                <div class="ds-card">
+                    <div class="card-head">
+                        <div class="card-title">Product images</div>
+@*                         <button class="ds-btn">
+                            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"/>
+                            </svg>
+                            Upload image
+                        </button>
+ *@                        
+                        <FluentButton OnClick="@(async () => await _imagePicker.Show())">
+                            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                            </svg>
+                            Pick image
+                        </FluentButton>
+
+                    </div>
+                    @if (_detail?.Images.Count > 0)
+                    {
+                        <div class="media-grid">
+                            @for (var i = 0; i < _detail.Images.Count; i++)
+                            {
+                                var idx = i;
+                                var img = _detail.Images[idx];
+                                <div class="media-cell" style="position:relative;">
+                                    <img src="@img.Path" alt="@img.Description" />
+                                    <div class="media-overlay">
+                                        <button class="media-overlay-btn" title="Move left"
+                                                disabled="@(idx == 0)"
+                                                @onclick="@(async () => await MoveImage(idx, -1))"
+                                                @onclick:stopPropagation="true">
+                                            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+                                        </button>
+                                        <button class="media-overlay-btn media-overlay-btn--danger" title="Remove"
+                                                @onclick="@(async () => await RemoveImage(idx))"
+                                                @onclick:stopPropagation="true">
+                                            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zm-1 7a1 1 0 112 0v3a1 1 0 11-2 0V9zm4 0a1 1 0 10-2 0v3a1 1 0 102 0V9z" clip-rule="evenodd"/></svg>
+                                        </button>
+                                        <button class="media-overlay-btn" title="Move right"
+                                                disabled="@(idx == _detail.Images.Count - 1)"
+                                                @onclick="@(async () => await MoveImage(idx, 1))"
+                                                @onclick:stopPropagation="true">
+                                            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                            <div class="media-cell media-add">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="24" height="24">
+                                    <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="border:2px dashed var(--stroke-1);border-radius:var(--r-lg);padding:48px;text-align:center;color:var(--fg-3)">
+                            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48" style="display:block;margin:0 auto 16px;opacity:.4">
+                                <rect x="4" y="4" width="40" height="40" rx="8"/>
+                                <circle cx="16" cy="18" r="4"/>
+                                <path d="M4 32l10-10 8 8 6-6 16 16"/>
+                            </svg>
+                            <p style="margin:0;font-weight:var(--fw-semibold)">No images yet</p>
+                            <p style="margin:8px 0 0;font-size:var(--fs-200)">Drag and drop images here, or click Upload image</p>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (_activeTab == 2)
+            {
+                <!-- Pricing & Inventory -->
+                <div class="ds-card">
+                    <div class="card-head">
+                        <div class="card-title">Pricing</div>
+                    </div>
+                    @if (_isNew)
+                    {
+                        <div style="color:var(--fg-3);font-size:var(--fs-300)">Save the product first to manage pricing.</div>
+                    }
+                    else if (_skus.Count == 0)
+                    {
+                        <div style="color:var(--fg-3);font-size:var(--fs-300)">No SKUs yet. Add a SKU on the Variants tab to define pricing.</div>
+                    }
+                    else if (_skus.Count == 1)
+                    {
+                        @if (_skuPriceError is not null)
+                        {
+                            <div style="background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger);border-radius:var(--r-md);padding:var(--sp-8) var(--sp-12);margin-bottom:var(--sp-12);font-size:var(--fs-300)">
+                                @_skuPriceError
+                            </div>
+                        }
+                        @if (_skuPriceSaved)
+                        {
+                            <div style="background:var(--success-bg,#f0fdf4);color:var(--success,#16a34a);border:1px solid var(--success,#16a34a);border-radius:var(--r-md);padding:var(--sp-8) var(--sp-12);margin-bottom:var(--sp-12);font-size:var(--fs-300)">
+                                Prices updated.
+                            </div>
+                        }
+                        <div class="form-grid cols-3">
+                            <div class="field">
+                                <label class="field-label">Price *</label>
+                                <input class="ds-input" type="number" step="0.01" min="0" placeholder="0.00" @bind="_singleSkuPrice" />
+                            </div>
+                            <div class="field">
+                                <label class="field-label">Compare-at price</label>
+                                <input class="ds-input" type="number" step="0.01" min="0" placeholder="0.00" @bind="_singleSkuCompareAtPrice" />
+                                <span class="field-hint">Shown as strikethrough</span>
+                            </div>
+                            <div class="field">
+                                <label class="field-label">Cost per item</label>
+                                <input class="ds-input" type="number" step="0.01" min="0" placeholder="0.00" @bind="_singleSkuCostPrice" />
+                                <span class="field-hint">Not shown to customers</span>
+                            </div>
+                        </div>
+                        <div style="margin-top:var(--sp-16)">
+                            <button class="ds-btn" style="background:var(--accent-rest);color:white;border-color:var(--accent-rest)" @onclick="SaveSingleSkuPriceAsync" disabled="@_skuPriceSaving">
+                                @(_skuPriceSaving ? "Saving…" : "Update prices")
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="color:var(--fg-3);font-size:var(--fs-300)">
+                            This product has multiple variants. Please set prices individually on the <strong>Variants</strong> tab.
+                        </div>
+                    }
+                </div>
+                <div class="ds-card">
+                    <div class="card-head">
+                        <div class="card-title">Inventory</div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label class="field-label">Stock quantity</label>
+                            <input class="ds-input" type="number" min="0" placeholder="0" @bind="_form.Stock" />
+                        </div>
+                        <div class="field">
+                            <label class="field-label">Low stock threshold</label>
+                            <input class="ds-input" type="number" min="0" placeholder="5" @bind="_form.LowStockThreshold" />
+                        </div>
+                    </div>
+                    <div class="card-divider"></div>
+                    <div class="ds-toggle-row">
+                        <div class="ds-toggle-text">
+                            <div class="ds-toggle-label">Track stock</div>
+                            <div class="ds-toggle-sub">Automatically update availability based on stock</div>
+                        </div>
+                        <label class="ds-toggle">
+                            <input type="checkbox" @bind="_form.TrackStock" />
+                            <span class="ds-toggle-track"></span>
+                        </label>
+                    </div>
+                    <div class="ds-toggle-row">
+                        <div class="ds-toggle-text">
+                            <div class="ds-toggle-label">Allow backorders</div>
+                            <div class="ds-toggle-sub">Let customers order when out of stock</div>
+                        </div>
+                        <label class="ds-toggle">
+                            <input type="checkbox" @bind="_form.AllowBackorders" />
+                            <span class="ds-toggle-track"></span>
+                        </label>
+                    </div>
+                </div>
+            }
+
+            @if (_activeTab == 3)
+            {
+                <!-- Variants / SKUs -->
+                @if (_isNew)
+                {
+                    <div class="ds-card">
+                        <div style="padding: 32px; text-align: center; color: var(--fg-3);">
+                            Save the product first, then you can add SKUs.
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="ds-card no-pad">
+                        <div class="card-head" style="padding: var(--pad-card); padding-bottom: 0;">
+                            <div>
+                                <div class="card-title">SKUs</div>
+                                <div class="card-sub">@_skus.Count SKU@(_skus.Count == 1 ? "" : "s")</div>
+                            </div>
+                            <button class="ds-btn" @onclick="OpenAddSku">
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                                    <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"/>
+                                </svg>
+                                Add SKU
+                            </button>
+                        </div>
+
+                        @if (_skus.Count == 0 && !_showSkuForm)
+                        {
+                            <div style="padding: 48px; text-align: center; color: var(--fg-3); border-top: 1px solid var(--stroke-1); margin-top: var(--pad-card);">
+                                No SKUs yet. Add a SKU to define pricing and variants.
+                            </div>
+                        }
+                        else if (_skus.Count > 0)
+                        {
+                            <table class="ds-table" style="margin-top: var(--sp-16);">
+                                <thead>
+                                    <tr>
+                                        <th class="ds-th"></th>
+                                        <th class="ds-th">SKU</th>
+                                        <th class="ds-th">Name</th>                                        
+                                        <th class="ds-th">Options</th>
+                                        <th class="ds-th" style="text-align:right">Price</th>
+                                        <th class="ds-th" style="text-align:right">Tax %</th>
+                                        <th class="ds-th" style="width:80px"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var sku in _skus)
+                                    {
+                                        <tr class="ds-tr">
+                                            <td class="ds-td">
+                                                <div class="tbl-name-cell">
+                                                    <div class="tbl-thumb">
+                                                        @if (sku.ImagePath is not null)
+                                                        {
+                                                            <img src="@sku.ImagePath" alt="" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+                                                                <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm0 1.5h12a.5.5 0 01.5.5v6.586l-2.793-2.793a1 1 0 00-1.414 0L9.5 11.586 8.207 10.293a1 1 0 00-1.414 0L3.5 13.793V5a.5.5 0 01.5-.5zm3 3a1 1 0 110 2 1 1 0 010-2z" />
+                                                            </svg>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td class="ds-td is-mono">@sku.SKU</td>
+                                            <td class="ds-td">@sku.Name</td>
+                                            <td class="ds-td">
+                                                @if (sku.Options.Count > 0)
+                                                {
+                                                    <div style="display:flex;flex-wrap:wrap;gap:4px">
+                                                        @foreach (var opt in sku.Options)
+                                                        {
+                                                            <span class="ds-badge ds-badge-brand">@opt.OptionName: @opt.OptionValueName</span>
+                                                        }
+                                                    </div>
+                                                }
+                                                else { <span style="color:var(--fg-4)">—</span> }
+                                            </td>
+                                            <td class="ds-td" style="text-align:right;font-variant-numeric:tabular-nums">$@sku.Price.ToString("N2")</td>
+                                            <td class="ds-td" style="text-align:right;color:var(--fg-3)">@sku.Tax.ToString("N1")%</td>
+                                            <td class="ds-td" style="text-align:right">
+                                                <button class="ds-btn ds-btn-subtle" @onclick="@(() => OpenEditSku(sku))">Edit</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+
+                        @if (_showSkuForm)
+                        {
+                            <div style="border-top:1px solid var(--stroke-1);padding:var(--pad-card)">
+                                <div style="font-size:var(--fs-300);font-weight:var(--fw-semibold);margin-bottom:var(--sp-16)">
+                                    @(_editingSkuId is null ? "New SKU" : "Edit SKU")
+                                </div>
+                                @if (_skuError is not null)
+                                {
+                                    <div style="background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger);border-radius:var(--r-md);padding:var(--sp-8) var(--sp-12);margin-bottom:var(--sp-12);font-size:var(--fs-300)">
+                                        @_skuError
+                                    </div>
+                                }
+                                <div class="form-grid cols-3" style="margin-bottom:var(--sp-16)">
+                                    <div class="field">
+                                        <label class="field-label">SKU *</label>
+                                        <input class="ds-input" placeholder="e.g. PRD-001-BLK" @bind="_skuForm.Sku" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field-label">Name</label>
+                                        <input class="ds-input" placeholder="e.g. Black / Large" @bind="_skuForm.Name" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field-label">Barcode (GTIN)</label>
+                                        <input class="ds-input" placeholder="e.g. 5901234123457" @bind="_skuForm.Gtin" />
+                                    </div>
+
+@*                                     <div class="field">
+                                        <label class="field-label">Ext ref</label>
+                                        <input class="ds-input" placeholder="ERP reference" @bind="_skuForm.ExtRef" />
+                                    </div> *@
+
+                                    <div class="field">
+                                        <label class="field-label">Price *</label>
+                                        <input class="ds-input" type="number" step="0.01" min="0" placeholder="0.00" @bind="_skuForm.Price" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field-label">Compare-at price</label>
+                                        <input class="ds-input" type="number" step="0.01" min="0" placeholder="0.00" @bind="_skuForm.CompareAtPrice" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field-label">Cost price</label>
+                                        <input class="ds-input" type="number" step="0.01" min="0" placeholder="0.00" @bind="_skuForm.CostPrice" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field-label">Tax %</label>
+                                        <input class="ds-input" type="number" step="0.01" min="0" max="100" placeholder="0.00" @bind="_skuForm.Tax" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field-label">Stock qty</label>
+                                        <input class="ds-input" type="number" min="0" placeholder="0" @bind="_skuForm.StockQuantity" />
+                                    </div>
+                                    <div class="field">
+                                        <label class="field-label">Low-stock threshold</label>
+                                        <input class="ds-input" type="number" min="0" placeholder="5" @bind="_skuForm.LowStockThreshold" />
+                                    </div>
+                                    @foreach (var opt in _options)
+                                    {
+                                        <div class="field">
+                                            <label class="field-label">@opt.Name</label>
+                                            <select class="ds-select" value="@_skuForm.OptionSelections.GetValueOrDefault(opt.Id)" @onchange="@(e => SetSkuOption(opt.Id, e.Value?.ToString()))">
+                                                <option value="">— None —</option>
+                                                @foreach (var v in opt.Values)
+                                                {
+                                                    <option value="@v.Id">@v.Name</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="field" style="margin-bottom:var(--sp-16)">
+                                    <label class="field-label">SKU Image</label>
+                                    <div style="display:flex;align-items:center;gap:var(--sp-12)">
+                                        @if (_skuForm.ImagePath is not null)
+                                        {
+                                            <div style="position:relative;width:72px;height:72px;flex-shrink:0;">
+                                                <img src="@_skuForm.ImagePath" alt="SKU image"
+                                                     style="width:72px;height:72px;object-fit:cover;border-radius:var(--r-md);border:1px solid var(--stroke-1);" />
+                                                <button class="media-overlay-btn media-overlay-btn--danger"
+                                                        style="position:absolute;top:2px;right:2px;"
+                                                        title="Remove image"
+                                                        @onclick="@(() => _skuForm.ImagePath = null)"
+                                                        @onclick:stopPropagation="true">
+                                                    <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                                                </button>
+                                            </div>
+                                        }
+                                        <button class="ds-btn ds-btn-subtle" @onclick="@(async () => await _skuImagePicker.Show())" type="button">
+                                            @(_skuForm.ImagePath is null ? "Select image…" : "Change image…")
+                                        </button>
+                                    </div>
+                                </div>
+                                <div style="display:flex;gap:var(--sp-8)">
+                                    <button class="ds-btn" style="background:var(--accent-rest);color:white;border-color:var(--accent-rest)" @onclick="SaveSkuAsync" disabled="@_skuSaving">
+                                        @(_skuSaving ? "Saving…" : (_editingSkuId is null ? "Add SKU" : "Update SKU"))
+                                    </button>
+                                    @if (_editingSkuId is not null)
+                                    {
+                                        <button class="ds-btn ds-btn-subtle" style="color:var(--danger)" @onclick="DeleteSkuAsync" disabled="@_skuSaving">Delete</button>
+                                    }
+                                    <button class="ds-btn ds-btn-subtle" @onclick="CloseSkuForm">Cancel</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+
+            @if (_activeTab == 4)
+            {
+                <!-- SEO -->
+                <div class="ds-card">
+                    <div class="card-head">
+                        <div class="card-title">Search engine preview</div>
+                    </div>
+                    <div style="background:var(--bg-layer-alt);border:1px solid var(--stroke-1);border-radius:var(--r-md);padding:var(--sp-16);margin-bottom:var(--sp-20)">
+                        <div style="color:#1a0dab;font-size:18px;margin-bottom:4px">@(string.IsNullOrEmpty(_form.Name) ? "Product name" : _form.Name)</div>
+                        <div style="color:#006621;font-size:13px;margin-bottom:4px">dwebshop.com/products/@(string.IsNullOrEmpty(_form.Slug) ? "product-slug" : _form.Slug)</div>
+                        <div style="color:#545454;font-size:13px">@(string.IsNullOrEmpty(_form.Description) ? "Product description will appear here…" : _form.Description)</div>
+                    </div>
+                    <div class="form-grid cols-1">
+                        <div class="field">
+                            <label class="field-label">SEO title</label>
+                            <input class="ds-input" placeholder="Defaults to product name" />
+                        </div>
+                        <div class="field">
+                            <label class="field-label">Meta description</label>
+                            <textarea class="ds-textarea" rows="3" placeholder="Defaults to short description…"></textarea>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+
+        <!-- SIDE COLUMN -->
+        <div class="detail-side">
+
+            <!-- Status card -->
+            <div class="ds-card" style="padding: var(--sp-16)">
+                <div style="font-size:var(--fs-300);font-weight:var(--fw-semibold);margin-bottom:var(--sp-12)">Status</div>
+                <div class="field" style="margin-bottom:var(--sp-12)">
+                    <label class="field-label">Visibility</label>
+                    <select class="ds-select" value="@((int)_form.Status)" @onchange="@(e => _form.Status = (ProductStatus)int.Parse(e.Value!.ToString()!))">
+                        <option value="@((int)ProductStatus.Draft)">Draft</option>
+                        <option value="@((int)ProductStatus.Active)">Active — visible</option>
+                        <option value="@((int)ProductStatus.Archived)">Archived</option>
+                    </select>
+                </div>
+                <div class="ds-toggle-row">
+                    <div class="ds-toggle-text">
+                        <div class="ds-toggle-label">Featured on homepage</div>
+                    </div>
+                    <label class="ds-toggle">
+                        <input type="checkbox" @bind="_form.IsFeatured" />
+                        <span class="ds-toggle-track"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Organisation card -->
+            <div class="ds-card" style="padding: var(--sp-16)">
+                <div style="font-size:var(--fs-300);font-weight:var(--fw-semibold);margin-bottom:var(--sp-12)">Organisation</div>
+                <div class="form-grid cols-1" style="gap:var(--sp-12)">
+                    <div class="field">
+                        <label class="field-label">Brand</label>
+                        <select class="ds-select" @bind="_form.BrandId">
+                            <option value="">— No brand —</option>
+                            @foreach (var b in _brands)
+                            {
+                                <option value="@b.Id">@b.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label class="field-label">Primary category</label>
+                        <select class="ds-select" @bind="_form.PrimaryCategoryId">
+                            <option value="">— None —</option>
+                            @foreach (var c in _categories)
+                            {
+                                <option value="@c.Id">@(c.ParentName is not null ? $"{c.ParentName} → {c.Name}" : c.Name)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            @if (!_isNew)
+            {
+                <!-- Timestamps card -->
+                <div class="ds-card" style="padding: var(--sp-16)">
+                    <div style="font-size:var(--fs-300);font-weight:var(--fw-semibold);margin-bottom:var(--sp-12)">Details</div>
+                    <div style="font-size:var(--fs-200);color:var(--fg-3);display:flex;flex-direction:column;gap:var(--sp-8)">
+                        <div style="display:flex;justify-content:space-between">
+                            <span>Product ID</span>
+                            <span style="font-family:var(--font-mono);color:var(--fg-1)">#@Slug</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between">
+                            <span>Images</span>
+                            <span style="color:var(--fg-1)">@(_detail?.Images.Count ?? 0)</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between">
+                            <span>Categories</span>
+                            <span style="color:var(--fg-1)">@(_detail?.Categories.Count ?? 0)</span>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+}
+
+@code {
+	[Parameter] public string Slug { get; set; } = string.Empty;
+
+    private bool _isNew => Slug == "new";
+    private string? PrimaryImage =>
+        _skus.FirstOrDefault(s => s.ImagePath is not null)?.ImagePath
+        ?? _detail?.Images.OrderBy(i => i.SortOrder).FirstOrDefault()?.Path;
+    private bool _loading = true;
+    private bool _saving;
+    private string? _error;
+    private bool _saved;
+    private int _activeTab;
+
+    private ProductDetailDto? _detail;
+    private List<BrandDto> _brands = [];
+    private List<CategoryDto> _categories = [];
+    private List<ProductSkuDto> _skus = [];
+    private decimal _singleSkuPrice;
+    private decimal? _singleSkuCompareAtPrice;
+    private decimal? _singleSkuCostPrice;
+    private bool _skuPriceSaving;
+    private bool _skuPriceSaved;
+    private string? _skuPriceError;
+    private List<ProductOptionDto> _options = [];
+
+    // SKU form
+    private bool _showSkuForm;
+    private int? _editingSkuId;
+    private bool _skuSaving;
+    private string? _skuError;
+    private SkuFormModel _skuForm = new();
+
+    private FormModel _form = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _brands = await Mediator.Send(new GetBrandsQuery());
+        _categories = await Mediator.Send(new GetCategoriesQuery());
+
+        if (!_isNew)
+        {
+            _detail = await Mediator.Send(new GetProductBySlugQuery(Slug));
+            if (_detail is null)
+            {
+                Navigation.NavigateTo("/products");
+                return;
+            }
+            _form = new FormModel
+            {
+                Name = _detail.Name,
+                Sku = _detail.SKU,
+                ExtRef = _detail.ExtRef,
+                Slug = _detail.Slug,
+                Description = _detail.Description,
+                DetailDescription = _detail.DetailDescription,
+                Status = _detail.Status,
+                IsFeatured = _detail.IsFeatured,
+                BrandId = _detail.BrandId.HasValue ? _detail.BrandId.Value : 0,
+                PrimaryCategoryId = _detail.Categories.FirstOrDefault()?.Id ?? 0,
+            };
+
+            var skuResult = await Mediator.Send(new GetProductSkusQuery(_detail.Id));
+            _skus = skuResult.Skus;
+            _options = skuResult.Options;
+            SyncSingleSkuPriceFields();
+        }
+
+        _loading = false;
+    }
+
+    private async Task ReloadSkusAsync()
+    {
+        var result = await Mediator.Send(new GetProductSkusQuery(_detail.Id));
+        _skus = result.Skus;
+        _options = result.Options;
+        SyncSingleSkuPriceFields();
+    }
+
+    private void OpenAddSku()
+    {
+        _editingSkuId = null;
+        _skuForm = new SkuFormModel();
+        _skuError = null;
+        _showSkuForm = true;
+    }
+
+    private void OpenEditSku(ProductSkuDto sku)
+    {
+        _editingSkuId = sku.Id;
+        _skuForm = new SkuFormModel
+        {
+            Sku = sku.SKU,
+            Name = sku.Name,
+            ExtRef = sku.ExtRef,
+            Gtin = sku.Gtin,
+            Price = sku.Price,
+            CompareAtPrice = sku.CompareAtPrice,
+            CostPrice = sku.CostPrice,
+            Tax = sku.Tax,
+            StockQuantity = sku.StockQuantity,
+            LowStockThreshold = sku.LowStockThreshold,
+            OptionSelections = sku.Options.ToDictionary(
+                o => _options.FirstOrDefault(op => op.Name == o.OptionName)?.Id ?? 0,
+                o => _options.SelectMany(op => op.Values).FirstOrDefault(v => v.Name == o.OptionValueName)?.Id ?? 0),
+            ImagePath = sku.ImagePath,
+        };
+        _skuError = null;
+        _showSkuForm = true;
+    }
+
+    private void CloseSkuForm()
+    {
+        _showSkuForm = false;
+        _skuError = null;
+    }
+
+    private void SetSkuOption(int optionId, string? valueStr)
+    {
+        if (int.TryParse(valueStr, out var valId) && valId > 0)
+            _skuForm.OptionSelections[optionId] = valId;
+        else
+            _skuForm.OptionSelections.Remove(optionId);
+    }
+
+    private async Task SaveSkuAsync()
+    {
+        _skuError = null;
+        if (string.IsNullOrWhiteSpace(_skuForm.Sku)) { _skuError = "SKU code is required."; return; }
+
+        _skuSaving = true;
+        try
+        {
+            if (_editingSkuId is null)
+            {
+                var optVals = _skuForm.OptionSelections.Count > 0
+                    ? _skuForm.OptionSelections.Select(kv => (kv.Key, kv.Value)).ToList()
+                    : null;
+                await Mediator.Send(new CreateSkuCommand(0, _skuForm.Sku, _skuForm.ExtRef, _skuForm.Name, _skuForm.Gtin, _skuForm.Price, _skuForm.CompareAtPrice, _skuForm.CostPrice, _skuForm.Tax, _skuForm.StockQuantity, _skuForm.LowStockThreshold, _skuForm.ImagePath, optVals));
+            }
+            else
+            {
+                await Mediator.Send(new UpdateSkuCommand(_editingSkuId.Value, _skuForm.Sku, _skuForm.ExtRef, _skuForm.Name, _skuForm.Gtin, _skuForm.Price, _skuForm.CompareAtPrice, _skuForm.CostPrice, _skuForm.Tax, _skuForm.StockQuantity, _skuForm.LowStockThreshold, _skuForm.ImagePath));
+            }
+            _showSkuForm = false;
+            await ReloadSkusAsync();
+        }
+        catch (Exception ex)
+        {
+            _skuError = ex.Message;
+        }
+        finally
+        {
+            _skuSaving = false;
+        }
+    }
+
+    private async Task DeleteSkuAsync()
+    {
+        if (_editingSkuId is null) return;
+        _skuSaving = true;
+        try
+        {
+            await Mediator.Send(new DeleteSkuCommand(_editingSkuId.Value));
+            _showSkuForm = false;
+            await ReloadSkusAsync();
+        }
+        catch (Exception ex)
+        {
+            _skuError = ex.Message;
+        }
+        finally
+        {
+            _skuSaving = false;
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        _error = null;
+        _saved = false;
+
+        if (string.IsNullOrWhiteSpace(_form.Name)) { _error = "Product name is required."; return; }
+        if (string.IsNullOrWhiteSpace(_form.Slug)) { _error = "URL slug is required."; return; }
+
+        _saving = true;
+        try
+        {
+            var brandId = _form.BrandId > 0 ? (int?)_form.BrandId : null;
+            var catIds = _form.PrimaryCategoryId > 0 ? new List<int> { _form.PrimaryCategoryId } : null;
+
+            if (_isNew)
+            {
+                var id = await Mediator.Send(new CreateProductCommand(
+                    _form.Name, _form.Sku, _form.ExtRef, _form.Slug,
+                    _form.Description, _form.Status, _form.IsFeatured, brandId, catIds));
+                Navigation.NavigateTo($"/products/{id}");
+            }
+            else
+            {
+                await Mediator.Send(new UpdateProductCommand(
+                    _detail.Id, _form.Name, _form.Sku, _form.ExtRef, _form.Slug,
+                    _form.Description, _form.Status, _form.IsFeatured, brandId, _form.DetailDescription, catIds));
+                _saved = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private ImagePickerDialog _imagePicker = default!;
+    private ImagePickerDialog _skuImagePicker = default!;
+
+    private void SyncSingleSkuPriceFields()
+    {
+        if (_skus.Count == 1)
+        {
+            var s = _skus[0];
+            _singleSkuPrice = s.Price;
+            _singleSkuCompareAtPrice = s.CompareAtPrice;
+            _singleSkuCostPrice = s.CostPrice;
+        }
+    }
+
+    private async Task SaveSingleSkuPriceAsync()
+    {
+        if (_skus.Count != 1) return;
+        _skuPriceError = null;
+        _skuPriceSaved = false;
+        _skuPriceSaving = true;
+        try
+        {
+            var sku = _skus[0];
+            await Mediator.Send(new UpdateSkuCommand(sku.Id, sku.SKU, sku.ExtRef, sku.Name, sku.Gtin,
+                _singleSkuPrice, _singleSkuCompareAtPrice, _singleSkuCostPrice,
+                sku.Tax, sku.StockQuantity, sku.LowStockThreshold, sku.ImagePath));
+            await ReloadSkusAsync();
+            _skuPriceSaved = true;
+        }
+        catch (Exception ex)
+        {
+            _skuPriceError = ex.Message;
+        }
+        finally
+        {
+            _skuPriceSaving = false;
+        }
+    }
+
+    private async Task HandleSkuImage(List<string> filenames)
+    {
+        if (filenames.Count > 0)
+            _skuForm.ImagePath = filenames[0];
+    }
+
+    private async Task HandleImages(List<string> filenames)
+    {
+        if (_detail is null || filenames.Count == 0) return;
+
+        foreach (var filename in filenames)
+        {
+            var id = await Mediator.Send(new AddProductImageCommand(_detail.Id, filename, string.Empty));
+            var sortOrder = _detail.Images.Count > 0 ? _detail.Images.Max(i => i.SortOrder) + 1 : 0;
+            _detail.Images.Add(new ProductImageDto(id, filename, string.Empty, sortOrder));
+        }
+    }
+
+    private async Task MoveImage(int index, int direction)
+    {
+        if (_detail is null) return;
+        var target = index + direction;
+        if (target < 0 || target >= _detail.Images.Count) return;
+        (_detail.Images[index], _detail.Images[target]) = (_detail.Images[target], _detail.Images[index]);
+        await PersistImageOrder();
+    }
+
+    private async Task RemoveImage(int index)
+    {
+        if (_detail is null) return;
+        var imageId = _detail.Images[index].Id;
+        _detail.Images.RemoveAt(index);
+        await Mediator.Send(new DeleteProductImageCommand(imageId));
+        await PersistImageOrder();
+    }
+
+    private async Task PersistImageOrder()
+    {
+        if (_detail is null) return;
+        var orderedIds = _detail.Images.Select(i => i.Id).ToList();
+        await Mediator.Send(new ReorderProductImagesCommand(orderedIds));
+    }
+
+    private class SkuFormModel
+    {
+        public string Sku { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string ExtRef { get; set; } = "";
+        public string Gtin { get; set; } = "";
+        public decimal Price { get; set; }
+        public decimal? CompareAtPrice { get; set; }
+        public decimal? CostPrice { get; set; }
+        public decimal Tax { get; set; }
+        public int StockQuantity { get; set; }
+        public int LowStockThreshold { get; set; } = 5;
+        public string? ImagePath { get; set; }
+        public Dictionary<int, int> OptionSelections { get; set; } = new();
+    }
+
+    private class FormModel
+    {
+        public string Name { get; set; } = "";
+        public string Sku { get; set; } = "";
+        public string ExtRef { get; set; } = "";
+        public string Slug { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string DetailDescription { get; set; } = "";
+        public ProductStatus Status { get; set; } = ProductStatus.Draft;
+        public bool IsFeatured { get; set; }
+        public int BrandId { get; set; }
+        public int PrimaryCategoryId { get; set; }
+        public decimal? Price { get; set; }
+        public decimal? CompareAtPrice { get; set; }
+        public decimal? CostPrice { get; set; }
+        public int? Stock { get; set; }
+        public int? LowStockThreshold { get; set; }
+        public bool TrackStock { get; set; }
+        public bool AllowBackorders { get; set; }
+    }
+}

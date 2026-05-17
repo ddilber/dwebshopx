@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace dWebShop.Application.Features.Products.Commands;
 
-public record UpdateProductCommand(int Id, string Name, string SKU, string ExtRef, string Slug, string Description, bool IsActive, int? BrandId, string DetailDescription, List<int>? CategoryIds) : IRequest;
+public record UpdateProductCommand(int Id, string Name, string SKU, string ExtRef, string Slug, string Description, ProductStatus Status, bool IsFeatured, int? BrandId, string DetailDescription, List<int>? CategoryIds) : IRequest;
 
 public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
 {
@@ -33,7 +33,8 @@ public class UpdateProductCommandHandler(IAppDbContext db) : IRequestHandler<Upd
         product.ExtRef = request.ExtRef;
         product.Slug = request.Slug;
         product.Description = request.Description;
-        product.IsActive = request.IsActive;
+        product.Status = request.Status;
+        product.IsFeatured = request.IsFeatured;
         product.BrandId = request.BrandId;
 
         if (product.ProductDetails is null)

@@ -9,7 +9,7 @@ public record CategoryDto(int Id, string Name, string Slug, string Description, 
 
 public record GetCategoriesQuery(int? BrandId = null) : IRequest<List<CategoryDto>>;
 
-public class GetCategoriesQueryHandler(IAppDbContext db, IMemoryCache cache) : IRequestHandler<GetCategoriesQuery, List<CategoryDto>>
+public class GetCategoriesQueryHandler(IAppDbContextFactory dbFactory, IMemoryCache cache) : IRequestHandler<GetCategoriesQuery, List<CategoryDto>>
 {
     public async Task<List<CategoryDto>> Handle(GetCategoriesQuery request, CancellationToken ct)
     {
@@ -17,6 +17,7 @@ public class GetCategoriesQueryHandler(IAppDbContext db, IMemoryCache cache) : I
         if (cache.TryGetValue(cacheKey, out List<CategoryDto>? cached) && cached is not null)
             return cached;
 
+        await using var db = await dbFactory.CreateDbContextAsync(ct);
         var query = db.Categories
             .AsNoTracking()
             .Include(c => c.Brand)

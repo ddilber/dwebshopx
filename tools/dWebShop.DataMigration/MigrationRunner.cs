@@ -28,7 +28,7 @@ public class MigrationRunner(
 
         // ── 1. Brands ──────────────────────────────────────────────────────────
         Console.WriteLine("Migrating brands…");
-        var srcBrands = (await src.QueryAsync<SrcBrand>("SELECT Id, Name, Slug, Description, LogoImage, SliderImage FROM Brands")).ToList();
+        var srcBrands = (await src.QueryAsync<SrcBrand>("SELECT Id, Name, Slug, Description, LogoImage, SliderImage FROM ProductBrands")).ToList();
         var brandMap = new Dictionary<int, int>(); // old id → new id
 
         foreach (var sb in srcBrands)
@@ -58,14 +58,14 @@ public class MigrationRunner(
         // ── 2. Categories ──────────────────────────────────────────────────────
         Console.WriteLine("Migrating categories (pass 1 — root categories)…");
         var srcCats = (await src.QueryAsync<SrcCategory>(
-            "SELECT Id, Name, Slug, Description, ParentCategoryId, BrandId FROM Categories ORDER BY ParentCategoryId IS NOT NULL, ParentCategoryId"))
+            "SELECT Id, Name, Slug, Description, CategoryId, BrandId FROM ProductCategories ORDER BY CategoryId IS NOT NULL, CategoryId"))
             .ToList();
         var catMap = new Dictionary<int, int>(); // old id → new id
 
         // Two passes: roots first, then children
         foreach (var pass in new[] { false, true })
         {
-            foreach (var sc in srcCats.Where(c => (c.ParentCategoryId == null) == !pass))
+            foreach (var sc in srcCats.Where(c => (c.CategoryId == null) == !pass))
             {
                 if (await tgt.Categories.AnyAsync(c => c.Slug == sc.Slug))
                 {
@@ -81,7 +81,7 @@ public class MigrationRunner(
                     Slug = sc.Slug,
                     Description = sc.Description,
                     BrandId = sc.BrandId.HasValue && brandMap.TryGetValue(sc.BrandId.Value, out var bid) ? bid : null,
-                    CategoryId = sc.ParentCategoryId.HasValue && catMap.TryGetValue(sc.ParentCategoryId.Value, out var pid) ? pid : null,
+                    CategoryId = sc.CategoryId.HasValue && catMap.TryGetValue(sc.CategoryId.Value, out var pid) ? pid : null,
                 };
                 tgt.Categories.Add(cat);
                 await tgt.SaveChangesAsync();
@@ -129,7 +129,7 @@ public class MigrationRunner(
                 ExtRef = sp.ExtRef,
                 Slug = sp.Slug,
                 Description = sp.Description,
-                IsActive = sp.IsActive,
+                Status = sp.IsActive ? ProductStatus.Active : ProductStatus.Draft,
                 BrandId = sp.BrandId.HasValue && brandMap.TryGetValue(sp.BrandId.Value, out var b) ? b : null,
                 Categories = cats,
                 ProductDetails = new ProductDetails { DetailDescription = string.Empty },
@@ -187,6 +187,7 @@ public class MigrationRunner(
         await tgt.SaveChangesAsync();
 
         // ProductDocuments
+        /*
         var srcDocs = (await src.QueryAsync<SrcProductDocument>(
             "SELECT Id, ProductDetailsId, Name, Path, Description FROM ProductDocuments")).ToList();
         foreach (var sd in srcDocs)
@@ -196,12 +197,13 @@ public class MigrationRunner(
             tgt.ProductDocuments.Add(new ProductDocument { ProductDetailsId = newDetailsId, Name = sd.Name, Path = sd.Path, Description = sd.Description });
         }
         await tgt.SaveChangesAsync();
+        */
 
         // ── 5. ProductSkus / Options ──────────────────────────────────────────
         Console.WriteLine("Migrating SKUs and options…");
 
         var srcSkus = (await src.QueryAsync<SrcProductSku>(
-            "SELECT Id, ProductId, SKU, ExtRef, Name, Price, Tax, ImagePath FROM ProductSkus")).ToList();
+            "SELECT Id, ProductId, SKU, ExtRef, Name, Price, Tax, ImagePath FROM ProductsSkus")).ToList();
         var skuMap = new Dictionary<int, int>();
 
         foreach (var ss in srcSkus)

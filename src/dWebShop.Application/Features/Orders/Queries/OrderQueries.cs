@@ -36,6 +36,8 @@ public record OrderDetailDto(
     int PartnerId,
     string PartnerName,
     string PartnerEmail,
+    string PartnerPhone,
+    decimal Total,
     List<OrderItemDto> Items);
 
 // --- Portal: get orders for a partner ---
@@ -117,6 +119,8 @@ public class GetOrderByGuidQueryHandler(IAppDbContext db)
                 i.Discount))
             .ToList();
 
+        var total = itemDtos.Sum(i => i.Price * i.Quantity);
+
         return new OrderDetailDto(
             order.Id,
             order.Guid,
@@ -127,13 +131,15 @@ public class GetOrderByGuidQueryHandler(IAppDbContext db)
             order.PartnerId,
             partnerName,
             order.Partner?.Email ?? "",
+            order.Partner?.Phone ?? "",
+            total,
             itemDtos);
     }
 }
 
 // --- Admin: get all orders ---
 
-public record GetAllOrdersQuery(int Page = 1, int PageSize = 20, string? Search = null)
+public record GetAllOrdersQuery(int Page = 1, int PageSize = 20, string? Search = null, OrderStatus? Status = null)
     : IRequest<(List<AdminOrderListDto> Items, int TotalCount)>;
 
 public record AdminOrderListDto(
@@ -160,12 +166,16 @@ public class GetAllOrdersQueryHandler(IAppDbContext db)
         {
             var s = request.Search.ToLower();
             query = query.Where(o =>
+                o.Guid.ToString().Contains(s) ||
                 (o.Partner != null && (
                     o.Partner.FirstName.ToLower().Contains(s) ||
                     o.Partner.LastName.ToLower().Contains(s) ||
                     o.Partner.CompanyName.ToLower().Contains(s) ||
                     o.Partner.Email.ToLower().Contains(s))));
         }
+
+        if (request.Status.HasValue)
+            query = query.Where(o => o.Status == request.Status.Value);
 
         var total = await query.CountAsync(ct);
 

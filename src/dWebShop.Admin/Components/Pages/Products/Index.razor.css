@@ -1,0 +1,4 @@
+::deep fluent-data-grid th.column-header {
+    height: 36px !important;
+    min-height: 36px !important;
+}

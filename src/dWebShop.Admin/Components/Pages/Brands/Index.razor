@@ -11,7 +11,7 @@
 <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
     <FluentLabel Style="font-size: 22px; font-weight: 600;">Brands</FluentLabel>
     <FluentSpacer />
-    <FluentButton Appearance="Appearance.Primary" IconStart="@(new Icons.Regular.Size16.Add())" OnClick="OpenCreate">
+    <FluentButton Appearance="ButtonAppearance.Primary" IconStart="@(new Icons.Regular.Size16.Add())" OnClick="OpenCreate">
         Add Brand
     </FluentButton>
 </FluentStack>
@@ -32,7 +32,7 @@ else if (_brands is not null)
     </FluentDataGrid>
 }
 
-<FluentDialog @ref="_dialog" TrapFocus="true" Modal="true" PreventScroll="true">
+<FluentDialog @ref="_dialog" Modal="true">
     <FluentDialogBody>
         <FluentStack Orientation="Orientation.Vertical" Style="gap: 16px; padding: 8px;">
             <FluentLabel Style="font-size: 18px; font-weight: 600;">
@@ -42,8 +42,8 @@ else if (_brands is not null)
             <FluentTextInput @bind-Value="_editModel.Slug" Label="Slug" Style="width: 100%" />
             <FluentTextArea @bind-Value="_editModel.Description" Label="Description" Rows="4" Style="width: 100%" />
             <FluentStack Orientation="Orientation.Horizontal" Style="gap: 8px; justify-content: flex-end; margin-top: 8px;">
-                <FluentButton Appearance="Appearance.Primary" OnClick="Save">Save</FluentButton>
-                <FluentButton OnClick="@(() => _dialog?.Hide())">Cancel</FluentButton>
+                <FluentButton Appearance="ButtonAppearance.Primary" OnClick="Save">Save</FluentButton>
+                <FluentButton OnClick="CloseDialog">Cancel</FluentButton>
             </FluentStack>
         </FluentStack>
     </FluentDialogBody>
@@ -65,26 +65,31 @@ else if (_brands is not null)
         _loading = false;
     }
 
-    private void OpenCreate()
+    private async Task OpenCreate()
     {
         _editModel = new();
-        _dialog?.Show();
+        if (_dialog is not null) await _dialog.ShowAsync();
     }
 
-    private void OpenEdit(BrandDto brand)
+    private async Task OpenEdit(BrandDto brand)
     {
         _editModel = new() { Id = brand.Id, Name = brand.Name, Slug = brand.Slug, Description = brand.Description };
-        _dialog?.Show();
+        if (_dialog is not null) await _dialog.ShowAsync();
+    }
+
+    private async Task CloseDialog()
+    {
+        if (_dialog is not null) await _dialog.HideAsync();
     }
 
     private async Task Save()
     {
         if (_editModel.Id == 0)
-            await Mediator.Send(new CreateBrandCommand { Name = _editModel.Name, Slug = _editModel.Slug, Description = _editModel.Description });
+            await Mediator.Send(new CreateBrandCommand(_editModel.Name, _editModel.Slug, _editModel.Description, "", ""));
         else
-            await Mediator.Send(new UpdateBrandCommand { Id = _editModel.Id, Name = _editModel.Name, Slug = _editModel.Slug, Description = _editModel.Description });
+            await Mediator.Send(new UpdateBrandCommand(_editModel.Id, _editModel.Name, _editModel.Slug, _editModel.Description, "", ""));
 
-        _dialog?.Hide();
+        if (_dialog is not null) await _dialog.HideAsync();
         await LoadAsync();
     }
 

@@ -8,7 +8,7 @@ namespace dWebShop.Application.Features.ProductSkus.Commands;
 
 // ── SKU ──────────────────────────────────────────────────────────────────────
 
-public record CreateSkuCommand(int ProductId, string SKU, string ExtRef, string Name, decimal Price, decimal Tax, string? ImagePath, List<(int OptionId, int OptionValueId)>? OptionValues) : IRequest<int>;
+public record CreateSkuCommand(int ProductId, string SKU, string ExtRef, string Name, string Gtin, decimal Price, decimal? CompareAtPrice, decimal? CostPrice, decimal Tax, int StockQuantity, int LowStockThreshold, string? ImagePath, List<(int OptionId, int OptionValueId)>? OptionValues) : IRequest<int>;
 
 public class CreateSkuCommandValidator : AbstractValidator<CreateSkuCommand>
 {
@@ -29,8 +29,13 @@ public class CreateSkuCommandHandler(IAppDbContext db) : IRequestHandler<CreateS
             SKU = request.SKU,
             ExtRef = request.ExtRef,
             Name = request.Name,
+            Gtin = request.Gtin,
             Price = request.Price,
+            CompareAtPrice = request.CompareAtPrice,
+            CostPrice = request.CostPrice,
             Tax = request.Tax,
+            StockQuantity = request.StockQuantity,
+            LowStockThreshold = request.LowStockThreshold,
             ImagePath = request.ImagePath,
         };
         db.ProductSkus.Add(sku);
@@ -55,7 +60,7 @@ public class CreateSkuCommandHandler(IAppDbContext db) : IRequestHandler<CreateS
     }
 }
 
-public record UpdateSkuCommand(int Id, string SKU, string ExtRef, string Name, decimal Price, decimal Tax, string? ImagePath) : IRequest;
+public record UpdateSkuCommand(int Id, string SKU, string ExtRef, string Name, string Gtin, decimal Price, decimal? CompareAtPrice, decimal? CostPrice, decimal Tax, int StockQuantity, int LowStockThreshold, string? ImagePath) : IRequest;
 
 public class UpdateSkuCommandValidator : AbstractValidator<UpdateSkuCommand>
 {
@@ -75,8 +80,13 @@ public class UpdateSkuCommandHandler(IAppDbContext db) : IRequestHandler<UpdateS
         sku.SKU = request.SKU;
         sku.ExtRef = request.ExtRef;
         sku.Name = request.Name;
+        sku.Gtin = request.Gtin;
         sku.Price = request.Price;
+        sku.CompareAtPrice = request.CompareAtPrice;
+        sku.CostPrice = request.CostPrice;
         sku.Tax = request.Tax;
+        sku.StockQuantity = request.StockQuantity;
+        sku.LowStockThreshold = request.LowStockThreshold;
         if (request.ImagePath is not null) sku.ImagePath = request.ImagePath;
         await db.SaveChangesAsync(ct);
     }
