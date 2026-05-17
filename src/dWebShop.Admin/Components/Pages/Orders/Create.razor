@@ -1,0 +1,325 @@
+@page "/orders/new"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Orders.Commands
+@using dWebShop.Application.Features.Partners.Queries
+@using dWebShop.Application.Features.Products.Queries
+@using dWebShop.Application.Features.ProductSkus.Queries
+@inject IMediator Mediator
+@inject NavigationManager Navigation
+
+<PageTitle>Create Order — dWebShop Admin</PageTitle>
+
+<div class="admin-page-head">
+    <div>
+        <nav class="admin-breadcrumb">
+            <a href="/orders">Commerce</a> › <a href="/orders">Orders</a> › New order
+        </nav>
+        <h1 class="admin-page-title">Create order</h1>
+    </div>
+    <div class="admin-page-actions">
+        <FluentButton Appearance="ButtonAppearance.Transparent"
+                      IconStart="@(new Icons.Regular.Size16.Dismiss())"
+                      OnClick="@(() => Navigation.NavigateTo("/orders"))">Discard</FluentButton>
+        <FluentButton Appearance="ButtonAppearance.Primary"
+                      IconStart="@(new Icons.Regular.Size16.Checkmark())"
+                      Disabled="@(!CanSubmit)"
+                      OnClick="Submit">Create order</FluentButton>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="create-order-error">@_errorMessage</div>
+}
+
+<div class="admin-detail-grid">
+
+    @* ── Left: items ──────────────────────────────────── *@
+    <div class="admin-detail-main">
+
+        <FluentCard>
+            <div class="order-card-title" style="margin-bottom: 16px;">Add items</div>
+
+            @* Product picker row *@
+            <div class="co-picker-row">
+                <div class="co-picker-field">
+                    <label class="co-label">Product</label>
+                    <select class="co-select" @onchange="OnProductChanged" disabled="@(_products is null)">
+                        <option value="">— select a product —</option>
+                        @if (_products is not null)
+                        {
+                            @foreach (var p in _products)
+                            {
+                                <option value="@p.Id">@p.Name (@p.SKU)</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="co-picker-field">
+                    <label class="co-label">Variant / SKU</label>
+                    <select class="co-select" @onchange="OnSkuChanged" disabled="@(_skus is null || !_skus.Any())">
+                        <option value="">— select SKU —</option>
+                        @if (_skus is not null)
+                        {
+                            @foreach (var s in _skus)
+                            {
+                                var label = s.Name is { Length: > 0 } ? $"{s.Name} — {s.SKU}" : s.SKU;
+                                <option value="@s.Id">@label</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="co-picker-field co-picker-qty">
+                    <label class="co-label">Qty</label>
+                    <input type="number" class="co-input" min="1" step="1"
+                           @bind="_pickerQty" @bind:event="oninput" />
+                </div>
+
+                <div class="co-picker-field co-picker-price">
+                    <label class="co-label">Unit price</label>
+                    <input type="number" class="co-input" min="0" step="0.01"
+                           @bind="_pickerPrice" @bind:event="oninput" />
+                </div>
+
+                <FluentButton Appearance="ButtonAppearance.Primary"
+                              IconStart="@(new Icons.Regular.Size16.Add())"
+                              Disabled="@(!CanAddItem)"
+                              OnClick="AddItem"
+                              Style="align-self: flex-end; flex-shrink: 0;">Add</FluentButton>
+            </div>
+
+            @if (_pickerError is not null)
+            {
+                <div style="color: var(--colorPaletteRedForeground1); font-size: 12px; margin-top: 4px;">@_pickerError</div>
+            }
+
+            @* Line items *@
+            @if (_lineItems.Count > 0)
+            {
+                <div class="order-items" style="margin-top: 16px;">
+                    @foreach (var item in _lineItems)
+                    {
+                        var it = item;
+                        <div class="oi-row co-item-row">
+                            <div class="oi-thumb"></div>
+                            <div class="oi-main">
+                                <div class="oi-name">@it.ProductName</div>
+                                <div class="oi-sub"><span class="oi-mono">@it.SkuCode</span></div>
+                            </div>
+                            <div class="oi-qty">×@((int)it.Quantity)</div>
+                            <div class="oi-price">@it.LineTotal.ToString("C2")</div>
+                            <button class="co-remove-btn" @onclick="@(() => RemoveItem(it))" title="Remove">
+                                <FluentIcon Value="@(new Icons.Regular.Size16.Dismiss())" />
+                            </button>
+                        </div>
+                    }
+                </div>
+
+                <div class="order-totals">
+                    <div><span>Subtotal</span><span>@_lineItems.Sum(i => i.LineTotal).ToString("C2")</span></div>
+                    <div class="grand">
+                        <span>Total</span>
+                        <span>@_lineItems.Sum(i => i.LineTotal).ToString("C2")</span>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="co-empty-items">No items added yet.</div>
+            }
+        </FluentCard>
+
+    </div>
+
+    @* ── Right: sidebar ───────────────────────────────── *@
+    <div class="admin-detail-side">
+
+        <FluentCard>
+            <div class="order-card-title" style="margin-bottom: 12px;">Customer</div>
+            <label class="co-label">Client</label>
+            <select class="co-select" @onchange="OnPartnerChanged">
+                <option value="">— select a client —</option>
+                @if (_partners is not null)
+                {
+                    @foreach (var p in _partners)
+                    {
+                        <option value="@p.Id">@p.DisplayName</option>
+                    }
+                }
+            </select>
+            @if (_selectedPartnerId is null)
+            {
+                <div style="font-size: 12px; color: var(--colorNeutralForeground3); margin-top: 6px;">Required</div>
+            }
+        </FluentCard>
+
+        <FluentCard>
+            <div class="order-card-title" style="margin-bottom: 12px;">Order settings</div>
+            <label class="co-label">Channel</label>
+            <select class="co-select" @bind="_channel" style="margin-bottom: 12px;">
+                <option value="Web">Web</option>
+                <option value="Mobile">Mobile</option>
+                <option value="Pos">POS</option>
+                <option value="Phone">Phone</option>
+                <option value="Email">Email</option>
+            </select>
+            <label class="co-label">Notes (internal)</label>
+            <textarea class="co-textarea" rows="3" @bind="_notes" placeholder="Optional note visible to staff…"></textarea>
+        </FluentCard>
+
+    </div>
+</div>
+
+@code {
+    // ── Picker state ──────────────────────────────────────
+    private List<PartnerDto>? _partners;
+    private List<ProductListItemDto>? _products;
+    private List<ProductSkuDto>? _skus;
+
+    private int? _selectedPartnerId;
+    private int? _selectedProductId;
+    private int? _selectedSkuId;
+    private decimal _pickerQty = 1;
+    private decimal _pickerPrice = 0;
+    private string? _pickerError;
+
+    // ── Order state ───────────────────────────────────────
+    private string _channel = "Web";
+    private string _notes = "";
+    private string? _errorMessage;
+    private bool _submitting;
+
+    private List<LineItem> _lineItems = new();
+
+    private bool CanAddItem =>
+        _selectedProductId.HasValue &&
+        _selectedSkuId.HasValue &&
+        _pickerQty >= 1 &&
+        _pickerPrice >= 0;
+
+    private bool CanSubmit =>
+        _selectedPartnerId.HasValue &&
+        _lineItems.Count > 0 &&
+        !_submitting;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var pTask = Mediator.Send(new GetPartnersQuery());
+        var prTask = Mediator.Send(new GetProductsQuery(PageSize: 200, IncludePrice: true));
+        await Task.WhenAll(pTask, prTask);
+        _partners = pTask.Result;
+        _products = prTask.Result.Items;
+    }
+
+    private void OnPartnerChanged(ChangeEventArgs e)
+    {
+        _selectedPartnerId = int.TryParse(e.Value?.ToString(), out var id) ? id : null;
+    }
+
+    private async Task OnProductChanged(ChangeEventArgs e)
+    {
+        _selectedSkuId = null;
+        _pickerPrice = 0;
+        _pickerError = null;
+        _skus = null;
+
+        if (!int.TryParse(e.Value?.ToString(), out var productId)) { _selectedProductId = null; return; }
+        _selectedProductId = productId;
+
+        var result = await Mediator.Send(new GetProductSkusQuery(productId));
+        _skus = result.Skus;
+
+        if (_skus.Count == 1)
+        {
+            _selectedSkuId = _skus[0].Id;
+            _pickerPrice = _skus[0].Price;
+        }
+    }
+
+    private void OnSkuChanged(ChangeEventArgs e)
+    {
+        if (!int.TryParse(e.Value?.ToString(), out var skuId)) { _selectedSkuId = null; return; }
+        _selectedSkuId = skuId;
+        var sku = _skus?.FirstOrDefault(s => s.Id == skuId);
+        if (sku is not null) _pickerPrice = sku.Price;
+    }
+
+    private void AddItem()
+    {
+        _pickerError = null;
+        if (!_selectedProductId.HasValue || !_selectedSkuId.HasValue) return;
+
+        var product = _products?.FirstOrDefault(p => p.Id == _selectedProductId);
+        var sku = _skus?.FirstOrDefault(s => s.Id == _selectedSkuId);
+        if (product is null || sku is null) return;
+
+        var existing = _lineItems.FirstOrDefault(i => i.SkuId == _selectedSkuId.Value);
+        if (existing is not null)
+        {
+            existing.Quantity += _pickerQty;
+        }
+        else
+        {
+            _lineItems.Add(new LineItem
+            {
+                ProductId = product.Id,
+                ProductName = product.Name,
+                SkuId = sku.Id,
+                SkuCode = sku.SKU,
+                Quantity = _pickerQty,
+                UnitPrice = _pickerPrice,
+                Tax = sku.Tax,
+            });
+        }
+
+        // Reset picker
+        _selectedProductId = null;
+        _selectedSkuId = null;
+        _skus = null;
+        _pickerQty = 1;
+        _pickerPrice = 0;
+    }
+
+    private void RemoveItem(LineItem item) => _lineItems.Remove(item);
+
+    private async Task Submit()
+    {
+        if (!CanSubmit) return;
+        _submitting = true;
+        _errorMessage = null;
+
+        try
+        {
+            var command = new AdminCreateOrderCommand(
+                PartnerId: _selectedPartnerId!.Value,
+                Items: _lineItems.Select(i => new AdminOrderLineItem(
+                    i.ProductId, i.SkuId, i.Quantity, i.UnitPrice, i.Tax)).ToList(),
+                Notes: string.IsNullOrWhiteSpace(_notes) ? null : _notes,
+                Channel: _channel);
+
+            var guid = await Mediator.Send(command);
+            Navigation.NavigateTo($"/orders/{guid}");
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+            _submitting = false;
+        }
+    }
+
+    private class LineItem
+    {
+        public int ProductId { get; set; }
+        public string ProductName { get; set; } = "";
+        public int SkuId { get; set; }
+        public string SkuCode { get; set; } = "";
+        public decimal Quantity { get; set; }
+        public decimal UnitPrice { get; set; }
+        public decimal Tax { get; set; }
+        public decimal LineTotal => Quantity * UnitPrice;
+    }
+}

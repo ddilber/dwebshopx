@@ -157,9 +157,9 @@
                 ResizableColumns=true
                 ResizeType="DataGridResizeType.Discrete"
                 GridTemplateColumns="50% 0.4fr 0.3fr 0.3fr"
-                RowSize="DataGridRowSize.Medium"                
+                RowSize="DataGridRowSize.Medium"
                 OnRowClick="HandleRowClick"
-                Pagination="@pagination"                
+                Pagination="@pagination"
                 ShowHover="true"
                 HeaderCellAsButtonWithMenu="true">
             <TemplateColumn Tooltip="true" TooltipText="@(c => "Product: " + c.Name)" Title="Product" Align="DataGridCellAlignment.Start">
@@ -202,7 +202,7 @@
 @*             <TemplateColumn Align="DataGridCellAlignment.End">
 				<button class="ds-btn ds-btn-subtle" @onclick="@(() => Navigation.NavigateTo($"/products/{context.Slug}"))">Edit</button>
             </TemplateColumn>
- *@            
+ *@
     </FluentDataGrid>
 
     <div class="list-foot">

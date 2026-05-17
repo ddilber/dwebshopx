@@ -29,7 +29,7 @@ else if (_pricelists is not null)
         <PropertyColumn Title="Items" Property="@(p => p.ItemCount)" />
         <PropertyColumn Title="Clients" Property="@(p => p.ClientCount)" />
         <TemplateColumn Title="Active">
-            <FluentIcon Value="@(context.IsActive ? (Icon)new Icons.Regular.Size16.CheckmarkCircle() : new Icons.Regular.Size16.DismissCircle())"
+            <FluentIcon Value="@((Icon)(context.IsActive ? new Icons.Regular.Size16.CheckmarkCircle() : (Icon)new Icons.Regular.Size16.DismissCircle()))"
                         Color="@(context.IsActive ? Color.Success : Color.Error)" />
         </TemplateColumn>
         <TemplateColumn Title="Actions">

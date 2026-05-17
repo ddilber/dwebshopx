@@ -3,8 +3,9 @@ namespace dWebShop.Domain.Entities.Orders;
 public enum OrderStatus
 {
     Pending = 0,
-    Confirmed = 1,
+    Processing = 1,
     Shipped = 2,
     Delivered = 3,
-    Cancelled = 4
+    Cancelled = 4,
+    Refunded = 5,
 }

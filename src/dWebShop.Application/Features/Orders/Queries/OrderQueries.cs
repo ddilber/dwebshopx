@@ -37,8 +37,26 @@ public record OrderDetailDto(
     string PartnerName,
     string PartnerEmail,
     string PartnerPhone,
+    List<OrderItemDto> Items,
+    string Channel,
+    string PaymentStatus);
+
+public record AdminOrderListDto(
+    int Id,
+    Guid Guid,
+    OrderStatus Status,
+    DateTime Created,
+    string PartnerName,
+    string PartnerEmail,
+    int ItemCount,
     decimal Total,
-    List<OrderItemDto> Items);
+    string Channel,
+    string PaymentStatus);
+
+public record AdminOrderListResult(
+    List<AdminOrderListDto> Items,
+    int FilteredCount,
+    Dictionary<OrderStatus, int> StatusCounts);
 
 // --- Portal: get orders for a partner ---
 
@@ -132,32 +150,27 @@ public class GetOrderByGuidQueryHandler(IAppDbContext db)
             partnerName,
             order.Partner?.Email ?? "",
             order.Partner?.Phone ?? "",
-            total,
-            itemDtos);
+            itemDtos,
+            order.Channel,
+            order.PaymentStatus);
     }
 }
 
 // --- Admin: get all orders ---
 
-public record GetAllOrdersQuery(int Page = 1, int PageSize = 20, string? Search = null, OrderStatus? Status = null)
-    : IRequest<(List<AdminOrderListDto> Items, int TotalCount)>;
-
-public record AdminOrderListDto(
-    int Id,
-    Guid Guid,
-    OrderStatus Status,
-    DateTime Created,
-    string PartnerName,
-    string PartnerEmail,
-    int ItemCount,
-    decimal Total);
+public record GetAllOrdersQuery(
+    int Page = 1,
+    int PageSize = 20,
+    string? Search = null,
+    OrderStatus? StatusFilter = null)
+    : IRequest<AdminOrderListResult>;
 
 public class GetAllOrdersQueryHandler(IAppDbContext db)
-    : IRequestHandler<GetAllOrdersQuery, (List<AdminOrderListDto>, int)>
+    : IRequestHandler<GetAllOrdersQuery, AdminOrderListResult>
 {
-    public async Task<(List<AdminOrderListDto>, int)> Handle(GetAllOrdersQuery request, CancellationToken ct)
+    public async Task<AdminOrderListResult> Handle(GetAllOrdersQuery request, CancellationToken ct)
     {
-        var query = db.Orders
+        var baseQuery = db.Orders
             .AsNoTracking()
             .Include(o => o.Partner)
             .AsQueryable();
@@ -165,8 +178,7 @@ public class GetAllOrdersQueryHandler(IAppDbContext db)
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
             var s = request.Search.ToLower();
-            query = query.Where(o =>
-                o.Guid.ToString().Contains(s) ||
+            baseQuery = baseQuery.Where(o =>
                 (o.Partner != null && (
                     o.Partner.FirstName.ToLower().Contains(s) ||
                     o.Partner.LastName.ToLower().Contains(s) ||
@@ -174,12 +186,18 @@ public class GetAllOrdersQueryHandler(IAppDbContext db)
                     o.Partner.Email.ToLower().Contains(s))));
         }
 
-        if (request.Status.HasValue)
-            query = query.Where(o => o.Status == request.Status.Value);
+        // Per-status counts are always global (unaffected by status filter)
+        var statusCounts = await baseQuery
+            .GroupBy(o => o.Status)
+            .Select(g => new { Status = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.Status, x => x.Count, ct);
 
-        var total = await query.CountAsync(ct);
+        if (request.StatusFilter.HasValue)
+            baseQuery = baseQuery.Where(o => o.Status == request.StatusFilter.Value);
 
-        var items = await query
+        var filteredCount = await baseQuery.CountAsync(ct);
+
+        var items = await baseQuery
             .OrderByDescending(o => o.Created)
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
@@ -191,9 +209,11 @@ public class GetAllOrdersQueryHandler(IAppDbContext db)
                 (o.Partner == null ? "" : (o.Partner.FirstName + " " + o.Partner.LastName).Trim()),
                 o.Partner == null ? "" : o.Partner.Email,
                 o.Items == null ? 0 : o.Items.Count,
-                o.Items == null ? 0 : o.Items.Sum(i => i.Price * i.Quantity)))
+                o.Items == null ? 0 : o.Items.Sum(i => i.Price * i.Quantity),
+                o.Channel,
+                o.PaymentStatus))
             .ToListAsync(ct);
 
-        return (items, total);
+        return new AdminOrderListResult(items, filteredCount, statusCounts);
     }
 }
