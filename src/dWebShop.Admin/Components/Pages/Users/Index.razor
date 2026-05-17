@@ -47,7 +47,7 @@ else if (_users is not null)
         _users = UserManager.Users
             .Select(u => new UserRow
             {
-                Id = u.Id.ToString(),
+                Id = u.Id,
                 UserName = u.UserName ?? "",
                 Email = u.Email ?? "",
                 IsApproved = u.IsApproved

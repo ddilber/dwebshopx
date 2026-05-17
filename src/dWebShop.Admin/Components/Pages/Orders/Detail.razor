@@ -181,7 +181,8 @@ else
                 }
                 <FluentButton Appearance="ButtonAppearance.Transparent"
                               IconStart="@(new Icons.Regular.Size16.Edit())"
-                              Style="margin-top: 8px; font-size: 12px;">Edit</FluentButton>
+                              Style="margin-top: 8px; font-size: 12px;"
+                              OnClick="OpenAddressEdit">Edit</FluentButton>
             </FluentCard>
 
             @* Payment *@
@@ -214,6 +215,52 @@ else
     </div>
 }
 
+@if (_addrDialogOpen)
+{
+    <div class="img-picker-overlay" @onclick="CloseAddressEdit">
+        <div class="img-picker-dialog" style="width: 440px;" @onclick:stopPropagation="true">
+            <div class="img-picker-header">
+                <span style="font-size: 18px; font-weight: 600;">Edit shipping address</span>
+                <FluentButton Appearance="ButtonAppearance.Transparent" IconStart="@(new Icons.Regular.Size16.Dismiss())" OnClick="CloseAddressEdit" />
+            </div>
+            <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 12px; font-weight: 500; color: var(--colorNeutralForeground2);">Address line 1</label>
+                    <input class="admin-search-input" style="width:100%;" @bind="_addrModel.Address1" placeholder="Street address" />
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 12px; font-weight: 500; color: var(--colorNeutralForeground2);">Address line 2</label>
+                    <input class="admin-search-input" style="width:100%;" @bind="_addrModel.Address2" placeholder="Apartment, suite, etc. (optional)" />
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                        <label style="font-size: 12px; font-weight: 500; color: var(--colorNeutralForeground2);">ZIP / Postal code</label>
+                        <input class="admin-search-input" style="width:100%;" @bind="_addrModel.ZipCode" placeholder="00000" />
+                    </div>
+                    <div style="flex: 2; display: flex; flex-direction: column; gap: 4px;">
+                        <label style="font-size: 12px; font-weight: 500; color: var(--colorNeutralForeground2);">City</label>
+                        <input class="admin-search-input" style="width:100%;" @bind="_addrModel.City" placeholder="City" />
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 12px; font-weight: 500; color: var(--colorNeutralForeground2);">Country</label>
+                    <input class="admin-search-input" style="width:100%;" @bind="_addrModel.Country" placeholder="Country" />
+                </div>
+                @if (_addrSaveError is not null)
+                {
+                    <div class="create-order-error">@_addrSaveError</div>
+                }
+            </div>
+            <div class="img-picker-footer">
+                <FluentButton Appearance="ButtonAppearance.Primary" OnClick="SaveAddress" Disabled="@_addrSaving">
+                    @(_addrSaving ? "Saving…" : "Save")
+                </FluentButton>
+                <FluentButton OnClick="CloseAddressEdit">Cancel</FluentButton>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     [Parameter] public Guid OrderGuid { get; set; }
 
@@ -222,7 +269,7 @@ else
     private bool _updating;
     private string _note = "";
 
-    private bool IsProcessingDone => _order?.Status is OrderStatus.Confirmed or OrderStatus.Shipped or OrderStatus.Delivered;
+    private bool IsProcessingDone => _order?.Status is OrderStatus.Processing or OrderStatus.Shipped or OrderStatus.Delivered;
     private bool IsShippedDone => _order?.Status is OrderStatus.Shipped or OrderStatus.Delivered;
     private bool IsDeliveredDone => _order?.Status == OrderStatus.Delivered;
 
@@ -277,6 +324,55 @@ else
         _order = await Mediator.Send(new GetOrderByGuidQuery(OrderGuid));
     }
 
+    private bool _addrDialogOpen;
+    private bool _addrSaving;
+    private string? _addrSaveError;
+    private AddressModel _addrModel = new();
+
+    private void OpenAddressEdit()
+    {
+        _addrModel = new AddressModel
+        {
+            Address1 = _order?.DeliveryAddress1 ?? "",
+            Address2 = _order?.DeliveryAddress2 ?? "",
+            ZipCode  = _order?.DeliveryZipCode  ?? "",
+            City     = _order?.DeliveryCity     ?? "",
+            Country  = _order?.DeliveryCountry  ?? "",
+        };
+        _addrSaveError = null;
+        _addrDialogOpen = true;
+    }
+
+    private void CloseAddressEdit()
+    {
+        _addrDialogOpen = false;
+        _addrSaveError = null;
+    }
+
+    private async Task SaveAddress()
+    {
+        if (_order is null) return;
+        _addrSaving = true;
+        _addrSaveError = null;
+        try
+        {
+            await Mediator.Send(new UpdateOrderAddressCommand(
+                _order.Id,
+                _addrModel.Address1,
+                _addrModel.Address2,
+                _addrModel.ZipCode,
+                _addrModel.City,
+                _addrModel.Country));
+            _addrDialogOpen = false;
+            _order = await Mediator.Send(new GetOrderByGuidQuery(OrderGuid));
+        }
+        catch (Exception ex)
+        {
+            _addrSaveError = ex.Message;
+        }
+        _addrSaving = false;
+    }
+
     private static string GetInitials(string name)
     {
         if (string.IsNullOrWhiteSpace(name)) return "?";
@@ -284,5 +380,14 @@ else
         return parts.Length >= 2
             ? $"{char.ToUpper(parts[0][0])}{char.ToUpper(parts[^1][0])}"
             : $"{char.ToUpper(name[0])}";
+    }
+
+    private class AddressModel
+    {
+        public string Address1 { get; set; } = "";
+        public string Address2 { get; set; } = "";
+        public string ZipCode  { get; set; } = "";
+        public string City     { get; set; } = "";
+        public string Country  { get; set; } = "";
     }
 }

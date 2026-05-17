@@ -315,7 +315,7 @@ else
         var clients  = await Mediator.Send(new GetPartnersQuery());
 
         _productCount = products.TotalCount;
-        _orderCount   = orders.TotalCount;
+        _orderCount   = orders.FilteredCount;
         _recentOrders = orders.Items;
         _clientCount  = clients.Count;
         _pendingOrders = _recentOrders.Count(o => o.Status == Domain.Entities.Orders.OrderStatus.Pending);
@@ -325,7 +325,7 @@ else
     private static string OrderStatusClass(Domain.Entities.Orders.OrderStatus s) => s switch
     {
         Domain.Entities.Orders.OrderStatus.Pending   => "ds-badge-warning",
-        Domain.Entities.Orders.OrderStatus.Confirmed => "ds-badge-info",
+        Domain.Entities.Orders.OrderStatus.Processing => "ds-badge-info",
         Domain.Entities.Orders.OrderStatus.Shipped   => "ds-badge-brand",
         Domain.Entities.Orders.OrderStatus.Delivered => "ds-badge-success",
         Domain.Entities.Orders.OrderStatus.Cancelled => "ds-badge-danger",

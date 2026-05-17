@@ -151,6 +151,6 @@
     private async Task Accepted()
     {
         await OnAccepted.InvokeAsync(new List<string>(_selectedImages));
-        await Hide();
+        Hide();
     }
 }

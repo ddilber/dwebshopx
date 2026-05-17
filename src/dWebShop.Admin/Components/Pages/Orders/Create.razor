@@ -209,7 +209,7 @@
     protected override async Task OnInitializedAsync()
     {
         var pTask = Mediator.Send(new GetPartnersQuery());
-        var prTask = Mediator.Send(new GetProductsQuery(PageSize: 200, IncludePrice: true));
+        var prTask = Mediator.Send(new GetProductsQuery(Count: 200, IncludePrice: true));
         await Task.WhenAll(pTask, prTask);
         _partners = pTask.Result;
         _products = prTask.Result.Items;
