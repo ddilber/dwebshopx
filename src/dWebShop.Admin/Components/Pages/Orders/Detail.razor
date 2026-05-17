@@ -322,6 +322,7 @@ else
         if (_order is null || !NextStatus.HasValue) return;
         await Mediator.Send(new UpdateOrderStatusCommand(_order.Id, NextStatus.Value));
         _order = await Mediator.Send(new GetOrderByGuidQuery(OrderGuid));
+        StateHasChanged();
     }
 
     private bool _addrDialogOpen;
