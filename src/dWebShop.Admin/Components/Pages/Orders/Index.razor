@@ -3,45 +3,196 @@
 @rendermode InteractiveServer
 @using MediatR
 @using dWebShop.Application.Features.Orders.Queries
+@using dWebShop.Domain.Entities.Orders
 @inject IMediator Mediator
 @inject NavigationManager Navigation
 
 <PageTitle>Orders — dWebShop Admin</PageTitle>
 
-<FluentLabel Style="font-size: 22px; font-weight: 600; margin-bottom: 16px; display: block;">Orders</FluentLabel>
-<FluentDivider Style="margin-bottom: 24px;" />
+<div class="admin-page-head">
+    <div>
+        <nav class="admin-breadcrumb">Commerce › Orders</nav>
+        <h1 class="admin-page-title">Orders</h1>
+        @if (_result is not null)
+        {
+            <p class="admin-page-sub">
+                @_result.FilteredCount orders
+                @if (_pendingCount > 0) { <text> · @_pendingCount pending fulfillment</text> }
+            </p>
+        }
+    </div>
+    <div class="admin-page-actions">
+        <FluentButton Appearance="ButtonAppearance.Transparent" IconStart="@(new Icons.Regular.Size16.ArrowDownload())">Export</FluentButton>
+        <FluentButton Appearance="ButtonAppearance.Primary" IconStart="@(new Icons.Regular.Size16.Add())" OnClick="@(() => Navigation.NavigateTo("/orders/new"))">Create order</FluentButton>
+    </div>
+</div>
 
-@if (_loading)
-{
-    <FluentProgressRing />
-}
-else if (_orders is not null)
-{
-    <FluentDataGrid Items="@_orders.AsQueryable()" Pagination="@_pagination" TGridItem="AdminOrderListDto">
-        <PropertyColumn Title="Order #" Property="@(o => o.Id)" Sortable="true" />
-        <PropertyColumn Title="Client" Property="@(o => o.PartnerName)" Sortable="true" />
-        <PropertyColumn Title="Status" Property="@(o => o.Status.ToString())" Sortable="true" />
-        <PropertyColumn Title="Date" Property="@(o => o.Created.ToString("dd.MM.yyyy"))" />
-        <PropertyColumn Title="Items" Property="@(o => o.ItemCount)" />
-        <PropertyColumn Title="Total" Property="@(o => o.Total.ToString("N2"))" />
-        <TemplateColumn Title="Actions">
-            <FluentButton IconStart="@(new Icons.Regular.Size16.Eye())" OnClick="@(() => Navigation.NavigateTo($"/orders/{context.Guid}"))">
-                View
-            </FluentButton>
-        </TemplateColumn>
-    </FluentDataGrid>
-    <FluentPaginator State="@_pagination" />
-}
+<FluentCard Style="padding: 0; overflow: hidden;">
+
+    <div class="admin-list-tabs">
+        @foreach (var tab in _tabs)
+        {
+            var tabId = tab.Id;
+            var count = GetTabCount(tab.StatusFilter);
+            <button class="admin-status-tab @(_activeTab == tab.Id ? "is-active" : "")"
+                    @onclick="@(() => OnTabClick(tabId))">
+                @tab.Label
+                @if (count > 0)
+                {
+                    <span class="tab-count">@count</span>
+                }
+            </button>
+        }
+    </div>
+
+    <div class="admin-list-controls">
+        <div class="admin-list-search">
+            <FluentIcon Value="@(new Icons.Regular.Size16.Search())" Style="color: var(--colorNeutralForeground3); flex-shrink:0;" />
+            <input type="search"
+                   value="@_search"
+                   @oninput="OnSearchInput"
+                   @onkeyup="OnSearchKeyUp"
+                   placeholder="Search by order #, customer, email…"
+                   class="admin-search-input" />
+        </div>
+        <div class="admin-list-controls-right">
+            <FluentButton Appearance="ButtonAppearance.Transparent" IconStart="@(new Icons.Regular.Size16.Calendar())">This week</FluentButton>
+            <FluentButton Appearance="ButtonAppearance.Transparent" IconStart="@(new Icons.Regular.Size16.Filter())">Channel</FluentButton>
+            <FluentButton Appearance="ButtonAppearance.Transparent" IconStart="@(new Icons.Regular.Size16.Filter())">Payment</FluentButton>
+        </div>
+    </div>
+
+    @if (_loading)
+    {
+        <FluentProgressBar Style="margin: 0; width: 100%;" />
+    }
+
+    @if (_result is not null)
+    {
+        <FluentDataGrid Items="@_result.Items.AsQueryable()" TGridItem="AdminOrderListDto" Style="width:100%;">
+            <TemplateColumn Title="Order #" Class="col-order-num">
+                <a class="order-number" href="/orders/@context.Guid">#@context.Id</a>
+            </TemplateColumn>
+            <TemplateColumn Title="Customer">
+                <div class="order-customer-cell" style="cursor:pointer;" @onclick="@(() => Navigation.NavigateTo($"/orders/{context.Guid}"))">
+                    <span class="order-avatar" title="@context.PartnerName">@GetInitials(context.PartnerName)</span>
+                    <div>
+                        <div style="font-weight: 500;">@context.PartnerName</div>
+                        <div class="order-customer-email">@context.PartnerEmail</div>
+                    </div>
+                </div>
+            </TemplateColumn>
+            <PropertyColumn Title="Date" Property="@(o => o.Created.ToString("dd MMM yyyy, HH:mm"))" />
+            <PropertyColumn Title="Items" Property="@(o => o.ItemCount)" />
+            <TemplateColumn Title="Total">
+                <strong style="font-variant-numeric: tabular-nums;">@context.Total.ToString("C2")</strong>
+            </TemplateColumn>
+            <TemplateColumn Title="Payment">
+                <span class="order-badge payment-@context.PaymentStatus.ToLower()">@context.PaymentStatus</span>
+            </TemplateColumn>
+            <TemplateColumn Title="Status">
+                <span class="order-badge status-@context.Status.ToString().ToLower()">@context.Status</span>
+            </TemplateColumn>
+            <PropertyColumn Title="Channel" Property="@(o => o.Channel)" />
+            <TemplateColumn Title="" Class="col-row-action">
+                <FluentButton Appearance="ButtonAppearance.Transparent"
+                              IconStart="@(new Icons.Regular.Size16.MoreHorizontal())"
+                              OnClick="@(() => Navigation.NavigateTo($"/orders/{context.Guid}"))" />
+            </TemplateColumn>
+        </FluentDataGrid>
+
+        <div class="admin-list-foot">
+            <span>Showing @_result.Items.Count of @_result.FilteredCount</span>
+            <div class="admin-pager">
+                <FluentButton Appearance="ButtonAppearance.Transparent"
+                              IconStart="@(new Icons.Regular.Size16.ChevronLeft())"
+                              Disabled="@(_page <= 1)"
+                              OnClick="PrevPage" />
+                <span class="admin-pager-current">@_page</span>
+                <FluentButton Appearance="ButtonAppearance.Transparent"
+                              IconStart="@(new Icons.Regular.Size16.ChevronRight())"
+                              Disabled="@(_result.Items.Count < PageSize)"
+                              OnClick="NextPage" />
+            </div>
+        </div>
+    }
+
+</FluentCard>
 
 @code {
-    private List<AdminOrderListDto>? _orders;
-    private bool _loading = true;
-    private PaginationState _pagination = new() { ItemsPerPage = 20 };
+    private record TabDef(string Id, string Label, OrderStatus? StatusFilter);
 
-    protected override async Task OnInitializedAsync()
+    private static readonly TabDef[] _tabs =
+    [
+        new("all",        "All",         null),
+        new("pending",    "Pending",     OrderStatus.Pending),
+        new("processing", "Processing",  OrderStatus.Processing),
+        new("shipped",    "Shipped",     OrderStatus.Shipped),
+        new("delivered",  "Delivered",   OrderStatus.Delivered),
+    ];
+
+    private AdminOrderListResult? _result;
+    private bool _loading = true;
+    private string _activeTab = "all";
+    private string _search = "";
+    private int _page = 1;
+    private const int PageSize = 20;
+
+    private int _pendingCount =>
+        _result?.StatusCounts.GetValueOrDefault(OrderStatus.Pending, 0) ?? 0;
+
+    private int GetTabCount(OrderStatus? status) =>
+        _result is null ? 0 :
+        status is null ? _result.StatusCounts.Values.Sum() :
+        _result.StatusCounts.GetValueOrDefault(status.Value, 0);
+
+    protected override async Task OnInitializedAsync() => await LoadOrders();
+
+    private async Task OnTabClick(string tabId)
     {
-        var result = await Mediator.Send(new GetAllOrdersQuery());
-        _orders = result.Items.ToList();
+        _activeTab = tabId;
+        _page = 1;
+        await LoadOrders();
+    }
+
+    private void OnSearchInput(ChangeEventArgs e) => _search = e.Value?.ToString() ?? "";
+
+    private async Task OnSearchKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            _page = 1;
+            await LoadOrders();
+        }
+    }
+
+    private async Task PrevPage()
+    {
+        if (_page > 1) { _page--; await LoadOrders(); }
+    }
+
+    private async Task NextPage()
+    {
+        _page++;
+        await LoadOrders();
+    }
+
+    private async Task LoadOrders()
+    {
+        _loading = true;
+        StateHasChanged();
+
+        var statusFilter = _tabs.FirstOrDefault(t => t.Id == _activeTab)?.StatusFilter;
+        _result = await Mediator.Send(new GetAllOrdersQuery(_page, PageSize, _search.Trim(), statusFilter));
         _loading = false;
+    }
+
+    private static string GetInitials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length >= 2
+            ? $"{char.ToUpper(parts[0][0])}{char.ToUpper(parts[^1][0])}"
+            : $"{char.ToUpper(name[0])}";
     }
 }

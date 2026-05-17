@@ -12,6 +12,8 @@ public class Order : BaseAuditableEntity
     public int? DeliveryAddressId { get; set; }
     public Address? DeliveryAddress { get; set; }
     public string? Notes { get; set; }
+    public string Channel { get; set; } = "Web";
+    public string PaymentStatus { get; set; } = "Paid";
     public DateTime Created { get; set; }
     public DateTime Accepted { get; set; }
     public DateTime Delivered { get; set; }

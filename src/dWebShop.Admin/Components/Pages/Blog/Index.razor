@@ -11,7 +11,7 @@
 <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
     <FluentLabel Style="font-size: 22px; font-weight: 600;">Blog Posts</FluentLabel>
     <FluentSpacer />
-    <FluentButton Appearance="Appearance.Primary" IconStart="@(new Icons.Regular.Size16.Add())" OnClick="@(() => Navigation.NavigateTo("/blog/new"))">
+    <FluentButton Appearance="ButtonAppearance.Primary" IconStart="@(new Icons.Regular.Size16.Add())" OnClick="@(() => Navigation.NavigateTo("/blog/new"))">
         New Post
     </FluentButton>
 </FluentStack>
@@ -27,7 +27,7 @@ else if (_posts is not null)
         <PropertyColumn Title="Title" Property="@(p => p.Title)" Sortable="true" />
         <PropertyColumn Title="Date" Property="@(p => p.CreatedDate.HasValue ? p.CreatedDate.Value.ToString("dd.MM.yyyy") : "-")" />
         <TemplateColumn Title="Published">
-            <FluentIcon Value="@(context.Published ? new Icons.Regular.Size16.CheckmarkCircle() : new Icons.Regular.Size16.DismissCircle())"
+            <FluentIcon Value="@((Icon)(context.Published ? new Icons.Regular.Size16.CheckmarkCircle() : (Icon)new Icons.Regular.Size16.DismissCircle()))"
                         Color="@(context.Published ? Color.Success : Color.Error)" />
         </TemplateColumn>
         <TemplateColumn Title="Actions">

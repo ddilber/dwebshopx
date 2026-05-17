@@ -20,13 +20,13 @@ else if (_users is not null)
         <PropertyColumn Title="Username" Property="@(u => u.UserName)" Sortable="true" />
         <PropertyColumn Title="Email" Property="@(u => u.Email)" Sortable="true" />
         <TemplateColumn Title="Approved">
-            <FluentIcon Value="@(context.IsApproved ? new Icons.Regular.Size16.CheckmarkCircle() : new Icons.Regular.Size16.DismissCircle())"
+            <FluentIcon Value="@((Icon)(context.IsApproved ? new Icons.Regular.Size16.CheckmarkCircle() : (Icon)new Icons.Regular.Size16.DismissCircle()))"
                         Color="@(context.IsApproved ? Color.Success : Color.Error)" />
         </TemplateColumn>
         <TemplateColumn Title="Actions">
             @if (!context.IsApproved)
             {
-                <FluentButton Appearance="Appearance.Primary" IconStart="@(new Icons.Regular.Size16.Checkmark())"
+                <FluentButton Appearance="ButtonAppearance.Primary" IconStart="@(new Icons.Regular.Size16.Checkmark())"
                               OnClick="@(() => Approve(context.Id))">
                     Approve
                 </FluentButton>
@@ -58,9 +58,9 @@ else if (_users is not null)
         await Task.CompletedTask;
     }
 
-    private async Task Approve(string userId)
+    private async Task Approve(int userId)
     {
-        var user = await UserManager.FindByIdAsync(userId);
+        var user = await UserManager.FindByIdAsync(userId.ToString());
         if (user is not null)
         {
             user.IsApproved = true;
@@ -71,7 +71,7 @@ else if (_users is not null)
 
     private class UserRow
     {
-        public string Id { get; set; } = "";
+        public int Id { get; set; }
         public string UserName { get; set; } = "";
         public string Email { get; set; } = "";
         public bool IsApproved { get; set; }

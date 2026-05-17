@@ -4,58 +4,49 @@
 @inject IJSRuntime JS
 @inject IMediator Mediator
 
-<FluentDialog @ref="_dialog" TrapFocus="true" Modal="true" PreventScroll="true"
-              Style="--dialog-width: 960px; --dialog-height: auto;">
-    <FluentDialogBody Style="padding: 0;">
-        <FluentStack Orientation="Orientation.Vertical" Style="gap: 0; height: 100%;">
+@if (_visible)
+{
+    <div class="img-picker-overlay" @onclick="Hide">
+        <div class="img-picker-dialog" @onclick:stopPropagation="true">
 
-            {{-- Title row --}}
-            <FluentStack Orientation="Orientation.Horizontal"
-                         VerticalAlignment="VerticalAlignment.Center"
-                         Style="padding: 12px 16px; border-bottom: 1px solid var(--colorNeutralStroke1);">
-                <FluentLabel Style="font-size: 18px; font-weight: 600;">Odabir slika</FluentLabel>
-                <FluentSpacer />
+            @* Title row *@
+            <div class="img-picker-header">
+                <span style="font-size: 18px; font-weight: 600;">Odabir slika</span>
                 <FluentButton Appearance="ButtonAppearance.Transparent"
                               IconStart="@(new Icons.Regular.Size20.Dismiss())"
                               OnClick="Hide" />
-            </FluentStack>
+            </div>
 
-            {{-- Search + Upload row --}}
-            <FluentStack Orientation="Orientation.Horizontal"
-                         VerticalAlignment="VerticalAlignment.Center"
-                         Style="padding: 8px 16px; border-bottom: 1px solid var(--colorNeutralStroke1); gap: 8px;">
-                <FluentTextField @bind-Value="_searchFilter"
-                                 Placeholder="Naziv slike"
-                                 Style="flex: 1;"
-                                 IconStart="@(new Icons.Regular.Size20.Search())" />
+            @* Search + Upload row *@
+            <div class="img-picker-toolbar">
+                <FluentIcon Value="@(new Icons.Regular.Size20.Search())" Style="color: var(--colorNeutralForeground3); flex-shrink:0;" />
+                <input type="search" class="admin-search-input" style="flex:1;"
+                       placeholder="Naziv slike"
+                       @bind="_searchFilter" @bind:event="oninput" />
                 <FluentButton Appearance="ButtonAppearance.Primary" OnClick="OpenFilePicker">
                     Upload
                 </FluentButton>
-            </FluentStack>
+            </div>
 
-            {{-- Image grid --}}
-            <div style="max-height: 500px; overflow-y: auto; padding: 12px 16px;">
-                @if (_images.Count > 0)
+            @* Image grid *@
+            <div class="img-picker-grid-wrap">
+                @if (FilteredImages.Any())
                 {
-                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <div class="img-picker-grid">
                         @foreach (var image in FilteredImages)
                         {
-                            var selected = IsSelected(image.Filename);
-                            <div style="cursor: pointer; position: relative; border: 2px solid @(selected ? "var(--colorBrandBackground)" : "var(--colorNeutralStroke1)"); border-radius: 4px; overflow: hidden; width: 148px;"
-                                 @onclick="@(() => SelectImage(image.Filename))">
-                                <img src="@($"/{image.Filename}")"
-                                     width="144" height="144"
+                            var filename = image.Filename;
+                            var selected = IsSelected(filename);
+                            <div class="img-picker-item @(selected ? "is-selected" : "")"
+                                 @onclick="@(() => SelectImage(filename))">
+                                <img src="@($"/{filename}")" width="144" height="144"
                                      title="@image.Name"
                                      style="object-fit: cover; display: block;" />
-                                <div style="padding: 3px 4px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                                     title="@image.Name">
-                                    @image.Name
-                                </div>
+                                <div class="img-picker-name" title="@image.Name">@image.Name</div>
                                 @if (selected)
                                 {
-                                    <div style="position: absolute; top: 4px; right: 4px; background: var(--colorBrandBackground); border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;">
-                                        <FluentIcon Value="@(new Icons.Regular.Size16.Checkmark())"
-                                                    Style="color: white;" />
+                                    <div class="img-picker-check">
+                                        <FluentIcon Value="@(new Icons.Regular.Size16.Checkmark())" Style="color: white;" />
                                     </div>
                                 }
                             </div>
@@ -64,31 +55,26 @@
                 }
                 else
                 {
-                    <FluentLabel>Nema pronađenih slika.</FluentLabel>
+                    <p style="color: var(--colorNeutralForeground3); padding: 24px; text-align: center;">Nema pronađenih slika.</p>
                 }
             </div>
 
-            <FluentDivider />
-
-            {{-- Footer --}}
-            <FluentStack Orientation="Orientation.Horizontal"
-                         Style="padding: 12px 16px; gap: 8px;">
-                <FluentButton Appearance="ButtonAppearance.Primary" OnClick="Accepted">
-                    Prihvati
-                </FluentButton>
+            @* Footer *@
+            <div class="img-picker-footer">
+                <FluentButton Appearance="ButtonAppearance.Primary" OnClick="Accepted">Prihvati</FluentButton>
                 <FluentButton OnClick="Hide">Odustani</FluentButton>
                 <InputFile id="@_fileInputId" style="display:none;" OnChange="OnFileSelected" multiple />
-            </FluentStack>
+            </div>
 
-        </FluentStack>
-    </FluentDialogBody>
-</FluentDialog>
+        </div>
+    </div>
+}
 
 @code {
     private List<ImageFileDto> _images = new();
     private List<string> _selectedImages = new();
     private string _searchFilter = "";
-    private FluentDialog? _dialog;
+    private bool _visible;
     private readonly string _fileInputId = $"img-picker-{Guid.NewGuid():N}";
 
     [Parameter] public EventCallback<List<string>> OnAccepted { get; set; }
@@ -103,10 +89,15 @@
         _selectedImages.Clear();
         _searchFilter = "";
         await LoadImagesAsync();
-        _dialog?.Show();
+        _visible = true;
+        StateHasChanged();
     }
 
-    public void Hide() => _dialog?.Hide();
+    public void Hide()
+    {
+        _visible = false;
+        StateHasChanged();
+    }
 
     private async Task LoadImagesAsync()
     {
@@ -126,7 +117,7 @@
         var folder = Path.Combine("wwwroot", "post_images");
         Directory.CreateDirectory(folder);
 
-        foreach (var file in e.GetMultipleFiles(maxAllowedFiles: 20))
+        foreach (var file in e.GetMultipleFiles(20))
         {
             var fullPath = Path.Combine(folder, Path.GetFileName(file.Name));
             await using var stream = new FileStream(fullPath, FileMode.Create);

@@ -11,7 +11,7 @@
 <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
     <FluentLabel Style="font-size: 22px; font-weight: 600;">Products</FluentLabel>
     <FluentSpacer />
-    <FluentButton Appearance="Appearance.Primary" IconStart="@(new Icons.Regular.Size16.Add())" OnClick="@(() => Navigation.NavigateTo("/products/new"))">
+    <FluentButton Appearance="ButtonAppearance.Primary" IconStart="@(new Icons.Regular.Size16.Add())" OnClick="@(() => Navigation.NavigateTo("/products/new"))">
         Add Product
     </FluentButton>
 </FluentStack>
@@ -28,7 +28,7 @@ else if (_products is not null)
         <PropertyColumn Title="Name" Property="@(p => p.Name)" Sortable="true" />
         <PropertyColumn Title="Brand" Property="@(p => p.BrandName)" Sortable="true" />
         <TemplateColumn Title="Active">
-            <FluentIcon Value="@(context.IsActive ? new Icons.Regular.Size16.CheckmarkCircle() : new Icons.Regular.Size16.DismissCircle())"
+            <FluentIcon Value="@((Icon)(context.IsActive ? new Icons.Regular.Size16.CheckmarkCircle() : (Icon)new Icons.Regular.Size16.DismissCircle()))"
                         Color="@(context.IsActive ? Color.Success : Color.Error)" />
         </TemplateColumn>
         <TemplateColumn Title="Actions">
