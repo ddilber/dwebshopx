@@ -10,53 +10,10 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
     public partial class AddInspirations : Migration
     {
         /// <inheritdoc />
-                protected override void Up(MigrationBuilder migrationBuilder)
+        protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // NOTE: AddColumn for VatRateId, Code, IsDefault, Currency, ValidFrom/ValidTo (PricelistItems),
-            // PaymentTermsId, and Channel were already applied to the DB by a partial prior migration run.
-            // They are intentionally omitted here to avoid "Duplicate column" errors.
-
-            migrationBuilder.AddColumn<string>(
-                name: "PaymentStatus",
-                table: "Orders",
-                type: "longtext",
-                nullable: false,
-                defaultValue: "")
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.AddColumn<string>(
-                name: "AppliedRulesJson",
-                table: "OrderItems",
-                type: "longtext",
-                nullable: true)
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.AddColumn<decimal>(
-                name: "BasePrice",
-                table: "OrderItems",
-                type: "decimal(18,4)",
-                precision: 18,
-                scale: 4,
-                nullable: false,
-                defaultValue: 0m);
-
-            migrationBuilder.AddColumn<decimal>(
-                name: "FinalPrice",
-                table: "OrderItems",
-                type: "decimal(18,4)",
-                precision: 18,
-                scale: 4,
-                nullable: false,
-                defaultValue: 0m);
-
-            migrationBuilder.AddColumn<decimal>(
-                name: "VatRateSnapshot",
-                table: "OrderItems",
-                type: "decimal(5,2)",
-                precision: 5,
-                scale: 2,
-                nullable: false,
-                defaultValue: 0m);
+            // All AddColumn operations were already applied to the DB by multiple partial prior runs.
+            // Only CreateTable, CreateIndex, and AddForeignKey remain.
 
             migrationBuilder.CreateTable(
                 name: "CustomerProductPrices",
