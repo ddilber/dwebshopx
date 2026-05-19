@@ -1,0 +1,214 @@
+@page "/brands/{brandSlug}/inspiracija/{articleSlug}"
+@layout MainLayout
+
+@if (_item == null)
+{
+    <PageTitle>Članak nije pronađen — A&amp;S GIFIKS</PageTitle>
+    <div class="asg-page" style="padding:120px 0">
+        <div class="asg-wrap" style="text-align:center">
+            <h2 class="asg-h2">Članak nije pronađen</h2>
+            <p class="asg-lede" style="margin-top:16px">
+                Vratite se na <a href="/brands/@BrandSlug/inspiracija" style="color:var(--asg-accent)">Inspiraciju</a>.
+            </p>
+        </div>
+    </div>
+}
+else
+{
+    <PageTitle>@_item.Title — A&amp;S GIFIKS</PageTitle>
+
+    <article class="asg-page asg-insp-detail">
+
+        <header class="asg-insp-hero">
+            <div class="asg-wrap">
+                <nav class="asg-shop-crumbs" style="margin-bottom:24px">
+                    <a href="/brands">Brendovi</a>
+                    <span class="sep">/</span>
+                    <a href="/brands/@BrandSlug">@_brandName</a>
+                    <span class="sep">/</span>
+                    <a href="/brands/@BrandSlug/inspiracija">Inspiracija</a>
+                    <span class="sep">/</span>
+                    <span class="cur">@_typeInfo.Label</span>
+                </nav>
+
+                <div class="asg-insp-hero-eyebrow">
+                    <span class="t">@_typeInfo.Label</span>
+                    <span>&middot;</span>
+                    <span>@_item.PublishedAt</span>
+                    <span>&middot;</span>
+                    <span>@_item.ReadMin min čitanja</span>
+                </div>
+
+                <h1>@_item.Title</h1>
+                <p class="asg-insp-hero-lede">@_item.Lede</p>
+
+                <div class="asg-insp-hero-meta">
+                    <div>
+                        <div class="k">Autor</div>
+                        <div class="v">@string.Join(" · ", _item.Authors)</div>
+                    </div>
+                    <div>
+                        <div class="k">Brend</div>
+                        <div class="v">@_brandName</div>
+                    </div>
+                    <div>
+                        <div class="k">Tagovi</div>
+                        <div class="v" style="display:flex;gap:6px;flex-wrap:wrap">
+                            @foreach (var tag in _item.Tags)
+                            {
+                                <em>@tag</em>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="asg-insp-hero-img-wrap">
+            <div class="asg-wrap">
+                <div class="asg-insp-hero-img">[ @_item.HeroLabel ]</div>
+            </div>
+        </div>
+
+        <section class="asg-insp-body-section">
+            <div class="asg-wrap">
+                <div class="asg-insp-body-grid">
+                    <div class="asg-insp-body">
+                        @foreach (var section in _item.Sections)
+                        {
+                            switch (section)
+                            {
+                                case InspirationData.Paragraph p:
+                                    <p>@p.Text</p>
+                                    break;
+                                case InspirationData.Heading h:
+                                    <h3>@h.Text</h3>
+                                    break;
+                                case InspirationData.BulletList bl:
+                                    <ul>
+                                        @foreach (var li in bl.Items)
+                                        {
+                                            <li>@li</li>
+                                        }
+                                    </ul>
+                                    break;
+                                case InspirationData.Callout c:
+                                    <aside class="asg-insp-callout">
+                                        <div class="lbl">@c.Label</div>
+                                        <p>@c.Text</p>
+                                    </aside>
+                                    break;
+                            }
+                        }
+
+                        <div class="asg-insp-endcard">
+                            <div>
+                                <div class="k">Pitanja o konkretnom projektu?</div>
+                                <p>Inženjer iz ASGifiks tima može izaći na lokaciju i napraviti specifikaciju sistema bez naknade. Javljamo se isti radni dan.</p>
+                            </div>
+                            <a href="/contact" class="asg-btn asg-btn-pri">
+                                Pošalji upit
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h14M13 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <aside class="asg-insp-side">
+                        @if (_linkedProducts.Count > 0)
+                        {
+                            <div class="asg-insp-side-block">
+                                <h4>Spomenuti proizvodi</h4>
+                                <div class="asg-insp-side-products">
+                                    @foreach (var p in _linkedProducts)
+                                    {
+                                        <a href="/shop/p/@p.Slug" class="asg-insp-side-product">
+                                            <div class="asg-insp-side-product-img">@p.Name.ToLower()</div>
+                                            <div class="asg-insp-side-product-info">
+                                                <div class="b">@p.Brand.ToUpper()</div>
+                                                <div class="n">@p.Name</div>
+                                                <div class="s">@p.Short</div>
+                                            </div>
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <div class="asg-insp-side-block">
+                            <h4>Podijeli članak</h4>
+                            <div class="asg-insp-share">
+                                <button>LinkedIn</button>
+                                <button>Email</button>
+                                <button>Kopiraj URL</button>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        @if (_related.Length > 0)
+        {
+            <section class="asg-section asg-soft">
+                <div class="asg-wrap">
+                    <div class="asg-shead">
+                        <div class="asg-num">→ Sljedeće čitanje</div>
+                        <div>
+                            <h2 class="asg-h2">Iz iste kategorije.</h2>
+                        </div>
+                    </div>
+                    <div class="asg-insp-grid">
+                        @foreach (var r in _related)
+                        {
+                            <InspirationCardComponent BrandSlug="@BrandSlug" Item="@r" Size="std" />
+                        }
+                    </div>
+                </div>
+            </section>
+        }
+
+    </article>
+}
+
+@code {
+    [Parameter] public string BrandSlug { get; set; } = "";
+    [Parameter] public string ArticleSlug { get; set; } = "";
+
+    private InspirationData.InspirationItem? _item;
+    private InspirationData.ContentTypeInfo _typeInfo = InspirationData.Types[InspirationData.ContentType.Story];
+    private InspirationData.InspirationItem[] _related = [];
+    private List<ShopData.Product> _linkedProducts = [];
+    private string _brandName = "";
+
+    private static readonly IReadOnlyDictionary<string, string> BrandNames = new Dictionary<string, string>
+    {
+        ["sto"]    = "STO",
+        ["xypex"]  = "XYPEX",
+        ["cortec"] = "CORTEC",
+    };
+
+    protected override void OnParametersSet()
+    {
+        var brand = BrandSlug?.ToLower() ?? "";
+        BrandNames.TryGetValue(brand, out var name);
+        _brandName = name ?? brand.ToUpper();
+
+        _item = InspirationData.Find(brand, ArticleSlug ?? "");
+        if (_item == null) return;
+
+        _typeInfo = InspirationData.Types[_item.Type];
+
+        _related = InspirationData.ForBrand(brand)
+            .Where(x => x.Slug != _item.Slug && x.Type == _item.Type)
+            .Take(3)
+            .ToArray();
+
+        _linkedProducts = _item.LinkedProductSlugs
+            .Select(s => ShopData.Products.FirstOrDefault(p => p.Slug == s))
+            .Where(p => p != null)
+            .Select(p => p!)
+            .ToList();
+    }
+}

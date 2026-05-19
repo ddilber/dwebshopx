@@ -67,11 +67,34 @@ else
         </div>
     </section>
 
+    <!-- Inspiration teaser -->
+    <section class="asg-section asg-tight">
+        <div class="asg-wrap">
+            <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:64px; align-items:center;">
+                <div>
+                    <div class="asg-num" style="display:inline-block; margin-bottom:18px;">02 — Znanje &amp; inspiracija</div>
+                    <h2 class="asg-h2">Članci, reference i sistemska rješenja.</h2>
+                    <p class="asg-lede" style="margin-top:16px">
+                        Edukativni sadržaj, realizovani projekti i dizajn kolekcije za @_brand.Name portfolio.
+                    </p>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:12px; align-items:flex-start;">
+                    <a href="/brands/@_brand.Key/inspiracija" class="asg-btn asg-btn-pri">
+                        Inspiracija &amp; informacije
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M13 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Products -->
     <section class="asg-section asg-soft">
         <div class="asg-wrap">
             <div class="asg-shead">
-                <div class="asg-num">02 — Asortiman</div>
+                <div class="asg-num">03 — Asortiman</div>
                 <div>
                     <h2 class="asg-h2">Glavne proizvodne linije.</h2>
                     <p class="asg-lede">Selekcija — kompletan asortiman dostupan na upit.</p>
@@ -102,7 +125,7 @@ else
     <!-- Other brands -->
     <section class="asg-section asg-tight">
         <div class="asg-wrap">
-            <div class="asg-num" style="display:inline-block; margin-bottom:24px;">03 — Ostali brendovi</div>
+            <div class="asg-num" style="display:inline-block; margin-bottom:24px;">04 — Ostali brendovi</div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px;">
                 @foreach (var o in _allBrands.Where(b => b.Key != _brand.Key))
                 {
