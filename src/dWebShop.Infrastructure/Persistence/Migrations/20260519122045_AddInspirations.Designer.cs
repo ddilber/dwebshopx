@@ -12,7 +12,7 @@ using dWebShop.Infrastructure.Persistence;
 namespace dWebShop.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260519115432_AddInspirations")]
+    [Migration("20260519122045_AddInspirations")]
     partial class AddInspirations
     {
         /// <inheritdoc />
@@ -630,6 +630,13 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AppliedRulesJson")
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal>("BasePrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
@@ -637,6 +644,10 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<decimal>("Discount")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("FinalPrice")
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
@@ -666,6 +677,10 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<decimal>("VatRateSnapshot")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
 
                     b.HasKey("Id");
 
@@ -798,6 +813,9 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int?>("PaymentTermsId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -815,6 +833,8 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
+
+                    b.HasIndex("PaymentTermsId");
 
                     b.ToTable("Partners", (string)null);
                 });
@@ -900,7 +920,7 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                     b.ToTable("ClientPricelists", (string)null);
                 });
 
-            modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.Pricelist", b =>
+            modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.CustomerProductPrice", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -914,11 +934,252 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<decimal?>("MinQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int>("PartnerId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int>("ProductSkuId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("ValidFrom")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("ValidTo")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductSkuId");
+
+                    b.HasIndex("PartnerId", "ProductSkuId");
+
+                    b.ToTable("CustomerProductPrices", (string)null);
+                });
+
+            modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.DiscountDefinition", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AllowStacking")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("DiscountDefinitions", (string)null);
+                });
+
+            modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.DiscountRule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DiscountVersionId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsExclusive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<decimal?>("MinOrderAmount")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("MinQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int>("TargetId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TargetType")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal>("Value")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiscountVersionId");
+
+                    b.HasIndex("TargetType", "TargetId");
+
+                    b.ToTable("DiscountRules", (string)null);
+                });
+
+            modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.DiscountVersion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DiscountDefinitionId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("ValidFrom")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("ValidTo")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiscountDefinitionId");
+
+                    b.ToTable("DiscountVersions", (string)null);
+                });
+
+            modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.PaymentTerms", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CashDiscountDays")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("CashDiscountPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DueDays")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PaymentTerms", (string)null);
+                });
+
+            modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.Pricelist", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsDefault")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
@@ -950,6 +1211,11 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("varchar(3)");
+
                     b.Property<decimal?>("MinQuantity")
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
@@ -970,6 +1236,12 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<DateTime>("ValidFrom")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("ValidTo")
+                        .HasColumnType("datetime(6)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PricelistId");
@@ -977,6 +1249,49 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                     b.HasIndex("ProductSkuId");
 
                     b.ToTable("PricelistItems", (string)null);
+                });
+
+            modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.VatRate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<decimal>("Rate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("ValidFrom")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("ValidTo")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VatRates", (string)null);
                 });
 
             modelBuilder.Entity("dWebShop.Domain.Entities.Products.Brand", b =>
@@ -1432,9 +1747,14 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("VatRateId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("VatRateId");
 
                     b.ToTable("ProductSkus", (string)null);
                 });
@@ -1952,7 +2272,14 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                         .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("dWebShop.Domain.Entities.Pricing.PaymentTerms", "PaymentTerms")
+                        .WithMany()
+                        .HasForeignKey("PaymentTermsId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Address");
+
+                    b.Navigation("PaymentTerms");
                 });
 
             modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.ClientDiscount", b =>
@@ -1983,6 +2310,47 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                     b.Navigation("Partner");
 
                     b.Navigation("Pricelist");
+                });
+
+            modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.CustomerProductPrice", b =>
+                {
+                    b.HasOne("dWebShop.Domain.Entities.Partners.Partner", "Partner")
+                        .WithMany()
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("dWebShop.Domain.Entities.Products.ProductSku", "ProductSku")
+                        .WithMany()
+                        .HasForeignKey("ProductSkuId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Partner");
+
+                    b.Navigation("ProductSku");
+                });
+
+            modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.DiscountRule", b =>
+                {
+                    b.HasOne("dWebShop.Domain.Entities.Pricing.DiscountVersion", "DiscountVersion")
+                        .WithMany("Rules")
+                        .HasForeignKey("DiscountVersionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DiscountVersion");
+                });
+
+            modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.DiscountVersion", b =>
+                {
+                    b.HasOne("dWebShop.Domain.Entities.Pricing.DiscountDefinition", "DiscountDefinition")
+                        .WithMany("Versions")
+                        .HasForeignKey("DiscountDefinitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DiscountDefinition");
                 });
 
             modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.PricelistItem", b =>
@@ -2084,6 +2452,13 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                         .WithMany("ProductSkus")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("dWebShop.Domain.Entities.Pricing.VatRate", "VatRate")
+                        .WithMany()
+                        .HasForeignKey("VatRateId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("VatRate");
                 });
 
             modelBuilder.Entity("dWebShop.Domain.Entities.Products.SkuOptionValue", b =>
@@ -2138,6 +2513,16 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("dWebShop.Domain.Entities.Orders.Order", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.DiscountDefinition", b =>
+                {
+                    b.Navigation("Versions");
+                });
+
+            modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.DiscountVersion", b =>
+                {
+                    b.Navigation("Rules");
                 });
 
             modelBuilder.Entity("dWebShop.Domain.Entities.Pricing.Pricelist", b =>
