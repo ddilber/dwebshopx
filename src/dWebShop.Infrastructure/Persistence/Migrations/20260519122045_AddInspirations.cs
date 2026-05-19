@@ -10,68 +10,18 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
     public partial class AddInspirations : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
+                protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "VatRateId",
-                table: "ProductSkus",
-                type: "int",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Code",
-                table: "Pricelists",
-                type: "longtext",
-                nullable: false)
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.AddColumn<bool>(
-                name: "IsDefault",
-                table: "Pricelists",
-                type: "tinyint(1)",
-                nullable: false,
-                defaultValue: false);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Currency",
-                table: "PricelistItems",
-                type: "varchar(3)",
-                maxLength: 3,
-                nullable: false,
-                defaultValue: "")
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.AddColumn<DateTime>(
-                name: "ValidFrom",
-                table: "PricelistItems",
-                type: "datetime(6)",
-                nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
-
-            migrationBuilder.AddColumn<DateTime>(
-                name: "ValidTo",
-                table: "PricelistItems",
-                type: "datetime(6)",
-                nullable: true);
-
-            migrationBuilder.AddColumn<int>(
-                name: "PaymentTermsId",
-                table: "Partners",
-                type: "int",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Channel",
-                table: "Orders",
-                type: "longtext",
-                nullable: false)
-                .Annotation("MySql:CharSet", "utf8mb4");
+            // NOTE: AddColumn for VatRateId, Code, IsDefault, Currency, ValidFrom/ValidTo (PricelistItems),
+            // PaymentTermsId, and Channel were already applied to the DB by a partial prior migration run.
+            // They are intentionally omitted here to avoid "Duplicate column" errors.
 
             migrationBuilder.AddColumn<string>(
                 name: "PaymentStatus",
                 table: "Orders",
                 type: "longtext",
-                nullable: false)
+                nullable: false,
+                defaultValue: "")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.AddColumn<string>(
@@ -475,3 +425,4 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
         }
     }
 }
+
