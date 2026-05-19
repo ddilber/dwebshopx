@@ -1,0 +1,206 @@
+@page "/brands/{brandSlug}/inspiracija"
+@layout MainLayout
+@rendermode InteractiveServer
+
+<PageTitle>Inspiracija &amp; informacije · @_brandName — A&amp;S GIFIKS</PageTitle>
+
+<div class="asg-page">
+
+@if (_notFound)
+{
+    <div style="padding:80px 48px;text-align:center;">
+        <p>Brand nije pronađen. <a href="/brands">Nazad na brendove</a></p>
+    </div>
+}
+else if (_all.Length == 0)
+{
+    <header class="asg-pageheader">
+        <div class="asg-wrap">
+            <nav class="asg-shop-crumbs" style="margin-bottom:24px">
+                <a href="/brands">Brendovi</a>
+                <span class="sep">/</span>
+                <a href="/brands/@BrandSlug">@_brandName</a>
+                <span class="sep">/</span>
+                <span class="cur">Inspiracija &amp; informacije</span>
+            </nav>
+            <div class="asg-eyebrow"><span class="dot"></span>@_brandName &middot; Inspiracija &amp; informacije</div>
+            <h1 style="margin-top:24px">Uskoro.</h1>
+            <p class="asg-lede">Sadržaj za ovaj brend je u pripremi. Pogledajte STO sekciju za primjer kako će izgledati.</p>
+            <div style="margin-top:32px">
+                <a href="/brands/sto/inspiracija" class="asg-btn asg-btn-pri">
+                    STO Inspiracija
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14M13 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </header>
+}
+else
+{
+    <header class="asg-pageheader">
+        <div class="asg-wrap">
+            <nav class="asg-shop-crumbs" style="margin-bottom:24px">
+                <a href="/brands">Brendovi</a>
+                <span class="sep">/</span>
+                <a href="/brands/@BrandSlug">@_brandName</a>
+                <span class="sep">/</span>
+                <span class="cur">Inspiracija &amp; informacije</span>
+            </nav>
+            <div class="asg-pageheader-grid">
+                <div>
+                    <div class="asg-eyebrow"><span class="dot"></span>@_brandName &middot; Inspiracija &amp; informacije</div>
+                    <h1 style="margin-top:24px">Inspiracija &amp; <em>informacije</em>.</h1>
+                    <p class="asg-lede">
+                        Edukativni članci, realizovani projekti i sistemska rješenja za @_brandName portfolio.
+                        Sve napisano da pomogne planerima, izvođačima i investitorima da donesu bolju tehničku odluku.
+                    </p>
+                </div>
+                <div class="asg-pageheader-meta">
+                    <div><span>Ukupno sadržaja</span><b>@_all.Length</b></div>
+                    <div><span>Priče</span><b>@InspirationData.ByType(BrandSlug, InspirationData.ContentType.Story).Length</b></div>
+                    <div><span>Reference</span><b>@InspirationData.ByType(BrandSlug, InspirationData.ContentType.Reference).Length</b></div>
+                    <div><span>Kolekcije</span><b>@InspirationData.ByType(BrandSlug, InspirationData.ContentType.Collection).Length</b></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    @if (_featured.Length > 0)
+    {
+        <section class="asg-section">
+            <div class="asg-wrap">
+                <div class="asg-shead">
+                    <div class="asg-num">01 — Izdvojeno</div>
+                    <div>
+                        <h2 class="asg-h2">Ono što vrijedi pročitati prvo.</h2>
+                    </div>
+                </div>
+                <div class="asg-insp-featured-grid">
+                    @for (int i = 0; i < _featured.Length; i++)
+                    {
+                        var item = _featured[i];
+                        var size = i == 0 ? "hero" : "std";
+                        <InspirationCardComponent BrandSlug="@BrandSlug" Item="@item" Size="@size" />
+                    }
+                </div>
+            </div>
+        </section>
+    }
+
+    <section class="asg-section asg-soft">
+        <div class="asg-wrap">
+            <div class="asg-shead">
+                <div class="asg-num">02 — Sve teme</div>
+                <div>
+                    <h2 class="asg-h2">Pretraži po vrsti sadržaja.</h2>
+                </div>
+            </div>
+
+            <div class="asg-insp-filters">
+                <button class="@(_filter == "" ? "active" : "")" @onclick='() => _filter = ""'>
+                    Sve <span>@_all.Length</span>
+                </button>
+                @foreach (var (key, info) in InspirationData.Types)
+                {
+                    var count = _all.Count(x => x.Type == key);
+                    if (count == 0) continue;
+                    var k = key;
+                    <button class="@(_filter == key.ToString() ? "active" : "")" @onclick="() => _filter = k.ToString()">
+                        @info.Plural <span>@count</span>
+                    </button>
+                }
+            </div>
+
+            <div class="asg-insp-grid">
+                @foreach (var item in _visible)
+                {
+                    <InspirationCardComponent BrandSlug="@BrandSlug" Item="@item" Size="std" />
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="asg-section">
+        <div class="asg-wrap">
+            <div class="asg-shead">
+                <div class="asg-num">03 — Još više</div>
+                <div>
+                    <h2 class="asg-h2">Povezani sadržaji.</h2>
+                </div>
+            </div>
+            <div class="asg-insp-more">
+                <a href="/shop/@BrandSlug" class="asg-insp-more-card">
+                    <div class="k">Katalog</div>
+                    <h4>@_brandName proizvodi</h4>
+                    <p>Cijeli asortiman, sa cijenama i tehničkim podacima.</p>
+                    <span class="arr">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M13 5l7 7-7 7"/>
+                        </svg>
+                    </span>
+                </a>
+                <a href="/brands/@BrandSlug" class="asg-insp-more-card">
+                    <div class="k">Brend</div>
+                    <h4>@_brandName pregled</h4>
+                    <p>Profil brenda, statistike i zašto radimo s njim.</p>
+                    <span class="arr">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M13 5l7 7-7 7"/>
+                        </svg>
+                    </span>
+                </a>
+                <a href="/contact" class="asg-insp-more-card">
+                    <div class="k">Kontakt</div>
+                    <h4>Tehnička konsultacija</h4>
+                    <p>Inženjer dostupan za konkretan projekat — bez naplate.</p>
+                    <span class="arr">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M13 5l7 7-7 7"/>
+                        </svg>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </section>
+}
+
+</div>
+
+@code {
+    [Parameter] public string BrandSlug { get; set; } = "";
+
+    private InspirationData.InspirationItem[] _all = [];
+    private InspirationData.InspirationItem[] _featured = [];
+    private string _brandName = "";
+    private bool _notFound;
+    private string _filter = "";
+
+    private static readonly IReadOnlyDictionary<string, string> BrandNames = new Dictionary<string, string>
+    {
+        ["sto"]    = "STO",
+        ["xypex"]  = "XYPEX",
+        ["cortec"] = "CORTEC",
+    };
+
+    private InspirationData.InspirationItem[] _visible =>
+        _filter == ""
+            ? _all
+            : _all.Where(x => x.Type.ToString() == _filter).ToArray();
+
+    protected override void OnParametersSet()
+    {
+        var slug = BrandSlug?.ToLower() ?? "";
+        if (!BrandNames.TryGetValue(slug, out var name))
+        {
+            _notFound = true;
+            return;
+        }
+        _notFound = false;
+        _brandName = name;
+        _all      = InspirationData.ForBrand(slug);
+        _featured = InspirationData.Featured(slug);
+        _filter   = "";
+    }
+}
