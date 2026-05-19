@@ -455,3 +455,48 @@
     width: 100%;
 }
 .asg-insp-share button:hover { border-color: var(--asg-ink); background: var(--asg-paper-soft); }
+
+/* ── Narrow body section between split blocks ─────────── */
+.asg-insp-body-narrow { padding: 72px 0; }
+.asg-insp-body-narrow + .asg-insp-body-narrow { padding-top: 0; }
+
+/* ── Split section (image ↔ text alternating) ──────────── */
+.asg-insp-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 520px;
+}
+.asg-insp-split-img {
+    overflow: hidden;
+}
+.asg-insp-split-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.asg-insp-split-text {
+    display: flex;
+    align-items: center;
+    padding: 72px 80px;
+}
+.asg-insp-split-text-inner {
+    max-width: 50ch;
+}
+.asg-insp-split-text-inner p {
+    font-size: 18px;
+    line-height: 1.75;
+    color: var(--asg-ink);
+    margin: 0 0 20px;
+}
+.asg-insp-split-text-inner p:last-child { margin-bottom: 0; }
+.asg-insp-split--rev .asg-insp-split-img { order: 2; }
+.asg-insp-split--rev .asg-insp-split-text { order: 1; }
+
+@media (max-width: 860px) {
+    .asg-insp-split { grid-template-columns: 1fr; min-height: unset; }
+    .asg-insp-split--rev .asg-insp-split-img { order: unset; }
+    .asg-insp-split--rev .asg-insp-split-text { order: unset; }
+    .asg-insp-split-img { height: 300px; }
+    .asg-insp-split-text { padding: 40px 24px; }
+}

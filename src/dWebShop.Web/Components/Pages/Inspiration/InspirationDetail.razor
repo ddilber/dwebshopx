@@ -67,43 +67,87 @@ else
             </div>
         </header>
 
+        <!-- Hero / cover image -->
         <div class="asg-insp-hero-img-wrap">
             <div class="asg-wrap">
-                <div class="asg-insp-hero-img">[ @_item.HeroLabel ]</div>
+                @if (!string.IsNullOrWhiteSpace(_item.CoverImage))
+                {
+                    <img src="/@_item.CoverImage" alt="@_item.Title"
+                         style="width:100%;height:560px;object-fit:cover;border-radius:4px;display:block;" />
+                }
+                else
+                {
+                    <div class="asg-insp-hero-img">[ @_item.HeroLabel ]</div>
+                }
             </div>
         </div>
 
+        <!-- Sections — body groups interleaved with full-width split blocks -->
+        @foreach (var group in _groups)
+        {
+            @if (group is BodyGroup bg && bg.Sections.Count > 0)
+            {
+                <div class="asg-insp-body-narrow">
+                    <div class="asg-wrap">
+                        <div class="asg-insp-body">
+                            @foreach (var s in bg.Sections)
+                            {
+                                switch (s.Type)
+                                {
+                                    case "paragraph":
+                                        <p>@s.Text</p>
+                                        break;
+                                    case "heading":
+                                        <h3>@s.Text</h3>
+                                        break;
+                                    case "bulletlist":
+                                        <ul>
+                                            @foreach (var li in s.Items ?? [])
+                                            {
+                                                <li>@li</li>
+                                            }
+                                        </ul>
+                                        break;
+                                    case "callout":
+                                        <aside class="asg-insp-callout">
+                                            <div class="lbl">@s.Label</div>
+                                            <p>@s.Text</p>
+                                        </aside>
+                                        break;
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (group is SplitGroup sg)
+            {
+                var s = sg.Section;
+                var bgStyle = string.IsNullOrWhiteSpace(s.BgColor) ? "" : $"background:{s.BgColor}";
+                <div class="asg-insp-split @(s.ImageLeft ? "" : "asg-insp-split--rev")" style="@bgStyle">
+                    @if (!string.IsNullOrWhiteSpace(s.Image))
+                    {
+                        <div class="asg-insp-split-img">
+                            <img src="/@s.Image" alt="" />
+                        </div>
+                    }
+                    <div class="asg-insp-split-text">
+                        <div class="asg-insp-split-text-inner">
+                            @foreach (var para in (s.Text ?? "").Split("\n\n", StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                <p>@para</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+        <!-- Endcard + sidebar -->
         <section class="asg-insp-body-section">
             <div class="asg-wrap">
                 <div class="asg-insp-body-grid">
                     <div class="asg-insp-body">
-                        @foreach (var section in _item.Sections)
-                        {
-                            switch (section.Type)
-                            {
-                                case "paragraph":
-                                    <p>@section.Text</p>
-                                    break;
-                                case "heading":
-                                    <h3>@section.Text</h3>
-                                    break;
-                                case "bulletlist":
-                                    <ul>
-                                        @foreach (var li in section.Items ?? [])
-                                        {
-                                            <li>@li</li>
-                                        }
-                                    </ul>
-                                    break;
-                                case "callout":
-                                    <aside class="asg-insp-callout">
-                                        <div class="lbl">@section.Label</div>
-                                        <p>@section.Text</p>
-                                    </aside>
-                                    break;
-                            }
-                        }
-
                         <div class="asg-insp-endcard">
                             <div>
                                 <div class="k">Pitanja o konkretnom projektu?</div>
@@ -158,9 +202,7 @@ else
                 <div class="asg-wrap">
                     <div class="asg-shead">
                         <div class="asg-num">→ Sljedeće čitanje</div>
-                        <div>
-                            <h2 class="asg-h2">Iz iste kategorije.</h2>
-                        </div>
+                        <div><h2 class="asg-h2">Iz iste kategorije.</h2></div>
                     </div>
                     <div class="asg-insp-grid">
                         @foreach (var r in _related)
@@ -184,6 +226,11 @@ else
     private List<InspirationListItemDto> _related = [];
     private List<ShopData.Product> _linkedProducts = [];
     private string _brandName = "";
+    private List<SectionGroup> _groups = [];
+
+    private abstract record SectionGroup;
+    private record BodyGroup(List<InspirationSectionDto> Sections) : SectionGroup;
+    private record SplitGroup(InspirationSectionDto Section) : SectionGroup;
 
     private static readonly IReadOnlyDictionary<string, string> BrandNames = new Dictionary<string, string>
     {
@@ -202,6 +249,7 @@ else
         if (_item == null) return;
 
         _typeInfo = InspirationData.Types[_item.ContentType];
+        _groups = BuildGroups(_item.Sections);
 
         var allForBrand = await Mediator.Send(new GetPublishedInspirationsByBrandQuery(brand));
         _related = allForBrand
@@ -214,5 +262,33 @@ else
             .Where(p => p != null)
             .Select(p => p!)
             .ToList();
+    }
+
+    private static List<SectionGroup> BuildGroups(InspirationSectionDto[] sections)
+    {
+        var groups = new List<SectionGroup>();
+        var bodyBuffer = new List<InspirationSectionDto>();
+
+        foreach (var s in sections)
+        {
+            if (s.Type == "split")
+            {
+                if (bodyBuffer.Count > 0)
+                {
+                    groups.Add(new BodyGroup(new List<InspirationSectionDto>(bodyBuffer)));
+                    bodyBuffer.Clear();
+                }
+                groups.Add(new SplitGroup(s));
+            }
+            else
+            {
+                bodyBuffer.Add(s);
+            }
+        }
+
+        if (bodyBuffer.Count > 0)
+            groups.Add(new BodyGroup(bodyBuffer));
+
+        return groups;
     }
 }

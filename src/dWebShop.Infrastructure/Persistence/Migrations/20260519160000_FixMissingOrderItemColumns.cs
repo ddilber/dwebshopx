@@ -1,9 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using dWebShop.Infrastructure.Persistence;
 
 #nullable disable
 
 namespace dWebShop.Infrastructure.Persistence.Migrations
 {
+    [DbContext(typeof(AppDbContext))]
+    [Migration("20260519160000_FixMissingOrderItemColumns")]
     public partial class FixMissingOrderItemColumns : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

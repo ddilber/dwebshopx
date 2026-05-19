@@ -10,7 +10,10 @@ public record InspirationSectionDto(
     string Type,
     string? Text = null,
     string? Label = null,
-    string[]? Items = null);
+    string[]? Items = null,
+    string? Image = null,
+    bool ImageLeft = true,
+    string? BgColor = null);
 
 public record InspirationGalleryImageDto(string Url, string Caption = "");
 
