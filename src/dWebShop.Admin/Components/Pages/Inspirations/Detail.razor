@@ -6,10 +6,16 @@
 @using dWebShop.Application.Features.Inspirations.Commands
 @using dWebShop.Application.Features.Inspirations.Queries
 @using dWebShop.Domain.Entities.Inspirations
+@using dWebShop.Admin.Components.Shared
+@using System.Text.Json
 @inject IMediator Mediator
 @inject NavigationManager Navigation
 
 <PageTitle>@(_isNew ? "New Inspiration" : _title) — dWebShop Admin</PageTitle>
+
+<ImagePickerDialog @ref="_coverPicker"   OnAccepted="SetCoverImage"  SubFolder="inspiration_images" SingleSelect="true" />
+<ImagePickerDialog @ref="_ogPicker"      OnAccepted="SetOgImage"     SubFolder="inspiration_images" SingleSelect="true" />
+<ImagePickerDialog @ref="_galleryPicker" OnAccepted="AddGalleryImages" SubFolder="inspiration_images" />
 
 @if (_loading)
 {
@@ -50,6 +56,7 @@ else
         <!-- MAIN COLUMN -->
         <div class="detail-main">
 
+            <!-- Article content -->
             <div class="ds-card">
                 <div class="card-head">
                     <div class="card-title">Article content</div>
@@ -76,6 +83,88 @@ else
                 </div>
             </div>
 
+            <!-- Cover image -->
+            <div class="ds-card" style="margin-top:var(--sp-16)">
+                <div class="card-head">
+                    <div class="card-title">Cover image</div>
+                    <button class="ds-btn" @onclick="@(async () => await _coverPicker.Show())">Pick image</button>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(_coverImage))
+                {
+                    <div style="position:relative;display:inline-block;">
+                        <img src="/@_coverImage" alt="Cover"
+                             style="width:100%;max-height:280px;object-fit:cover;border-radius:var(--r-md);display:block;" />
+                        <button @onclick="@(() => _coverImage = "")"
+                                style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.55);color:white;border:none;border-radius:var(--r-sm);padding:4px 8px;cursor:pointer;font-size:12px;">
+                            Remove
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div style="border:2px dashed var(--stroke-1);border-radius:var(--r-lg);padding:40px;text-align:center;color:var(--fg-3)">
+                        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="display:block;margin:0 auto 12px;opacity:.4">
+                            <rect x="4" y="4" width="40" height="40" rx="8"/>
+                            <circle cx="16" cy="18" r="4"/>
+                            <path d="M4 32l10-10 8 8 6-6 16 16"/>
+                        </svg>
+                        <p style="margin:0;font-size:var(--fs-300)">No cover image — click <strong>Pick image</strong></p>
+                    </div>
+                }
+            </div>
+
+            <!-- Gallery -->
+            <div class="ds-card" style="margin-top:var(--sp-16)">
+                <div class="card-head">
+                    <div class="card-title">Gallery</div>
+                    <button class="ds-btn" @onclick="@(async () => await _galleryPicker.Show())">Add images</button>
+                </div>
+                @if (_gallery.Count > 0)
+                {
+                    <div class="media-grid">
+                        @for (int i = 0; i < _gallery.Count; i++)
+                        {
+                            var idx = i;
+                            var img = _gallery[idx];
+                            <div class="media-cell" style="position:relative;">
+                                <img src="/@img.Url" alt="@img.Caption" />
+                                <div class="media-overlay">
+                                    <button class="media-overlay-btn" title="Move left" disabled="@(idx == 0)"
+                                            @onclick="@(() => MoveGalleryImage(idx, -1))" @onclick:stopPropagation="true">
+                                        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"/></svg>
+                                    </button>
+                                    <button class="media-overlay-btn media-overlay-btn--danger" title="Remove"
+                                            @onclick="@(() => _gallery.RemoveAt(idx))" @onclick:stopPropagation="true">
+                                        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zm-1 7a1 1 0 112 0v3a1 1 0 11-2 0V9zm4 0a1 1 0 10-2 0v3a1 1 0 102 0V9z" clip-rule="evenodd"/></svg>
+                                    </button>
+                                    <button class="media-overlay-btn" title="Move right" disabled="@(idx == _gallery.Count - 1)"
+                                            @onclick="@(() => MoveGalleryImage(idx, 1))" @onclick:stopPropagation="true">
+                                        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                        <div class="media-cell media-add" @onclick="@(async () => await _galleryPicker.Show())">
+                            <svg viewBox="0 0 20 20" fill="currentColor" width="24" height="24">
+                                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"/>
+                            </svg>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div style="border:2px dashed var(--stroke-1);border-radius:var(--r-lg);padding:40px;text-align:center;color:var(--fg-3)">
+                        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="display:block;margin:0 auto 12px;opacity:.4">
+                            <rect x="4" y="4" width="40" height="40" rx="8"/>
+                            <circle cx="16" cy="18" r="4"/>
+                            <path d="M4 32l10-10 8 8 6-6 16 16"/>
+                        </svg>
+                        <p style="margin:0;font-size:var(--fs-300)">No gallery images — click <strong>Add images</strong></p>
+                    </div>
+                }
+            </div>
+
+            <!-- Body JSON -->
             <div class="ds-card" style="margin-top:var(--sp-16)">
                 <div class="card-head">
                     <div class="card-title">Content (JSON sections)</div>
@@ -91,6 +180,7 @@ else
         <!-- SIDE COLUMN -->
         <div class="detail-side">
 
+            <!-- Publication -->
             <div class="ds-card" style="padding:var(--sp-16)">
                 <div style="font-size:var(--fs-300);font-weight:var(--fw-semibold);margin-bottom:var(--sp-12)">Publication</div>
 
@@ -128,6 +218,7 @@ else
                 </div>
             </div>
 
+            <!-- Metadata -->
             <div class="ds-card" style="padding:var(--sp-16);margin-top:var(--sp-16)">
                 <div style="font-size:var(--fs-300);font-weight:var(--fw-semibold);margin-bottom:var(--sp-12)">Metadata</div>
 
@@ -150,12 +241,48 @@ else
                 </div>
             </div>
 
+            <!-- SEO -->
+            <div class="ds-card" style="padding:var(--sp-16);margin-top:var(--sp-16)">
+                <div style="font-size:var(--fs-300);font-weight:var(--fw-semibold);margin-bottom:var(--sp-12)">SEO</div>
+
+                <div class="field" style="margin-bottom:var(--sp-12)">
+                    <label class="field-label">Meta title</label>
+                    <input class="ds-input" placeholder="Defaults to article title if empty" @bind="_metaTitle" />
+                    <span class="field-hint">@(_metaTitle.Length)/60 chars</span>
+                </div>
+
+                <div class="field" style="margin-bottom:var(--sp-12)">
+                    <label class="field-label">Meta description</label>
+                    <textarea class="ds-textarea" rows="3" placeholder="Defaults to lede if empty" @bind="_metaDescription"></textarea>
+                    <span class="field-hint">@(_metaDescription.Length)/160 chars</span>
+                </div>
+
+                <div class="field">
+                    <label class="field-label">OG image</label>
+                    @if (!string.IsNullOrWhiteSpace(_ogImage))
+                    {
+                        <div style="display:flex;align-items:center;gap:var(--sp-8);margin-bottom:var(--sp-8)">
+                            <img src="/@_ogImage" alt="OG" style="width:64px;height:40px;object-fit:cover;border-radius:var(--r-sm);border:1px solid var(--stroke-1);" />
+                            <button class="ds-btn ds-btn-subtle" style="font-size:var(--fs-200)" @onclick="@(() => _ogImage = "")">Remove</button>
+                        </div>
+                    }
+                    <button class="ds-btn ds-btn-subtle" @onclick="@(async () => await _ogPicker.Show())">
+                        @(string.IsNullOrWhiteSpace(_ogImage) ? "Pick OG image" : "Change OG image")
+                    </button>
+                    <span class="field-hint">Recommended 1200×630 px. Defaults to cover image if empty.</span>
+                </div>
+            </div>
+
         </div>
     </div>
 }
 
 @code {
     [Parameter] public int? Id { get; set; }
+
+    private ImagePickerDialog _coverPicker = default!;
+    private ImagePickerDialog _ogPicker = default!;
+    private ImagePickerDialog _galleryPicker = default!;
 
     private bool _isNew;
     private bool _loading = true;
@@ -176,11 +303,22 @@ else
     private bool _isFeatured;
     private bool _published;
     private string _brandSlug = "";
+    private string _coverImage = "";
+    private string _metaTitle = "";
+    private string _metaDescription = "";
+    private string _ogImage = "";
+    private List<GalleryItem> _gallery = [];
+
+    private record GalleryItem(string Url, string Caption = "");
 
     private InspirationContentType ContentType =>
         Enum.TryParse<InspirationContentType>(_contentTypeStr, out var t) ? t : InspirationContentType.Story;
 
     private int ReadMin => int.TryParse(_readMinStr, out var n) ? n : 5;
+
+    private string GalleryJson => _gallery.Count == 0
+        ? "[]"
+        : JsonSerializer.Serialize(_gallery.Select(x => new { url = x.Url, caption = x.Caption }));
 
     protected override async Task OnInitializedAsync()
     {
@@ -203,14 +341,44 @@ else
                 _isFeatured = dto.IsFeatured;
                 _published = dto.Published;
                 _brandSlug = dto.BrandSlug;
+                _coverImage = dto.CoverImage;
+                _metaTitle = dto.MetaTitle;
+                _metaDescription = dto.MetaDescription;
+                _ogImage = dto.OgImage;
+                _gallery = dto.Gallery.Select(x => new GalleryItem(x.Url, x.Caption)).ToList();
 
                 _content = dto.Sections.Length > 0
-                    ? System.Text.Json.JsonSerializer.Serialize(dto.Sections,
-                        new System.Text.Json.JsonSerializerOptions { WriteIndented = true })
+                    ? JsonSerializer.Serialize(dto.Sections,
+                        new JsonSerializerOptions { WriteIndented = true })
                     : "[]";
             }
         }
         _loading = false;
+    }
+
+    private void SetCoverImage(List<string> files)
+    {
+        if (files.Count > 0) _coverImage = files[0];
+    }
+
+    private void SetOgImage(List<string> files)
+    {
+        if (files.Count > 0) _ogImage = files[0];
+    }
+
+    private void AddGalleryImages(List<string> files)
+    {
+        var existing = _gallery.Select(x => x.Url).ToHashSet();
+        foreach (var f in files)
+            if (!existing.Contains(f))
+                _gallery.Add(new GalleryItem(f));
+    }
+
+    private void MoveGalleryImage(int idx, int direction)
+    {
+        var newIdx = idx + direction;
+        if (newIdx < 0 || newIdx >= _gallery.Count) return;
+        (_gallery[idx], _gallery[newIdx]) = (_gallery[newIdx], _gallery[idx]);
     }
 
     private async Task Save()
@@ -224,7 +392,8 @@ else
                 var id = await Mediator.Send(new CreateInspirationCommand(
                     _title, _slug, _lede, _heroLabel, _publishedAt, ReadMin,
                     _authors, _tags, _content, _linkedProductSlugs,
-                    ContentType, _isFeatured, _published, _brandSlug));
+                    ContentType, _isFeatured, _published, _brandSlug,
+                    _coverImage, GalleryJson, _metaTitle, _metaDescription, _ogImage));
                 Navigation.NavigateTo($"/inspirations/{id}");
             }
             else
@@ -232,7 +401,8 @@ else
                 await Mediator.Send(new UpdateInspirationCommand(
                     Id!.Value, _title, _slug, _lede, _heroLabel, _publishedAt, ReadMin,
                     _authors, _tags, _content, _linkedProductSlugs,
-                    ContentType, _isFeatured, _published, _brandSlug));
+                    ContentType, _isFeatured, _published, _brandSlug,
+                    _coverImage, GalleryJson, _metaTitle, _metaDescription, _ogImage));
             }
         }
         catch (Exception ex)

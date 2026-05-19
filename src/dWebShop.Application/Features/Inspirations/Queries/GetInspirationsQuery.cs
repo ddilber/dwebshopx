@@ -12,6 +12,8 @@ public record InspirationSectionDto(
     string? Label = null,
     string[]? Items = null);
 
+public record InspirationGalleryImageDto(string Url, string Caption = "");
+
 public record InspirationListItemDto(
     int Id,
     string Slug,
@@ -25,7 +27,8 @@ public record InspirationListItemDto(
     string PublishedAt,
     int ReadMin,
     string[] Authors,
-    string[] Tags);
+    string[] Tags,
+    string CoverImage);
 
 public record InspirationDetailDto(
     int Id,
@@ -42,7 +45,12 @@ public record InspirationDetailDto(
     string[] Authors,
     string[] Tags,
     InspirationSectionDto[] Sections,
-    string[] LinkedProductSlugs);
+    string[] LinkedProductSlugs,
+    string CoverImage,
+    InspirationGalleryImageDto[] Gallery,
+    string MetaTitle,
+    string MetaDescription,
+    string OgImage);
 
 // Admin: all inspirations with optional brand/published filter
 public record GetInspirationsQuery(string? BrandSlug = null, bool? Published = null, string? Search = null)
@@ -72,7 +80,7 @@ public class GetInspirationsQueryHandler(IAppDbContext db) : IRequestHandler<Get
             {
                 x.Id, x.Slug, BrandSlug = x.Brand != null ? x.Brand.Slug : string.Empty,
                 x.ContentType, x.IsFeatured, x.Published, x.Title, x.Lede,
-                x.HeroLabel, x.PublishedAt, x.ReadMin, x.Authors, x.Tags
+                x.HeroLabel, x.PublishedAt, x.ReadMin, x.Authors, x.Tags, x.CoverImage
             })
             .ToListAsync(ct);
 
@@ -80,7 +88,8 @@ public class GetInspirationsQueryHandler(IAppDbContext db) : IRequestHandler<Get
             x.Id, x.Slug, x.BrandSlug, x.ContentType, x.IsFeatured, x.Published,
             x.Title, x.Lede, x.HeroLabel, x.PublishedAt, x.ReadMin,
             string.IsNullOrEmpty(x.Authors) ? [] : x.Authors.Split('|'),
-            string.IsNullOrEmpty(x.Tags) ? [] : x.Tags.Split('|'))).ToList();
+            string.IsNullOrEmpty(x.Tags) ? [] : x.Tags.Split('|'),
+            x.CoverImage)).ToList();
     }
 }
 
@@ -102,7 +111,7 @@ public class GetPublishedInspirationsByBrandQueryHandler(IAppDbContext db)
             {
                 x.Id, x.Slug, BrandSlug = x.Brand != null ? x.Brand.Slug : string.Empty,
                 x.ContentType, x.IsFeatured, x.Published, x.Title, x.Lede,
-                x.HeroLabel, x.PublishedAt, x.ReadMin, x.Authors, x.Tags
+                x.HeroLabel, x.PublishedAt, x.ReadMin, x.Authors, x.Tags, x.CoverImage
             })
             .ToListAsync(ct);
 
@@ -110,7 +119,8 @@ public class GetPublishedInspirationsByBrandQueryHandler(IAppDbContext db)
             x.Id, x.Slug, x.BrandSlug, x.ContentType, x.IsFeatured, x.Published,
             x.Title, x.Lede, x.HeroLabel, x.PublishedAt, x.ReadMin,
             string.IsNullOrEmpty(x.Authors) ? [] : x.Authors.Split('|'),
-            string.IsNullOrEmpty(x.Tags) ? [] : x.Tags.Split('|'))).ToList();
+            string.IsNullOrEmpty(x.Tags) ? [] : x.Tags.Split('|'),
+            x.CoverImage)).ToList();
     }
 }
 
@@ -132,27 +142,7 @@ public class GetInspirationBySlugQueryHandler(IAppDbContext db) : IRequestHandle
 
         if (x is null) return null;
 
-        var sections = string.IsNullOrWhiteSpace(x.Content)
-            ? Array.Empty<InspirationSectionDto>()
-            : JsonSerializer.Deserialize<InspirationSectionDto[]>(x.Content, _json)
-              ?? Array.Empty<InspirationSectionDto>();
-
-        return new InspirationDetailDto(
-            x.Id,
-            x.Slug,
-            x.Brand?.Slug ?? string.Empty,
-            x.ContentType,
-            x.IsFeatured,
-            x.Published,
-            x.Title,
-            x.Lede,
-            x.HeroLabel,
-            x.PublishedAt,
-            x.ReadMin,
-            x.Authors == string.Empty ? Array.Empty<string>() : x.Authors.Split('|'),
-            x.Tags == string.Empty ? Array.Empty<string>() : x.Tags.Split('|'),
-            sections,
-            x.LinkedProductSlugs == string.Empty ? Array.Empty<string>() : x.LinkedProductSlugs.Split('|'));
+        return MapDetail(x, _json);
     }
 }
 
@@ -172,10 +162,23 @@ public class GetInspirationByIdQueryHandler(IAppDbContext db) : IRequestHandler<
 
         if (x is null) return null;
 
+        return MapDetail(x, _json);
+    }
+}
+
+file static class InspirationMapper
+{
+    internal static InspirationDetailDto MapDetail(Inspiration x, JsonSerializerOptions json)
+    {
         var sections = string.IsNullOrWhiteSpace(x.Content)
             ? Array.Empty<InspirationSectionDto>()
-            : JsonSerializer.Deserialize<InspirationSectionDto[]>(x.Content, _json)
+            : JsonSerializer.Deserialize<InspirationSectionDto[]>(x.Content, json)
               ?? Array.Empty<InspirationSectionDto>();
+
+        var gallery = string.IsNullOrWhiteSpace(x.GalleryJson) || x.GalleryJson == "[]"
+            ? Array.Empty<InspirationGalleryImageDto>()
+            : JsonSerializer.Deserialize<InspirationGalleryImageDto[]>(x.GalleryJson, json)
+              ?? Array.Empty<InspirationGalleryImageDto>();
 
         return new InspirationDetailDto(
             x.Id,
@@ -192,7 +195,11 @@ public class GetInspirationByIdQueryHandler(IAppDbContext db) : IRequestHandler<
             x.Authors == string.Empty ? Array.Empty<string>() : x.Authors.Split('|'),
             x.Tags == string.Empty ? Array.Empty<string>() : x.Tags.Split('|'),
             sections,
-            x.LinkedProductSlugs == string.Empty ? Array.Empty<string>() : x.LinkedProductSlugs.Split('|'));
+            x.LinkedProductSlugs == string.Empty ? Array.Empty<string>() : x.LinkedProductSlugs.Split('|'),
+            x.CoverImage,
+            gallery,
+            x.MetaTitle,
+            x.MetaDescription,
+            x.OgImage);
     }
 }
-

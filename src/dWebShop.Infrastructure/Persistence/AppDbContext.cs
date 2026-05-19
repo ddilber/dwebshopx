@@ -476,6 +476,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>
             e.Property(x => x.LinkedProductSlugs).HasMaxLength(1000);
             e.Property(x => x.Content).HasColumnType("longtext");
             e.Property(x => x.ContentType).HasConversion<int>();
+            e.Property(x => x.CoverImage).HasMaxLength(500);
+            e.Property(x => x.GalleryJson).HasColumnType("longtext");
+            e.Property(x => x.MetaTitle).HasMaxLength(300);
+            e.Property(x => x.MetaDescription).HasMaxLength(500);
+            e.Property(x => x.OgImage).HasMaxLength(500);
             e.HasIndex(x => new { x.BrandId, x.Slug }).IsUnique();
             e.HasOne(x => x.Brand)
                 .WithMany()

@@ -20,4 +20,13 @@ public class Inspiration : BaseAuditableEntity
     public bool Published { get; set; }
     public int? BrandId { get; set; }
     public Brand? Brand { get; set; }
+
+    // Media
+    public string CoverImage { get; set; } = string.Empty;
+    public string GalleryJson { get; set; } = "[]";             // JSON: [{url, caption}]
+
+    // SEO
+    public string MetaTitle { get; set; } = string.Empty;
+    public string MetaDescription { get; set; } = string.Empty;
+    public string OgImage { get; set; } = string.Empty;
 }

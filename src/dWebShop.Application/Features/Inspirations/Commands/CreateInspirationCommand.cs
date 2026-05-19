@@ -20,7 +20,12 @@ public record CreateInspirationCommand(
     InspirationContentType ContentType,
     bool IsFeatured,
     bool Published,
-    string BrandSlug) : IRequest<int>;
+    string BrandSlug,
+    string CoverImage,
+    string GalleryJson,
+    string MetaTitle,
+    string MetaDescription,
+    string OgImage) : IRequest<int>;
 
 public class CreateInspirationCommandValidator : AbstractValidator<CreateInspirationCommand>
 {
@@ -56,6 +61,11 @@ public class CreateInspirationCommandHandler(IAppDbContext db) : IRequestHandler
             IsFeatured = request.IsFeatured,
             Published = request.Published,
             BrandId = brand.Id,
+            CoverImage = request.CoverImage,
+            GalleryJson = string.IsNullOrWhiteSpace(request.GalleryJson) ? "[]" : request.GalleryJson,
+            MetaTitle = request.MetaTitle,
+            MetaDescription = request.MetaDescription,
+            OgImage = request.OgImage,
         };
 
         db.Inspirations.Add(inspiration);

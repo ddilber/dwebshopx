@@ -21,7 +21,12 @@ public record UpdateInspirationCommand(
     InspirationContentType ContentType,
     bool IsFeatured,
     bool Published,
-    string BrandSlug) : IRequest;
+    string BrandSlug,
+    string CoverImage,
+    string GalleryJson,
+    string MetaTitle,
+    string MetaDescription,
+    string OgImage) : IRequest;
 
 public class UpdateInspirationCommandValidator : AbstractValidator<UpdateInspirationCommand>
 {
@@ -60,6 +65,11 @@ public class UpdateInspirationCommandHandler(IAppDbContext db) : IRequestHandler
         inspiration.IsFeatured = request.IsFeatured;
         inspiration.Published = request.Published;
         inspiration.BrandId = brand.Id;
+        inspiration.CoverImage = request.CoverImage;
+        inspiration.GalleryJson = string.IsNullOrWhiteSpace(request.GalleryJson) ? "[]" : request.GalleryJson;
+        inspiration.MetaTitle = request.MetaTitle;
+        inspiration.MetaDescription = request.MetaDescription;
+        inspiration.OgImage = request.OgImage;
 
         await db.SaveChangesAsync(ct);
     }
