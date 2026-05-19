@@ -64,6 +64,18 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
 
+var sharedUploads = app.Configuration["SharedUploadsPath"];
+if (!string.IsNullOrWhiteSpace(sharedUploads))
+{
+    var absPath = Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, sharedUploads));
+    Directory.CreateDirectory(absPath);
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(absPath),
+        RequestPath = ""
+    });
+}
+
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

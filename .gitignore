@@ -1,3 +1,6 @@
+# Uploaded user content
+/uploads/
+
 # Build output
 bin/
 obj/

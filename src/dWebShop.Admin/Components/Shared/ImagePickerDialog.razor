@@ -3,6 +3,7 @@
 @inject IJSRuntime JS
 @inject IMediator Mediator
 @inject IWebHostEnvironment Env
+@inject IConfiguration Config
 
 @if (_visible)
 {
@@ -104,11 +105,22 @@
         StateHasChanged();
     }
 
+    private string UploadsRoot
+    {
+        get
+        {
+            var shared = Config["SharedUploadsPath"];
+            if (!string.IsNullOrWhiteSpace(shared))
+                return Path.GetFullPath(Path.Combine(Env.ContentRootPath, shared));
+            return Env.WebRootPath;
+        }
+    }
+
     private async Task LoadImagesAsync()
-    {        
+    {
         var result = await Mediator.Send(new GetImagesQuery
         {
-            FolderPath = Path.Combine(Env.WebRootPath, SubFolder),
+            FolderPath = Path.Combine(UploadsRoot, SubFolder),
             SubFolder = SubFolder
         });
         _images = result;
@@ -119,7 +131,7 @@
 
     private async Task OnFileSelected(InputFileChangeEventArgs e)
     {
-        var folder = Path.Combine(Env.WebRootPath, SubFolder);
+        var folder = Path.Combine(UploadsRoot, SubFolder);
         Directory.CreateDirectory(folder);
 
         foreach (var file in e.GetMultipleFiles(20))
