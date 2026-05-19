@@ -82,15 +82,26 @@ else
             </div>
         </div>
 
-        <!-- Sections — body groups interleaved with full-width split blocks -->
-        @foreach (var group in _groups)
+        @{
+            // Last non-empty body group renders inside the sidebar grid so the
+            // sidebar is alongside body text, not just the endcard.
+            int _lastBgIdx = -1;
+            for (int _i = _groups.Count - 1; _i >= 0; _i--)
+            {
+                if (_groups[_i] is BodyGroup { Sections.Count: > 0 }) { _lastBgIdx = _i; break; }
+            }
+        }
+
+        <!-- Body groups (all except last) interleaved with full-width split blocks -->
+        @for (int _gi = 0; _gi < _groups.Count; _gi++)
         {
-            @if (group is BodyGroup bg && bg.Sections.Count > 0)
+            var _group = _groups[_gi];
+            @if (_group is BodyGroup _bg && _bg.Sections.Count > 0 && _gi != _lastBgIdx)
             {
                 <div class="asg-insp-body-narrow">
                     <div class="asg-wrap">
                         <div class="asg-insp-body">
-                            @foreach (var s in bg.Sections)
+                            @foreach (var s in _bg.Sections)
                             {
                                 switch (s.Type)
                                 {
@@ -120,9 +131,9 @@ else
                     </div>
                 </div>
             }
-            else if (group is SplitGroup sg)
+            else if (_group is SplitGroup _sg)
             {
-                var s = sg.Section;
+                var s = _sg.Section;
                 var bgStyle = string.IsNullOrWhiteSpace(s.BgColor) ? "" : $"background:{s.BgColor}";
                 <div class="asg-insp-split @(s.ImageLeft ? "" : "asg-insp-split--rev")" style="@bgStyle">
                     @if (!string.IsNullOrWhiteSpace(s.Image))
@@ -143,11 +154,40 @@ else
             }
         }
 
-        <!-- Endcard + sidebar -->
+        <!-- Last body group + endcard + sidebar in a 2-column grid -->
         <section class="asg-insp-body-section">
             <div class="asg-wrap">
                 <div class="asg-insp-body-grid">
                     <div class="asg-insp-body">
+                        @if (_lastBgIdx >= 0 && _groups[_lastBgIdx] is BodyGroup _lastBg)
+                        {
+                            @foreach (var s in _lastBg.Sections)
+                            {
+                                switch (s.Type)
+                                {
+                                    case "paragraph":
+                                        <p>@s.Text</p>
+                                        break;
+                                    case "heading":
+                                        <h3>@s.Text</h3>
+                                        break;
+                                    case "bulletlist":
+                                        <ul>
+                                            @foreach (var li in s.Items ?? [])
+                                            {
+                                                <li>@li</li>
+                                            }
+                                        </ul>
+                                        break;
+                                    case "callout":
+                                        <aside class="asg-insp-callout">
+                                            <div class="lbl">@s.Label</div>
+                                            <p>@s.Text</p>
+                                        </aside>
+                                        break;
+                                }
+                            }
+                        }
                         <div class="asg-insp-endcard">
                             <div>
                                 <div class="k">Pitanja o konkretnom projektu?</div>
