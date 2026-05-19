@@ -1,4 +1,5 @@
 using dWebShop.Domain.Common;
+using dWebShop.Domain.Entities.Pricing;
 
 namespace dWebShop.Domain.Entities.Products;
 
@@ -12,6 +13,8 @@ public class ProductSku : BaseAuditableEntity
     public decimal? CompareAtPrice { get; set; }
     public decimal? CostPrice { get; set; }
     public decimal Tax { get; set; }
+    public int? VatRateId { get; set; }
+    public VatRate? VatRate { get; set; }
     public int StockQuantity { get; set; }
     public int LowStockThreshold { get; set; } = 5;
     public string? ImagePath { get; set; }

@@ -1,4 +1,5 @@
 using dWebShop.Domain.Common;
+using dWebShop.Domain.Entities.Pricing;
 
 namespace dWebShop.Domain.Entities.Partners;
 
@@ -13,4 +14,6 @@ public class Partner : BaseAuditableEntity
     public string Phone { get; set; } = string.Empty;
     public string PartnerType { get; set; } = string.Empty;
     public string Tier { get; set; } = string.Empty;
+    public int? PaymentTermsId { get; set; }
+    public PaymentTerms? PaymentTerms { get; set; }
 }

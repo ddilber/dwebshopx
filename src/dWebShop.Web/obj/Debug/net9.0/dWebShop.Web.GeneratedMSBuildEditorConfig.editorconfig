@@ -75,6 +75,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xIb21lLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[F:/PROJECTS/Blazor/dWebShopX/src/dWebShop.Web/Components/Pages/Inspiration/InspirationDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbnNwaXJhdGlvblxJbnNwaXJhdGlvbkRldGFpbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/PROJECTS/Blazor/dWebShopX/src/dWebShop.Web/Components/Pages/Inspiration/InspirationHub.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbnNwaXJhdGlvblxJbnNwaXJhdGlvbkh1Yi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [F:/PROJECTS/Blazor/dWebShopX/src/dWebShop.Web/Components/Pages/NotFound.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xOb3RGb3VuZC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
@@ -141,6 +149,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [F:/PROJECTS/Blazor/dWebShopX/src/dWebShop.Web/Components/Routes.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSb3V0ZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/PROJECTS/Blazor/dWebShopX/src/dWebShop.Web/Components/Shared/InspirationCardComponent.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTaGFyZWRcSW5zcGlyYXRpb25DYXJkQ29tcG9uZW50LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [F:/PROJECTS/Blazor/dWebShopX/src/dWebShop.Web/Components/Shared/ShopProductCard.razor]

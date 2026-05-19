@@ -10,7 +10,13 @@ public class OrderItem : BaseAuditableEntity
     public int ProductId { get; set; }
     public Product? Product { get; set; }
     public decimal Quantity { get; set; }
+    public decimal Price { get; set; }
     public decimal Tax { get; set; }
     public decimal Discount { get; set; }
-    public decimal Price { get; set; }
+
+    // Pricing snapshot — immutable record of what was calculated at order time
+    public decimal BasePrice { get; set; }
+    public decimal FinalPrice { get; set; }
+    public decimal VatRateSnapshot { get; set; }
+    public string? AppliedRulesJson { get; set; }
 }

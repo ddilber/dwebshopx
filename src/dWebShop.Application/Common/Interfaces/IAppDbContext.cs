@@ -39,6 +39,12 @@ public interface IAppDbContext : IAsyncDisposable
     DbSet<PricelistItem> PricelistItems { get; }
     DbSet<ClientPricelist> ClientPricelists { get; }
     DbSet<ClientDiscount> ClientDiscounts { get; }
+    DbSet<CustomerProductPrice> CustomerProductPrices { get; }
+    DbSet<VatRate> VatRates { get; }
+    DbSet<PaymentTerms> PaymentTerms { get; }
+    DbSet<DiscountDefinition> DiscountDefinitions { get; }
+    DbSet<DiscountVersion> DiscountVersions { get; }
+    DbSet<DiscountRule> DiscountRules { get; }
 
     DbSet<ShoppingCartItem> ShoppingCartItems { get; }
 

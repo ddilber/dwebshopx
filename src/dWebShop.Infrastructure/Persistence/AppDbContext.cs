@@ -44,6 +44,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>
     public DbSet<PricelistItem> PricelistItems => Set<PricelistItem>();
     public DbSet<ClientPricelist> ClientPricelists => Set<ClientPricelist>();
     public DbSet<ClientDiscount> ClientDiscounts => Set<ClientDiscount>();
+    public DbSet<CustomerProductPrice> CustomerProductPrices => Set<CustomerProductPrice>();
+    public DbSet<VatRate> VatRates => Set<VatRate>();
+    public DbSet<PaymentTerms> PaymentTerms => Set<PaymentTerms>();
+    public DbSet<DiscountDefinition> DiscountDefinitions => Set<DiscountDefinition>();
+    public DbSet<DiscountVersion> DiscountVersions => Set<DiscountVersion>();
+    public DbSet<DiscountRule> DiscountRules => Set<DiscountRule>();
 
     // Shopping Cart
     public DbSet<ShoppingCartItem> ShoppingCartItems => Set<ShoppingCartItem>();
@@ -354,5 +360,101 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>
         builder.Entity<PostMeta>().ToTable("PostMetas");
         builder.Entity<PostComment>().ToTable("PostComments");
         builder.Entity<UoM>().ToTable("UoMs");
+
+        // VatRate
+        builder.Entity<VatRate>(e =>
+        {
+            e.ToTable("VatRates");
+            e.Property(x => x.Name).HasMaxLength(100).IsRequired();
+            e.Property(x => x.Rate).HasPrecision(5, 2);
+        });
+
+        // PaymentTerms
+        builder.Entity<PaymentTerms>(e =>
+        {
+            e.ToTable("PaymentTerms");
+            e.Property(x => x.Name).HasMaxLength(200).IsRequired();
+            e.Property(x => x.CashDiscountPercent).HasPrecision(5, 2);
+        });
+
+        // Partner → PaymentTerms
+        builder.Entity<Partner>()
+            .HasOne(x => x.PaymentTerms)
+            .WithMany()
+            .HasForeignKey(x => x.PaymentTermsId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // ProductSku → VatRate
+        builder.Entity<ProductSku>()
+            .HasOne(x => x.VatRate)
+            .WithMany()
+            .HasForeignKey(x => x.VatRateId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        // CustomerProductPrice
+        builder.Entity<CustomerProductPrice>(e =>
+        {
+            e.ToTable("CustomerProductPrices");
+            e.HasOne(x => x.Partner)
+                .WithMany()
+                .HasForeignKey(x => x.PartnerId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.ProductSku)
+                .WithMany()
+                .HasForeignKey(x => x.ProductSkuId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.Property(x => x.Price).HasPrecision(18, 4);
+            e.Property(x => x.MinQuantity).HasPrecision(18, 4);
+            e.HasIndex(x => new { x.PartnerId, x.ProductSkuId });
+        });
+
+        // Pricelist extensions
+        builder.Entity<PricelistItem>(e =>
+        {
+            e.Property(x => x.Currency).HasMaxLength(3);
+        });
+
+        // DiscountDefinition
+        builder.Entity<DiscountDefinition>(e =>
+        {
+            e.ToTable("DiscountDefinitions");
+            e.Property(x => x.Name).HasMaxLength(200).IsRequired();
+            e.Property(x => x.Code).HasMaxLength(100).IsRequired();
+            e.Property(x => x.Type).HasConversion<int>();
+            e.HasIndex(x => x.Code).IsUnique();
+            e.HasMany(x => x.Versions)
+                .WithOne(x => x.DiscountDefinition)
+                .HasForeignKey(x => x.DiscountDefinitionId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // DiscountVersion
+        builder.Entity<DiscountVersion>(e =>
+        {
+            e.ToTable("DiscountVersions");
+            e.HasMany(x => x.Rules)
+                .WithOne(x => x.DiscountVersion)
+                .HasForeignKey(x => x.DiscountVersionId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // DiscountRule
+        builder.Entity<DiscountRule>(e =>
+        {
+            e.ToTable("DiscountRules");
+            e.Property(x => x.TargetType).HasConversion<int>();
+            e.Property(x => x.Value).HasPrecision(18, 4);
+            e.Property(x => x.MinQuantity).HasPrecision(18, 4);
+            e.Property(x => x.MinOrderAmount).HasPrecision(18, 4);
+            e.HasIndex(x => new { x.TargetType, x.TargetId });
+        });
+
+        // OrderItem snapshot columns
+        builder.Entity<OrderItem>(e =>
+        {
+            e.Property(x => x.BasePrice).HasPrecision(18, 4);
+            e.Property(x => x.FinalPrice).HasPrecision(18, 4);
+            e.Property(x => x.VatRateSnapshot).HasPrecision(5, 2);
+        });
     }
 }
