@@ -1,0 +1,196 @@
+@page "/inspirations/new"
+@page "/inspirations/{Id:int}"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Inspirations.Commands
+@using dWebShop.Application.Features.Inspirations.Queries
+@using dWebShop.Domain.Entities.Inspirations
+@inject IMediator Mediator
+@inject NavigationManager Navigation
+
+<PageTitle>@(_isNew ? "New Inspiration" : "Edit Inspiration") — dWebShop Admin</PageTitle>
+
+<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
+    <FluentLabel Style="font-size: 22px; font-weight: 600;">@(_isNew ? "New Inspiration" : "Edit Inspiration")</FluentLabel>
+    <FluentSpacer />
+    <FluentButton Appearance="ButtonAppearance.Outline" OnClick="@(() => Navigation.NavigateTo("/inspirations"))">
+        Cancel
+    </FluentButton>
+</FluentStack>
+<FluentDivider Style="margin-bottom: 24px;" />
+
+@if (_loading)
+{
+    <FluentProgressRing />
+}
+else
+{
+    <div style="max-width: 800px; display: flex; flex-direction: column; gap: 16px;">
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+            <FluentTextInput Label="Title" @bind-Value="_title" style="width:100%" Required="true" />
+            <FluentTextInput Label="Slug" @bind-Value="_slug" style="width:100%" Required="true" />
+        </div>
+
+        <FluentTextArea Label="Lede (subtitle)" @bind-Value="_lede" Rows="3" style="width:100%" />
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+            <FluentTextInput Label="Brand Slug" @bind-Value="_brandSlug" style="width:100%" Placeholder="sto, xypex, cortec" Required="true" />
+            <div>
+                <FluentLabel>Content Type</FluentLabel>
+                <select @bind="_contentTypeStr" style="width:100%; padding:6px; border:1px solid var(--colorNeutralStroke1); border-radius:4px; font-size:14px;">
+                    <option value="Story">Story — Priča</option>
+                    <option value="Reference">Reference — Referenca</option>
+                    <option value="Collection">Collection — Kolekcija</option>
+                </select>
+            </div>
+            <FluentTextInput Label="Published At" @bind-Value="_publishedAt" style="width:100%" Placeholder="2024-01-15" />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; align-items: end;">
+            <FluentTextInput Label="Hero Label" @bind-Value="_heroLabel" style="width:100%" Placeholder="fasada / etics sistem" />
+            <FluentTextInput Label="Read Minutes" @bind-Value="_readMinStr" style="width:100%" />
+            <div style="display: flex; flex-direction: column; gap: 6px; padding-bottom: 6px;">
+                <FluentCheckbox Label="Featured" @bind-Value="_isFeatured" />
+                <FluentCheckbox Label="Published" @bind-Value="_published" />
+            </div>
+        </div>
+
+        <FluentTextInput Label="Authors (pipe-separated)" @bind-Value="_authors" style="width:100%"
+                         Placeholder="Tehnicki tim ASGifiks|STO" />
+
+        <FluentTextInput Label="Tags (pipe-separated)" @bind-Value="_tags" style="width:100%"
+                         Placeholder="Energetska efikasnost|Sanacija|ETICS" />
+
+        <FluentTextInput Label="Linked Product Slugs (pipe-separated)" @bind-Value="_linkedProductSlugs" style="width:100%"
+                         Placeholder="sto-armat-classic|sto-eps-100" />
+
+        <div>
+            <FluentLabel Style="display:block; margin-bottom:4px;">Content (JSON sections)</FluentLabel>
+            <div style="font-size:11px; color:var(--colorNeutralForeground3); margin-bottom:6px;">
+                Array of: {"type":"paragraph","text":"..."} / {"type":"heading","text":"..."} / {"type":"bulletlist","items":[...]} / {"type":"callout","label":"...","text":"..."}
+            </div>
+            <FluentTextArea @bind-Value="_content" Rows="16" style="width:100%; font-family:monospace; font-size:12px;" />
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(_error))
+        {
+            <FluentMessageBar Intent="MessageBarIntent.Error">@_error</FluentMessageBar>
+        }
+
+        <FluentStack Orientation="Orientation.Horizontal" Style="gap:12px;">
+            <FluentButton Appearance="ButtonAppearance.Primary" OnClick="Save" Loading="@_saving">
+                @(_isNew ? "Create" : "Save changes")
+            </FluentButton>
+            @if (!_isNew)
+            {
+                <FluentButton Appearance="ButtonAppearance.Outline" OnClick="DeleteConfirm" Style="color:red; border-color:red;">
+                    Delete
+                </FluentButton>
+            }
+        </FluentStack>
+    </div>
+}
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    private bool _isNew;
+    private bool _loading = true;
+    private bool _saving;
+    private string _error = "";
+
+    private string _title = "";
+    private string _slug = "";
+    private string _lede = "";
+    private string _heroLabel = "";
+    private string _publishedAt = DateTime.Today.ToString("yyyy-MM-dd");
+    private string _readMinStr = "5";
+    private string _authors = "";
+    private string _tags = "";
+    private string _content = "[]";
+    private string _linkedProductSlugs = "";
+    private string _contentTypeStr = "Story";
+    private bool _isFeatured;
+    private bool _published;
+    private string _brandSlug = "";
+
+    private InspirationContentType ContentType =>
+        Enum.TryParse<InspirationContentType>(_contentTypeStr, out var t) ? t : InspirationContentType.Story;
+
+    private int ReadMin => int.TryParse(_readMinStr, out var n) ? n : 5;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isNew = Id is null;
+        if (!_isNew)
+        {
+            var dto = await Mediator.Send(new GetInspirationByIdQuery(Id!.Value));
+            if (dto is not null)
+            {
+                _title = dto.Title;
+                _slug = dto.Slug;
+                _lede = dto.Lede;
+                _heroLabel = dto.HeroLabel;
+                _publishedAt = dto.PublishedAt;
+                _readMinStr = dto.ReadMin.ToString();
+                _authors = string.Join("|", dto.Authors);
+                _tags = string.Join("|", dto.Tags);
+                _linkedProductSlugs = string.Join("|", dto.LinkedProductSlugs);
+                _contentTypeStr = dto.ContentType.ToString();
+                _isFeatured = dto.IsFeatured;
+                _published = dto.Published;
+                _brandSlug = dto.BrandSlug;
+
+                _content = dto.Sections.Length > 0
+                    ? System.Text.Json.JsonSerializer.Serialize(dto.Sections,
+                        new System.Text.Json.JsonSerializerOptions { WriteIndented = true })
+                    : "[]";
+            }
+        }
+        _loading = false;
+    }
+
+    private async Task Save()
+    {
+        _saving = true;
+        _error = "";
+        try
+        {
+            if (_isNew)
+            {
+                var id = await Mediator.Send(new CreateInspirationCommand(
+                    _title, _slug, _lede, _heroLabel, _publishedAt, ReadMin,
+                    _authors, _tags, _content, _linkedProductSlugs,
+                    ContentType, _isFeatured, _published, _brandSlug));
+                Navigation.NavigateTo($"/inspirations/{id}");
+            }
+            else
+            {
+                await Mediator.Send(new UpdateInspirationCommand(
+                    Id!.Value, _title, _slug, _lede, _heroLabel, _publishedAt, ReadMin,
+                    _authors, _tags, _content, _linkedProductSlugs,
+                    ContentType, _isFeatured, _published, _brandSlug));
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        _saving = false;
+    }
+
+    private async Task DeleteConfirm()
+    {
+        try
+        {
+            await Mediator.Send(new DeleteInspirationCommand(Id!.Value));
+            Navigation.NavigateTo("/inspirations");
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

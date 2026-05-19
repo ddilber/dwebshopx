@@ -1,0 +1,54 @@
+@page "/inspirations"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Inspirations.Queries
+@inject IMediator Mediator
+@inject NavigationManager Navigation
+
+<PageTitle>Inspirations — dWebShop Admin</PageTitle>
+
+<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" Style="margin-bottom: 16px;">
+    <FluentLabel Style="font-size: 22px; font-weight: 600;">Inspirations</FluentLabel>
+    <FluentSpacer />
+    <FluentButton Appearance="ButtonAppearance.Primary" IconStart="@(new Icons.Regular.Size16.Add())" OnClick="@(() => Navigation.NavigateTo("/inspirations/new"))">
+        New Article
+    </FluentButton>
+</FluentStack>
+<FluentDivider Style="margin-bottom: 24px;" />
+
+@if (_loading)
+{
+    <FluentProgressRing />
+}
+else if (_items is not null)
+{
+    <FluentDataGrid Items="@_items.AsQueryable()" Pagination="@_pagination" TGridItem="InspirationListItemDto">
+        <PropertyColumn Title="Title" Property="@(x => x.Title)" Sortable="true" />
+        <PropertyColumn Title="Brand" Property="@(x => x.BrandSlug.ToUpperInvariant())" Sortable="true" />
+        <PropertyColumn Title="Type" Property="@(x => x.ContentType.ToString())" Sortable="true" />
+        <TemplateColumn Title="Featured">
+            @(context.IsFeatured ? "★" : "—")
+        </TemplateColumn>
+        <TemplateColumn Title="Published">
+            <FluentIcon Value="@((Icon)(context.Published ? new Icons.Regular.Size16.CheckmarkCircle() : (Icon)new Icons.Regular.Size16.DismissCircle()))"
+                        Color="@(context.Published ? Color.Success : Color.Error)" />
+        </TemplateColumn>
+        <TemplateColumn Title="Actions">
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Edit())" OnClick="@(() => Navigation.NavigateTo($"/inspirations/{context.Id}"))">Edit</FluentButton>
+        </TemplateColumn>
+    </FluentDataGrid>
+    <FluentPaginator State="@_pagination" />
+}
+
+@code {
+    private List<InspirationListItemDto>? _items;
+    private bool _loading = true;
+    private PaginationState _pagination = new() { ItemsPerPage = 20 };
+
+    protected override async Task OnInitializedAsync()
+    {
+        _items = await Mediator.Send(new GetInspirationsQuery());
+        _loading = false;
+    }
+}

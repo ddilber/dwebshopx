@@ -1,9 +1,9 @@
-@* Reusable card for InspirationHub and InspirationDetail (related) *@
+@using dWebShop.Application.Features.Inspirations.Queries
 
 <a href="/brands/@BrandSlug/inspiracija/@Item.Slug" class="asg-insp-card asg-insp-card--@Size">
     <div class="asg-insp-card-img">
         <div class="asg-insp-img-ph">[ @Item.HeroLabel ]</div>
-        <span class="asg-insp-card-type">@InspirationData.Types[Item.Type].Label</span>
+        <span class="asg-insp-card-type">@InspirationData.Types[Item.ContentType].Label</span>
     </div>
     <div class="asg-insp-card-body">
         <div class="asg-insp-card-meta">
@@ -47,6 +47,6 @@
 
 @code {
     [Parameter, EditorRequired] public string BrandSlug { get; set; } = "";
-    [Parameter, EditorRequired] public InspirationData.InspirationItem Item { get; set; } = default!;
+    [Parameter, EditorRequired] public InspirationListItemDto Item { get; set; } = default!;
     [Parameter] public string Size { get; set; } = "std";
 }

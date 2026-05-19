@@ -1,5 +1,8 @@
 @page "/brands/{brandSlug}/inspiracija/{articleSlug}"
 @layout MainLayout
+@using MediatR
+@using dWebShop.Application.Features.Inspirations.Queries
+@inject IMediator Mediator
 
 @if (_item == null)
 {
@@ -76,26 +79,26 @@ else
                     <div class="asg-insp-body">
                         @foreach (var section in _item.Sections)
                         {
-                            switch (section)
+                            switch (section.Type)
                             {
-                                case InspirationData.Paragraph p:
-                                    <p>@p.Text</p>
+                                case "paragraph":
+                                    <p>@section.Text</p>
                                     break;
-                                case InspirationData.Heading h:
-                                    <h3>@h.Text</h3>
+                                case "heading":
+                                    <h3>@section.Text</h3>
                                     break;
-                                case InspirationData.BulletList bl:
+                                case "bulletlist":
                                     <ul>
-                                        @foreach (var li in bl.Items)
+                                        @foreach (var li in section.Items ?? [])
                                         {
                                             <li>@li</li>
                                         }
                                     </ul>
                                     break;
-                                case InspirationData.Callout c:
+                                case "callout":
                                     <aside class="asg-insp-callout">
-                                        <div class="lbl">@c.Label</div>
-                                        <p>@c.Text</p>
+                                        <div class="lbl">@section.Label</div>
+                                        <p>@section.Text</p>
                                     </aside>
                                     break;
                             }
@@ -149,7 +152,7 @@ else
             </div>
         </section>
 
-        @if (_related.Length > 0)
+        @if (_related.Count > 0)
         {
             <section class="asg-section asg-soft">
                 <div class="asg-wrap">
@@ -176,9 +179,9 @@ else
     [Parameter] public string BrandSlug { get; set; } = "";
     [Parameter] public string ArticleSlug { get; set; } = "";
 
-    private InspirationData.InspirationItem? _item;
-    private InspirationData.ContentTypeInfo _typeInfo = InspirationData.Types[InspirationData.ContentType.Story];
-    private InspirationData.InspirationItem[] _related = [];
+    private InspirationDetailDto? _item;
+    private InspirationData.ContentTypeInfo _typeInfo = InspirationData.Types[Domain.Entities.Inspirations.InspirationContentType.Story];
+    private List<InspirationListItemDto> _related = [];
     private List<ShopData.Product> _linkedProducts = [];
     private string _brandName = "";
 
@@ -189,21 +192,22 @@ else
         ["cortec"] = "CORTEC",
     };
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         var brand = BrandSlug?.ToLower() ?? "";
         BrandNames.TryGetValue(brand, out var name);
         _brandName = name ?? brand.ToUpper();
 
-        _item = InspirationData.Find(brand, ArticleSlug ?? "");
+        _item = await Mediator.Send(new GetInspirationBySlugQuery(brand, ArticleSlug ?? ""));
         if (_item == null) return;
 
-        _typeInfo = InspirationData.Types[_item.Type];
+        _typeInfo = InspirationData.Types[_item.ContentType];
 
-        _related = InspirationData.ForBrand(brand)
-            .Where(x => x.Slug != _item.Slug && x.Type == _item.Type)
+        var allForBrand = await Mediator.Send(new GetPublishedInspirationsByBrandQuery(brand));
+        _related = allForBrand
+            .Where(x => x.Slug != _item.Slug && x.ContentType == _item.ContentType)
             .Take(3)
-            .ToArray();
+            .ToList();
 
         _linkedProducts = _item.LinkedProductSlugs
             .Select(s => ShopData.Products.FirstOrDefault(p => p.Slug == s))

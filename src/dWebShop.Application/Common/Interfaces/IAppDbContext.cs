@@ -1,4 +1,5 @@
 using dWebShop.Domain.Entities.Blog;
+using dWebShop.Domain.Entities.Inspirations;
 using dWebShop.Domain.Entities.Orders;
 using dWebShop.Domain.Entities.Partners;
 using dWebShop.Domain.Entities.Pricing;
@@ -10,6 +11,8 @@ namespace dWebShop.Application.Common.Interfaces;
 
 public interface IAppDbContext : IAsyncDisposable
 {
+    DbSet<Inspiration> Inspirations { get; }
+
     DbSet<Post> Posts { get; }
     DbSet<PostCategory> PostCategories { get; }
     DbSet<PostTag> PostTags { get; }
