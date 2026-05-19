@@ -1,4 +1,5 @@
 using dWebShop.Domain.Entities.Blog;
+using dWebShop.Domain.Entities.Inspirations;
 using dWebShop.Domain.Entities.Orders;
 using dWebShop.Domain.Entities.Partners;
 using dWebShop.Domain.Entities.Pricing;
@@ -53,6 +54,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>
 
     // Shopping Cart
     public DbSet<ShoppingCartItem> ShoppingCartItems => Set<ShoppingCartItem>();
+
+    // Inspirations
+    public DbSet<Inspiration> Inspirations => Set<Inspiration>();
 
     // Blog
     public DbSet<Post> Posts => Set<Post>();
@@ -455,6 +459,28 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>
             e.Property(x => x.BasePrice).HasPrecision(18, 4);
             e.Property(x => x.FinalPrice).HasPrecision(18, 4);
             e.Property(x => x.VatRateSnapshot).HasPrecision(5, 2);
+        });
+
+        // Inspirations
+        builder.Entity<Inspiration>(e =>
+        {
+            e.ToTable("Inspirations");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Title).HasMaxLength(400).IsRequired();
+            e.Property(x => x.Slug).HasMaxLength(400).IsRequired();
+            e.Property(x => x.Lede).HasMaxLength(1000);
+            e.Property(x => x.HeroLabel).HasMaxLength(200);
+            e.Property(x => x.PublishedAt).HasMaxLength(20);
+            e.Property(x => x.Authors).HasMaxLength(500);
+            e.Property(x => x.Tags).HasMaxLength(500);
+            e.Property(x => x.LinkedProductSlugs).HasMaxLength(1000);
+            e.Property(x => x.Content).HasColumnType("longtext");
+            e.Property(x => x.ContentType).HasConversion<int>();
+            e.HasIndex(x => new { x.BrandId, x.Slug }).IsUnique();
+            e.HasOne(x => x.Brand)
+                .WithMany()
+                .HasForeignKey(x => x.BrandId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

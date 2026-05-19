@@ -1,6 +1,10 @@
 @page "/brands/{brandSlug}/inspiracija"
 @layout MainLayout
 @rendermode InteractiveServer
+@using MediatR
+@using dWebShop.Application.Features.Inspirations.Queries
+@using dWebShop.Domain.Entities.Inspirations
+@inject IMediator Mediator
 
 <PageTitle>Inspiracija &amp; informacije · @_brandName — A&amp;S GIFIKS</PageTitle>
 
@@ -12,7 +16,7 @@
         <p>Brand nije pronađen. <a href="/brands">Nazad na brendove</a></p>
     </div>
 }
-else if (_all.Length == 0)
+else if (_all.Count == 0)
 {
     <header class="asg-pageheader">
         <div class="asg-wrap">
@@ -58,16 +62,16 @@ else
                     </p>
                 </div>
                 <div class="asg-pageheader-meta">
-                    <div><span>Ukupno sadržaja</span><b>@_all.Length</b></div>
-                    <div><span>Priče</span><b>@InspirationData.ByType(BrandSlug, InspirationData.ContentType.Story).Length</b></div>
-                    <div><span>Reference</span><b>@InspirationData.ByType(BrandSlug, InspirationData.ContentType.Reference).Length</b></div>
-                    <div><span>Kolekcije</span><b>@InspirationData.ByType(BrandSlug, InspirationData.ContentType.Collection).Length</b></div>
+                    <div><span>Ukupno sadržaja</span><b>@_all.Count</b></div>
+                    <div><span>Priče</span><b>@_all.Count(x => x.ContentType == InspirationContentType.Story)</b></div>
+                    <div><span>Reference</span><b>@_all.Count(x => x.ContentType == InspirationContentType.Reference)</b></div>
+                    <div><span>Kolekcije</span><b>@_all.Count(x => x.ContentType == InspirationContentType.Collection)</b></div>
                 </div>
             </div>
         </div>
     </header>
 
-    @if (_featured.Length > 0)
+    @if (_featured.Count > 0)
     {
         <section class="asg-section">
             <div class="asg-wrap">
@@ -78,7 +82,7 @@ else
                     </div>
                 </div>
                 <div class="asg-insp-featured-grid">
-                    @for (int i = 0; i < _featured.Length; i++)
+                    @for (int i = 0; i < _featured.Count; i++)
                     {
                         var item = _featured[i];
                         var size = i == 0 ? "hero" : "std";
@@ -99,15 +103,15 @@ else
             </div>
 
             <div class="asg-insp-filters">
-                <button class="@(_filter == "" ? "active" : "")" @onclick='() => _filter = ""'>
-                    Sve <span>@_all.Length</span>
+                <button class="@(_filter == null ? "active" : "")" @onclick='() => _filter = null'>
+                    Sve <span>@_all.Count</span>
                 </button>
                 @foreach (var (key, info) in InspirationData.Types)
                 {
-                    var count = _all.Count(x => x.Type == key);
+                    var count = _all.Count(x => x.ContentType == key);
                     if (count == 0) continue;
                     var k = key;
-                    <button class="@(_filter == key.ToString() ? "active" : "")" @onclick="() => _filter = k.ToString()">
+                    <button class="@(_filter == k ? "active" : "")" @onclick="() => _filter = k">
                         @info.Plural <span>@count</span>
                     </button>
                 }
@@ -171,11 +175,11 @@ else
 @code {
     [Parameter] public string BrandSlug { get; set; } = "";
 
-    private InspirationData.InspirationItem[] _all = [];
-    private InspirationData.InspirationItem[] _featured = [];
+    private List<InspirationListItemDto> _all = [];
+    private List<InspirationListItemDto> _featured = [];
     private string _brandName = "";
     private bool _notFound;
-    private string _filter = "";
+    private InspirationContentType? _filter = null;
 
     private static readonly IReadOnlyDictionary<string, string> BrandNames = new Dictionary<string, string>
     {
@@ -184,12 +188,10 @@ else
         ["cortec"] = "CORTEC",
     };
 
-    private InspirationData.InspirationItem[] _visible =>
-        _filter == ""
-            ? _all
-            : _all.Where(x => x.Type.ToString() == _filter).ToArray();
+    private IEnumerable<InspirationListItemDto> _visible =>
+        _filter == null ? _all : _all.Where(x => x.ContentType == _filter);
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         var slug = BrandSlug?.ToLower() ?? "";
         if (!BrandNames.TryGetValue(slug, out var name))
@@ -199,8 +201,9 @@ else
         }
         _notFound = false;
         _brandName = name;
-        _all      = InspirationData.ForBrand(slug);
-        _featured = InspirationData.Featured(slug);
-        _filter   = "";
+        _filter = null;
+
+        _all = await Mediator.Send(new GetPublishedInspirationsByBrandQuery(slug));
+        _featured = _all.Where(x => x.IsFeatured).ToList();
     }
 }
