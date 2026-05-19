@@ -145,7 +145,7 @@ public class GetInspirationBySlugQueryHandler(IAppDbContext db) : IRequestHandle
 
         if (x is null) return null;
 
-        return MapDetail(x, _json);
+        return InspirationMapper.MapDetail(x, _json);
     }
 }
 
@@ -165,7 +165,7 @@ public class GetInspirationByIdQueryHandler(IAppDbContext db) : IRequestHandler<
 
         if (x is null) return null;
 
-        return MapDetail(x, _json);
+        return InspirationMapper.MapDetail(x, _json);
     }
 }
 
