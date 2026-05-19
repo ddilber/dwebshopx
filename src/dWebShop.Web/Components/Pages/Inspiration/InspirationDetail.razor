@@ -154,27 +154,6 @@ else
             }
         }
 
-        <!-- Gallery -->
-        @if (_item.Gallery.Length > 0)
-        {
-            <div class="asg-insp-gallery">
-                <div class="asg-wrap">
-                    <div class="asg-insp-gallery-grid">
-                        @foreach (var img in _item.Gallery)
-                        {
-                            <figure class="asg-insp-gallery-item">
-                                <img src="/@img.Url" alt="@img.Caption" loading="lazy" />
-                                @if (!string.IsNullOrWhiteSpace(img.Caption))
-                                {
-                                    <figcaption>@img.Caption</figcaption>
-                                }
-                            </figure>
-                        }
-                    </div>
-                </div>
-            </div>
-        }
-
         <!-- Last body group + endcard + sidebar in a 2-column grid -->
         <section class="asg-insp-body-section">
             <div class="asg-wrap">
@@ -256,6 +235,27 @@ else
                 </div>
             </div>
         </section>
+
+        <!-- Gallery -->
+        @if (_item.Gallery.Length > 0)
+        {
+            <div class="asg-insp-gallery">
+                <div class="asg-wrap">
+                    <div class="asg-insp-gallery-grid">
+                        @foreach (var img in _item.Gallery)
+                        {
+                            <figure class="asg-insp-gallery-item">
+                                <img src="/@img.Url" alt="@img.Caption" loading="lazy" />
+                                @if (!string.IsNullOrWhiteSpace(img.Caption))
+                                {
+                                    <figcaption>@img.Caption</figcaption>
+                                }
+                            </figure>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
 
         @if (_related.Count > 0)
         {
