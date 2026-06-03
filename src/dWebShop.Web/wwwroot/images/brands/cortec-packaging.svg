@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="t">
+  <title id="t">CORTEC — VpCI ambalaža i pakovanje</title>
+  <defs>
+    <linearGradient id="bg-cp" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f1ea"/>
+      <stop offset="1" stop-color="#dcd6c5"/>
+    </linearGradient>
+    <pattern id="film-cp" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="14" stroke="#2e8b4a" stroke-width="1.4" stroke-opacity=".35"/>
+    </pattern>
+    <pattern id="card-cp" width="10" height="10" patternUnits="userSpaceOnUse">
+      <rect width="10" height="10" fill="#c9aa72"/>
+      <line x1="0" y1="0" x2="10" y2="0" stroke="#16161a" stroke-opacity=".15"/>
+      <line x1="0" y1="5" x2="10" y2="5" stroke="#16161a" stroke-opacity=".1"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg-cp)"/>
+
+  <!-- ground -->
+  <line x1="0" y1="500" x2="800" y2="500" stroke="#16161a" stroke-width="1.2"/>
+
+  <!-- pallet -->
+  <g stroke="#16161a" stroke-width="1.4" fill="#8a6f4a">
+    <rect x="120" y="488" width="560" height="14"/>
+    <rect x="120" y="488" width="560" height="14" fill="#c9aa72"/>
+    <rect x="120" y="488" width="560" height="14" fill="none" stroke="#16161a" stroke-width="1.4"/>
+  </g>
+
+  <!-- carton boxes with VpCI label -->
+  <g stroke="#16161a" stroke-width="1.6" stroke-linejoin="round">
+    <!-- back box -->
+    <g transform="translate(160 280)">
+      <rect x="0" y="0" width="200" height="208" fill="url(#card-cp)"/>
+      <rect x="0" y="0" width="200" height="208" fill="none" stroke="#16161a" stroke-width="1.6"/>
+      <line x1="0" y1="0" x2="200" y2="0" stroke="#16161a" stroke-width="2"/>
+      <rect x="20" y="60" width="160" height="46" fill="#1a5c2e"/>
+      <text x="100" y="92" font-family="ui-monospace,monospace" font-size="22" font-weight="700" fill="#f4f1ea" text-anchor="middle" letter-spacing="2">VpCI®</text>
+      <text x="100" y="130" font-family="ui-monospace,monospace" font-size="11" fill="#16161a" text-anchor="middle" letter-spacing="1.2">CORROSION INHIBITOR</text>
+      <text x="100" y="148" font-family="ui-monospace,monospace" font-size="10" fill="#16161a" fill-opacity=".7" text-anchor="middle">PROTECTS METAL PARTS</text>
+      <!-- tape -->
+      <line x1="100" y1="0" x2="100" y2="208" stroke="#16161a" stroke-opacity=".4" stroke-dasharray="6 4"/>
+    </g>
+
+    <!-- middle box with stretch film wrap -->
+    <g transform="translate(390 320)">
+      <rect x="0" y="0" width="180" height="168" fill="url(#card-cp)"/>
+      <rect x="0" y="0" width="180" height="168" fill="url(#film-cp)" fill-opacity=".7"/>
+      <rect x="0" y="0" width="180" height="168" fill="none" stroke="#16161a" stroke-width="1.6"/>
+      <rect x="14" y="60" width="152" height="34" fill="#1a5c2e"/>
+      <text x="90" y="84" font-family="ui-monospace,monospace" font-size="18" font-weight="700" fill="#f4f1ea" text-anchor="middle" letter-spacing="2">VpCI®</text>
+    </g>
+  </g>
+
+  <!-- VpCI bag/pouch (foreground left) -->
+  <g transform="translate(60 380)" stroke="#16161a" stroke-width="1.6" stroke-linejoin="round">
+    <path d="M0 30 Q0 0 30 0 L80 0 Q110 0 110 30 L110 100 L0 100 Z" fill="#1a5c2e"/>
+    <rect x="14" y="14" width="82" height="20" fill="#f4f1ea"/>
+    <text x="55" y="29" font-family="ui-monospace,monospace" font-size="10" text-anchor="middle" fill="#16161a">VpCI-126</text>
+    <text x="55" y="62" font-family="ui-monospace,monospace" font-size="18" font-weight="700" fill="#f4f1ea" text-anchor="middle">VpCI</text>
+    <text x="55" y="82" font-family="ui-monospace,monospace" font-size="9" fill="#f4f1ea" text-anchor="middle" letter-spacing="1">FILM BAG</text>
+  </g>
+
+  <!-- VpCI stretch film roll (foreground right) -->
+  <g transform="translate(600 380)" stroke="#16161a" stroke-width="1.6" stroke-linejoin="round">
+    <ellipse cx="50" cy="40" rx="50" ry="12" fill="#2e8b4a"/>
+    <path d="M0 40 V100 a50 12 0 0 0 100 0 V40" fill="#2e8b4a"/>
+    <ellipse cx="50" cy="40" rx="50" ry="12" fill="url(#film-cp)" fill-opacity=".5"/>
+    <ellipse cx="50" cy="40" rx="20" ry="5" fill="#dcd6c5" stroke="#16161a" stroke-width="1"/>
+    <text x="50" y="125" font-family="ui-monospace,monospace" font-size="9" fill="#16161a" text-anchor="middle" letter-spacing="1.2">VpCI STRETCH</text>
+  </g>
+
+  <!-- molecules in air -->
+  <g stroke="#1a5c2e" stroke-width=".8" fill="#2e8b4a" fill-opacity=".7">
+    <g transform="translate(280 200)"><circle r="5"/><circle cx="10" cy="-5" r="3"/><circle cx="-8" cy="-6" r="3"/></g>
+    <g transform="translate(420 180)"><circle r="5"/><circle cx="10" cy="-5" r="3"/><circle cx="-8" cy="-6" r="3"/></g>
+    <g transform="translate(540 220)"><circle r="5"/><circle cx="10" cy="-5" r="3"/><circle cx="-8" cy="-6" r="3"/></g>
+  </g>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#16161a" fill-opacity=".7" letter-spacing="1.5">
+    <text x="40" y="50">FIG. — AMBALAŽA I LOGISTIKA</text>
+    <text x="40" y="565">VpCI FOLIJE · KESE · KARTON · STREČ · TRANSPORT METALA</text>
+  </g>
+</svg>

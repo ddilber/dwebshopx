@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /cart
+Disallow: /checkout
+Disallow: /account
+Disallow: /login
+Disallow: /register
+Disallow: /register-success
+Disallow: /order-confirmation
+Disallow: /access-denied
+Disallow: /not-found
+Disallow: /Error
+Disallow: /logout
+
+Sitemap: https://asgifiks.ba/sitemap.xml

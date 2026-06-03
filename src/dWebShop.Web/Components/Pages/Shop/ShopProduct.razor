@@ -1,31 +1,96 @@
 @page "/shop/p/{slug}"
 @layout MainLayout
 @rendermode InteractiveServer
+@implements IDisposable
 @using System.Text.Json
+@using dWebShop.Web.Services
+@using dWebShop.Application.Features.ShoppingCart.Commands
+@using MediatR
+@using Microsoft.AspNetCore.Components.Web
 
 
 <PageTitle>@(_product?.Name ?? "Proizvod") — Web Shop</PageTitle>
+@if (_product is not null)
+{
+    var _canonical = $"https://asgifiks.ba/shop/p/{_product.Slug}";
+    var _brandUrl = $"https://asgifiks.ba/brands/{_product.BrandSlug}";
+    var _catUrl = $"https://asgifiks.ba/shop/{_product.BrandSlug}/{_product.CategorySlug}";
 
-@if (_product is null)
+    <HeadContent>
+        <link rel="canonical" href="@_canonical" />
+        <meta name="description" content="@_product.Short" />
+        <meta property="og:title" content="@($"{_product.Name} — {_product.BrandName ?? _product.BrandSlug}")" />
+        <meta property="og:description" content="@_product.Short" />
+        <meta property="og:url" content="@_canonical" />
+        <meta property="og:type" content="product" />
+        @{
+            var offers = _product.Skus.Count == 1
+                ? (JsonNode)new JsonObject {
+                    ["@type"] = "Offer",
+                    ["url"] = _canonical,
+                    ["priceCurrency"] = "BAM",
+                    ["price"] = _product.Skus[0].Price,
+                    ["availability"] = _product.Skus[0].StockBucket == "in" ? "https://schema.org/InStock" : "https://schema.org/PreOrder",
+                    ["seller"] = new JsonObject { ["@type"] = "Organization", ["name"] = "A&S GIFIKS" }
+                }
+                : new JsonObject {
+                    ["@type"] = "AggregateOffer",
+                    ["url"] = _canonical,
+                    ["priceCurrency"] = "BAM",
+                    ["lowPrice"] = _product.Skus.Min(s => s.Price),
+                    ["highPrice"] = _product.Skus.Max(s => s.Price),
+                    ["offerCount"] = _product.Skus.Count,
+                    ["availability"] = _product.Skus.Any(s => s.StockBucket == "in") ? "https://schema.org/InStock" : "https://schema.org/PreOrder",
+                    ["seller"] = new JsonObject { ["@type"] = "Organization", ["name"] = "A&S GIFIKS" }
+                };
+
+            var productLd = new JsonObject {
+                ["@type"] = "Product",
+                ["name"] = _product.Name,
+                ["description"] = _product.Desc,
+                ["sku"] = _product.Slug,
+                ["category"] = _product.CategoryName,
+                ["brand"] = new JsonObject { ["@type"] = "Brand", ["name"] = _product.BrandName ?? _product.BrandSlug },
+                ["url"] = _canonical,
+                ["offers"] = offers
+            };
+        }
+        @Seo.JsonLd(productLd)
+        @Seo.JsonLd(new JsonObject {
+            ["@type"] = "BreadcrumbList",
+            ["itemListElement"] = new JsonArray(
+                new JsonObject { ["@type"] = "ListItem", ["position"] = 1, ["name"] = "Web Shop", ["item"] = "https://asgifiks.ba/shop" },
+                new JsonObject { ["@type"] = "ListItem", ["position"] = 2, ["name"] = _product.BrandName ?? _product.BrandSlug, ["item"] = _brandUrl },
+                new JsonObject { ["@type"] = "ListItem", ["position"] = 3, ["name"] = _product.CategoryName ?? _product.CategorySlug, ["item"] = _catUrl },
+                new JsonObject { ["@type"] = "ListItem", ["position"] = 4, ["name"] = _product.Name, ["item"] = _canonical }
+            )
+        })
+    </HeadContent>
+}
+
+@if (!_initialized)
+{
+    <div class="asg-wrap" style="padding:80px 0;color:var(--asg-muted);font-family:var(--asg-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase">
+        Učitavanje...
+    </div>
+}
+else if (_product is null)
 {
     <div class="asg-wrap" style="padding:80px 0;color:var(--asg-muted)">Proizvod nije pronađen.</div>
 }
 else
 {
-    var brand = ShopData.FindBrand(_product.Brand);
-    var cat = ShopData.FindCategory(_product.Brand, _product.Category);
-    var currentSku = ShopData.FindSku(_product, _selected);
+    var currentSku = ShopFormatting.FindSku(_product, _selected);
     var (stockLabel, stockColor) = currentSku is not null
-        ? ShopData.StockLabel(currentSku.Stock)
-        : ShopData.StockLabel("order");
-    var related = ShopData.Products.Where(p => p.Brand == _product.Brand && p.Slug != _product.Slug).Take(4).ToList();
+        ? ShopFormatting.StockLabel(currentSku.StockBucket)
+        : ShopFormatting.StockLabel("order");
 
     <div class="asg-pdp">
         <div class="asg-wrap">
             <nav class="asg-shop-crumbs">
                 <a href="/shop">Web Shop</a><span class="sep">/</span>
-                <a href="/shop/@_product.Brand">@(brand?.Name ?? _product.Brand)</a><span class="sep">/</span>
-                <a href="/shop/@_product.Brand/@_product.Category">@(cat?.Name ?? _product.Category)</a><span class="sep">/</span>
+                <a href="/shop/@_product.BrandSlug">@(_product.BrandName ?? _product.BrandSlug)</a><span class="sep">/</span>
+                <a href="/shop/@_product.BrandSlug/@_product.CategorySlug">@(_product.CategoryName ?? _product.CategorySlug)</a><span class="sep">/</span>
                 <span class="cur">@_product.Name</span>
             </nav>
 
@@ -35,7 +100,7 @@ else
                         <span class="ph">Slika @(_activeImg + 1) · @_product.Name</span>
                     </div>
                     <div class="asg-pdp-thumbs">
-                        @for (int i = 0; i < 5; i++)
+                        @for (int i = 0; i < Math.Max(_detail!.Images.Count, 1); i++)
                         {
                             var idx = i;
                             <div class="asg-pdp-thumb @(_activeImg == idx ? "active" : "")" @onclick="() => _activeImg = idx"></div>
@@ -44,11 +109,11 @@ else
                 </div>
 
                 <div class="asg-pdp-info">
-                    <div class="asg-eyebrow"><span class="dot"></span><span>@(brand?.Name) · @(cat?.Name)</span></div>
+                    <div class="asg-eyebrow"><span class="dot"></span><span>@(_product.BrandName) · @(_product.CategoryName)</span></div>
                     <h1>@_product.Name</h1>
                     <p>@_product.Short</p>
 
-                    @if (_product.Tags.Length > 0)
+                    @if (_product.Tags.Count > 0)
                     {
                         <div class="asg-pdp-tags">
                             @foreach (var tag in _product.Tags)
@@ -58,7 +123,7 @@ else
                         </div>
                     }
 
-                    @if (_product.Options.Length > 0)
+                    @if (_product.Options.Count > 0)
                     {
                         <div class="asg-pdp-options">
                             @foreach (var opt in _product.Options)
@@ -70,7 +135,7 @@ else
                                         {
                                             var v = val;
                                             var isActive = _selected.TryGetValue(opt.Name, out var sel) && sel == v;
-                                            var avail = ShopData.IsAvailable(_product, _selected, opt.Name, v);
+                                            var avail = ShopFormatting.IsAvailable(_product, _selected, opt.Name, v);
                                             <button class="asg-pdp-opt-val @(isActive ? "active" : "") @(!avail ? "unavailable" : "")"
                                                     @onclick="() => SetOpt(opt.Name, v)"
                                                     disabled="@(!avail)">@val</button>
@@ -84,9 +149,9 @@ else
                     <div class="asg-pdp-stock">
                         <span class="dot" style="background:@stockColor"></span>
                         @stockLabel
-                        @if (currentSku is not null)
+                        @if (currentSku is not null && !string.IsNullOrEmpty(currentSku.Sku))
                         {
-                            <span style="color:var(--asg-muted);margin-left:8px">· SKU @ShopData.SkuKey(currentSku.Opts).ToUpperInvariant()[..Math.Min(12, ShopData.SkuKey(currentSku.Opts).Length)]</span>
+                            <span style="color:var(--asg-muted);margin-left:8px">· SKU @currentSku.Sku</span>
                         }
                     </div>
 
@@ -95,7 +160,7 @@ else
                             <span class="label">Cijena</span>
                             @if (_isLoggedIn && currentSku is not null)
                             {
-                                <span class="val">@ShopData.FmtPrice(currentSku.Price)</span>
+                                <span class="val">@ShopFormatting.FmtPrice(currentSku.Price)</span>
                                 <span class="uom">po @currentSku.Uom · bez PDV-a</span>
                             }
                             else if (currentSku is not null)
@@ -114,15 +179,20 @@ else
                                    @onchange="@(e => _qty = Math.Max(1, int.TryParse(e.Value?.ToString(), out var v) ? v : 1))" />
                             <button type="button" @onclick="() => _qty++">+</button>
                         </div>
-                        <button class="asg-btn asg-btn-pri" @onclick="AddToCart" disabled="@(currentSku is null)">
+                        <button class="asg-btn asg-btn-pri" @onclick="AddToCart" disabled="@(currentSku is null || _addingToCart)">
                             @if (_added)
                             {
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M5 12 L10 17 L19 7"/></svg>
                                 <span>Dodano</span>
                             }
-                            else
+                            else if (_isLoggedIn)
                             {
                                 <span>U korpu</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+                            }
+                            else
+                            {
+                                <span>Prijavi se za narudžbu</span>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
                             }
                         </button>
@@ -143,21 +213,24 @@ else
                 <div>
                     <h3>02 / Tehnički podaci</h3>
                     <div class="asg-pdp-spec">
-                        @foreach (var row in _product.Info)
+                        @foreach (var row in _detail!.Info)
                         {
-                            <div><span>@row.K</span><span>@row.V</span></div>
+                            <div><span>@row.Key</span><span>@row.Value</span></div>
                         }
                     </div>
-                    @if (_product.Docs.Length > 0)
+                    @if (_detail.Documents.Count > 0)
                     {
                         <div class="asg-pdp-docs">
                             <h3>03 / Dokumentacija</h3>
-                            @foreach (var doc in _product.Docs)
+                            @foreach (var doc in _detail.Documents)
                             {
-                                <a href="#" class="asg-pdp-doc" @onclick:preventDefault="true">
+                                <a href="@doc.Path" class="asg-pdp-doc" target="_blank" rel="noopener">
                                     <div class="asg-pdp-doc-icon">PDF</div>
                                     <span>@doc.Name</span>
-                                    <span class="size">@doc.Size</span>
+                                    @if (!string.IsNullOrEmpty(doc.Description))
+                                    {
+                                        <span class="size">@doc.Description</span>
+                                    }
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:16px;height:16px;color:var(--asg-muted)">
                                         <path d="M12 4 V16 M6 11 L12 17 L18 11 M5 20 H19"/>
                                     </svg>
@@ -169,7 +242,7 @@ else
             </div>
         </div>
 
-        @if (related.Count > 0)
+        @if (_related.Count > 0)
         {
             <section class="asg-pdp-related">
                 <div class="asg-wrap">
@@ -181,7 +254,7 @@ else
                         </div>
                     </div>
                     <div class="asg-shop-row">
-                        @foreach (var p in related)
+                        @foreach (var p in _related)
                         {
                             <ShopProductCard Product="p" IsLoggedIn="_isLoggedIn" />
                         }
@@ -193,41 +266,105 @@ else
 }
 
 @code {
-    [Inject] IJSRuntime JS { get; set; } = default!;
+    [Inject] ShopCatalogService Catalog { get; set; } = default!;
+    [Inject] CurrentUser CurrentUser { get; set; } = default!;
+    [Inject] IMediator Mediator { get; set; } = default!;
+    [Inject] NavigationManager Nav { get; set; } = default!;
+    [Inject] PersistentComponentState ApplicationState { get; set; } = default!;
 
     [Parameter] public string Slug { get; set; } = "";
 
-    private ShopData.Product? _product;
+    private ShopProductDetailVm? _detail;
+    private ShopProductVm? _product;
+    private List<ShopProductCardVm> _related = [];
     private Dictionary<string, string> _selected = [];
     private int _qty = 1;
     private int _activeImg;
     private bool _added;
     private bool _isLoggedIn;
+    private bool _initialized;
+    private bool _addingToCart;
+    private PersistingComponentStateSubscription _persistSubscription;
+    private string _loadedSlug = "";
 
-    protected override void OnParametersSet()
+    protected override void OnInitialized()
     {
-        _product = ShopData.FindProduct(Slug);
-        if (_product is not null)
+        // Register the SSR-side serializer. Persists at the end of the
+        // pre-render so the interactive pass can read it back instead of
+        // re-running the (9-statement) PDP split query.
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistState);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Within the interactive circuit, navigating to a different product
+        // re-fires OnParametersSetAsync. Only reload when the slug actually
+        // changes — otherwise the second invocation from the dual-render
+        // would refetch even with state restored.
+        if (Slug == _loadedSlug && _detail is not null)
         {
-            _selected = [];
-            if (_product.Skus.Length > 0)
+            return;
+        }
+
+        _initialized = false;
+        _loadedSlug = Slug;
+        _isLoggedIn = await CurrentUser.IsAuthenticatedAsync();
+        var partnerId = _isLoggedIn ? await CurrentUser.GetPartnerIdAsync() : null;
+
+        // Try the persisted SSR state first. TryTakeFromJson consumes the
+        // entry, so this only succeeds on the very first interactive pass
+        // after pre-render — exactly when we want to skip the round-trip.
+        var detailKey = $"pdp:{Slug}";
+        var relatedKey = $"pdp:{Slug}:related";
+
+        if (ApplicationState.TryTakeFromJson<ShopProductDetailVm>(detailKey, out var persistedDetail) && persistedDetail is not null)
+        {
+            _detail = persistedDetail;
+            if (ApplicationState.TryTakeFromJson<List<ShopProductCardVm>>(relatedKey, out var persistedRelated) && persistedRelated is not null)
             {
-                var first = _product.Skus[0];
-                for (int i = 0; i < _product.Options.Length; i++)
-                    _selected[_product.Options[i].Name] = first.Opts[i];
+                _related = persistedRelated;
             }
         }
+        else
+        {
+            _detail = await Catalog.GetProductPdpAsync(Slug, partnerId);
+            _related = await LoadRelatedAsync(_detail?.Product, partnerId);
+        }
+
+        _product = _detail?.Product;
+        _selected = [];
+        if (_product is not null && _product.Skus.Count > 0)
+        {
+            var first = _product.Skus[0];
+            for (int i = 0; i < _product.Options.Count; i++)
+                _selected[_product.Options[i].Name] = first.Opts[i];
+        }
+
         _qty = 1;
         _added = false;
+        _initialized = true;
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task<List<ShopProductCardVm>> LoadRelatedAsync(ShopProductVm? product, int? partnerId)
     {
-        if (!firstRender) return;
-        var userJson = await JS.InvokeAsync<string>("window.asgShop.getUserJson");
-        _isLoggedIn = userJson != "null";
-        StateHasChanged();
+        // Same-brand siblings, capped at four. Uses the lightweight cards
+        // query — no per-product PDP fetch.
+        if (product is null || string.IsNullOrEmpty(product.BrandSlug)) return [];
+        var siblings = await Catalog.GetProductsAsync(brandSlug: product.BrandSlug, partnerId: partnerId);
+        return siblings.Where(p => p.Slug != product.Slug).Take(4).ToList();
     }
+
+    private Task PersistState()
+    {
+        if (_detail is not null)
+        {
+            ApplicationState.PersistAsJson($"pdp:{Slug}", _detail);
+            ApplicationState.PersistAsJson($"pdp:{Slug}:related", _related);
+        }
+        return Task.CompletedTask;
+    }
+
+    public void Dispose() => _persistSubscription.Dispose();
 
     private void SetOpt(string optName, string val)
     {
@@ -239,29 +376,57 @@ else
     private async Task AddToCart()
     {
         if (_product is null) return;
-        var sku = ShopData.FindSku(_product, _selected);
+        var sku = ShopFormatting.FindSku(_product, _selected);
         if (sku is null) return;
 
-        var optsLabel = string.Join(" · ", _product.Options.Select((o, i) => $"{o.Name}: {sku.Opts[i]}"));
-        var skuKey = ShopData.SkuKey(sku.Opts);
-
-        await JS.InvokeVoidAsync("window.asgShop.addToCart", new
+        // Anonymous → bounce to login with a return URL so we land back on
+        // this PDP after sign-in. The user can re-press "U korpu" then.
+        if (!_isLoggedIn)
         {
-            productSlug = _product.Slug,
-            productName = _product.Name,
-            brand = _product.Brand,
-            skuKey,
-            opts = sku.Opts,
-            optsLabel = string.IsNullOrEmpty(optsLabel) ? "—" : optsLabel,
-            uom = sku.Uom,
-            price = sku.Price,
-            qty = _qty,
-        });
+            var returnUrl = $"/shop/p/{_product.Slug}";
+            Nav.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(returnUrl)}");
+            return;
+        }
 
-        _added = true;
+        var userId = await CurrentUser.GetUserIdAsync();
+        if (userId is null) return;
+
+        _addingToCart = true;
+        StateHasChanged();
+
+        try
+        {
+            await Mediator.Send(new AddToCartCommand(
+                UserId: userId.Value,
+                ProductId: _product.Id,
+                ProductSlug: _product.Slug,
+                SkuId: sku.Id,
+                SKU: sku.Sku,
+                Name: BuildLineName(_product, sku),
+                Quantity: _qty,
+                Price: sku.Price,
+                Tax: 0m,
+                ImagePath: _product.PrimaryImagePath));
+
+            _added = true;
+        }
+        finally
+        {
+            _addingToCart = false;
+        }
+
         StateHasChanged();
         await Task.Delay(2200);
         _added = false;
         StateHasChanged();
+    }
+
+    private static string BuildLineName(ShopProductVm product, ShopSkuVm sku)
+    {
+        // Persist a human-readable line name into the cart so the cart/order
+        // pages don't need to re-join to options. Matches the legacy "Name ·
+        // opt1 · opt2" format the order history uses.
+        if (sku.Opts.Count == 0) return product.Name;
+        return $"{product.Name} · {string.Join(" · ", sku.Opts)}";
     }
 }

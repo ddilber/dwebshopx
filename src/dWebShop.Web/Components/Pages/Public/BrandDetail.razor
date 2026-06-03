@@ -2,6 +2,33 @@
 @layout MainLayout
 
 <PageTitle>@(_brand?.Name ?? "Brand") — A&amp;S GIFIKS</PageTitle>
+@if (_brand is not null)
+{
+    var canonical = $"https://asgifiks.ba/brands/{_brand.Key}";
+    <HeadContent>
+        <link rel="canonical" href="@canonical" />
+        <meta name="description" content="@($"{_brand.Name} ({_brand.Origin}, od {_brand.Since}) — {_brand.Tagline}. {_brand.Desc}")" />
+        <meta property="og:title" content="@($"{_brand.Name} — {_brand.Tagline}")" />
+        <meta property="og:description" content="@_brand.Desc" />
+        <meta property="og:url" content="@canonical" />
+        @Seo.JsonLd(new JsonObject {
+            ["@type"] = "Brand",
+            ["name"] = _brand.Name,
+            ["url"] = canonical,
+            ["description"] = _brand.Desc,
+            ["countryOfOrigin"] = _brand.Origin,
+            ["foundingDate"] = _brand.Since
+        })
+        @Seo.JsonLd(new JsonObject {
+            ["@type"] = "BreadcrumbList",
+            ["itemListElement"] = new JsonArray(
+                new JsonObject { ["@type"] = "ListItem", ["position"] = 1, ["name"] = "Početna", ["item"] = "https://asgifiks.ba/" },
+                new JsonObject { ["@type"] = "ListItem", ["position"] = 2, ["name"] = "Brendovi", ["item"] = "https://asgifiks.ba/brands" },
+                new JsonObject { ["@type"] = "ListItem", ["position"] = 3, ["name"] = _brand.Name, ["item"] = canonical }
+            )
+        })
+    </HeadContent>
+}
 
 <div class="asg-page">
 

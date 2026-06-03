@@ -5,6 +5,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
+    <meta name="description" content="ASGifiks — ovlašteni distributer STO, XYPEX i CORTEC sistema za BiH. Fasadni sistemi, kristalna hidroizolacija betona i antikorozivna zaštita. Tomislavgrad, od 2008." />
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1" />
+    <meta name="theme-color" content="#00335E" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="A&amp;S GIFIKS" />
+    <meta property="og:locale" content="bs_BA" />
+    <meta property="og:image" content="/images/asgifiks_building.jpeg" />
+    <meta property="og:image:alt" content="ASGifiks — fasadni sistemi" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
     <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -22,9 +31,32 @@
     <Routes />
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
-    <script src="/js/shop.js"></script>
     <script>
-        window.scrollToTop = function() { window.scrollTo({ top: 0, behavior: "instant" }); }
+        window.scrollToTop = function() { window.scrollTo({ top: 0, behavior: "instant" }); };
+
+        // Scroll to top on navigation and reload. Disables browser's scroll restoration on F5,
+        // and handles enhanced-nav link clicks (which don't fire a normal load).
+        (function() {
+            if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+            window.scrollTo({ top: 0, behavior: 'instant' });
+
+            var forwardNav = false;
+            document.addEventListener('click', function(e) {
+                var a = e.target && e.target.closest && e.target.closest('a[href]');
+                if (!a) return;
+                if (a.target === '_blank' || a.hasAttribute('download')) return;
+                var url; try { url = new URL(a.href, location.href); } catch (_) { return; }
+                if (url.origin !== location.origin) return;
+                if (url.pathname === location.pathname && url.search === location.search && url.hash) return;
+                forwardNav = true;
+            }, true);
+            document.addEventListener('enhancedload', function() {
+                if (forwardNav) {
+                    forwardNav = false;
+                    window.scrollTo({ top: 0, behavior: 'instant' });
+                }
+            });
+        })();
 
         // Scroll-triggered animations for .animate-on-scroll elements
         (function() {

@@ -42,6 +42,7 @@ public class AppDbContextInitializer
         await SeedRolesAsync();
         await SeedAdminUserAsync();
         await SeedBrandsAsync();
+        await SeedCatalogAsync();
         await SeedDemoPartnerAsync();
         await SeedInspirationsAsync();
     }
@@ -126,22 +127,211 @@ public class AppDbContextInitializer
 
     private async Task SeedBrandsAsync()
     {
-        var brands = new[]
+        // Brand display data (Name, Slug, marketing Description) comes from
+        // CatalogSeedData so it stays a single source of truth with the
+        // catalog seed below.
+        foreach (var seed in CatalogSeedData.Brands)
         {
-            new Brand { Name = "STO",    Slug = "sto",    Description = "STO brand",    LogoImage = string.Empty, SliderImage = string.Empty },
-            new Brand { Name = "XYPEX",  Slug = "xypex",  Description = "XYPEX brand",  LogoImage = string.Empty, SliderImage = string.Empty },
-            new Brand { Name = "CORTEC", Slug = "cortec", Description = "CORTEC brand", LogoImage = string.Empty, SliderImage = string.Empty },
-        };
-
-        foreach (var brand in brands)
-        {
-            if (!await _context.Brands.AnyAsync(b => b.Slug == brand.Slug))
+            var existing = await _context.Brands.FirstOrDefaultAsync(b => b.Slug == seed.Slug);
+            if (existing is null)
             {
-                _context.Brands.Add(brand);
+                _context.Brands.Add(new Brand
+                {
+                    Name = seed.Name,
+                    Slug = seed.Slug,
+                    Description = seed.Description,
+                    LogoImage = string.Empty,
+                    SliderImage = string.Empty,
+                });
+            }
+            else if (string.IsNullOrEmpty(existing.Description) || existing.Description.EndsWith(" brand"))
+            {
+                // Upgrade the placeholder description left by an older seed
+                // ("STO brand" / "XYPEX brand" / "CORTEC brand") without
+                // overwriting any hand-edited copy from the Admin.
+                existing.Description = seed.Description;
             }
         }
 
         await _context.SaveChangesAsync();
+    }
+
+    // One-shot seed of the public catalog: categories per brand, then products
+    // with their option/sku graph, info rows, and document stubs. Idempotent —
+    // skipped entirely once any product exists, so subsequent boots don't
+    // touch catalog data the Admin may have edited.
+    private async Task SeedCatalogAsync()
+    {
+        if (await _context.Products.AnyAsync())
+            return;
+
+        // Resolve brand ids — SeedBrandsAsync already ran so all three exist.
+        var brandIdBySlug = await _context.Brands
+            .ToDictionaryAsync(b => b.Slug, b => b.Id);
+
+        // 1) Categories. Insert any that don't yet exist for (brandSlug, slug).
+        var categoryIdBySlug = new Dictionary<(string brandSlug, string catSlug), int>();
+        foreach (var (brandSlug, cats) in CatalogSeedData.CategoriesByBrand)
+        {
+            if (!brandIdBySlug.TryGetValue(brandSlug, out var brandId)) continue;
+
+            foreach (var cat in cats)
+            {
+                var existing = await _context.Categories
+                    .FirstOrDefaultAsync(c => c.BrandId == brandId && c.Slug == cat.Slug);
+                if (existing is not null)
+                {
+                    categoryIdBySlug[(brandSlug, cat.Slug)] = existing.Id;
+                    continue;
+                }
+
+                var entity = new Category
+                {
+                    Name = cat.Name,
+                    Slug = cat.Slug,
+                    Description = cat.Description,
+                    BrandId = brandId,
+                };
+                _context.Categories.Add(entity);
+                await _context.SaveChangesAsync();
+                categoryIdBySlug[(brandSlug, cat.Slug)] = entity.Id;
+            }
+        }
+
+        // 2) Tags. Deduplicate across all products and create as needed.
+        var allTagNames = CatalogSeedData.Products
+            .SelectMany(p => p.Tags)
+            .Distinct()
+            .ToList();
+
+        var tagIdByName = new Dictionary<string, int>();
+        foreach (var name in allTagNames)
+        {
+            var existing = await _context.Tags.FirstOrDefaultAsync(t => t.Name == name);
+            if (existing is not null)
+            {
+                tagIdByName[name] = existing.Id;
+                continue;
+            }
+            var tag = new Tag { Name = name, Slug = Slugify(name) };
+            _context.Tags.Add(tag);
+            await _context.SaveChangesAsync();
+            tagIdByName[name] = tag.Id;
+        }
+
+        // 3) Products + their full graph. Build entities in-memory then save
+        // once per product so EF can resolve internal FKs in the same SCSU.
+        foreach (var seed in CatalogSeedData.Products)
+        {
+            if (!brandIdBySlug.TryGetValue(seed.BrandSlug, out var brandId)) continue;
+            categoryIdBySlug.TryGetValue((seed.BrandSlug, seed.CategorySlug), out var categoryId);
+
+            var product = new Product
+            {
+                Name = seed.Name,
+                Slug = seed.Slug,
+                SKU = seed.Slug.ToUpperInvariant(),
+                ExtRef = string.Empty,
+                Description = seed.Short,
+                Status = ProductStatus.Active,
+                IsFeatured = false,
+                BrandId = brandId,
+                ProductDetails = new ProductDetails
+                {
+                    DetailDescription = seed.Desc,
+                    Information = seed.Info
+                        .Select(i => new ProductInfo { Key = i.Key, Data = i.Value })
+                        .ToList(),
+                    Documents = seed.Docs
+                        // Path is left blank — the legacy site never linked to
+                        // real PDFs; Admin can attach files later.
+                        .Select(d => new ProductDocument { Name = d.Name, Path = string.Empty, Description = d.Size })
+                        .ToList(),
+                    Images = [],
+                },
+                Categories = categoryId != 0
+                    ? [_context.Categories.Local.First(c => c.Id == categoryId) ??
+                       _context.Categories.First(c => c.Id == categoryId)]
+                    : [],
+                Tags = seed.Tags
+                    .Where(t => tagIdByName.ContainsKey(t))
+                    .Select(t => _context.Tags.Local.FirstOrDefault(x => x.Id == tagIdByName[t]) ??
+                                 _context.Tags.First(x => x.Id == tagIdByName[t]))
+                    .ToList(),
+            };
+
+            // Build option entities and capture their value entities so we
+            // can wire them onto SKUs by position below.
+            var optionEntities = new List<ProductOption>();
+            var valueEntitiesByOption = new List<List<ProductOptionValue>>();
+            foreach (var opt in seed.Options)
+            {
+                var valueEntities = opt.Values
+                    .Select(v => new ProductOptionValue { Name = v })
+                    .ToList();
+                optionEntities.Add(new ProductOption
+                {
+                    Name = opt.Name,
+                    IsNamePart = false,
+                    ProductOptionValues = valueEntities,
+                });
+                valueEntitiesByOption.Add(valueEntities);
+            }
+            product.ProductOptions = optionEntities;
+
+            // SKUs. Each SKU's Opts[] aligns positionally with seed.Options,
+            // so look up the corresponding ProductOptionValue by index.
+            var skuEntities = new List<ProductSku>();
+            foreach (var sku in seed.Skus)
+            {
+                var skuOptionValues = new List<SkuOptionValue>();
+                for (var i = 0; i < sku.Opts.Length && i < optionEntities.Count; i++)
+                {
+                    var pov = valueEntitiesByOption[i]
+                        .FirstOrDefault(v => v.Name == sku.Opts[i]);
+                    if (pov is null) continue;
+                    skuOptionValues.Add(new SkuOptionValue
+                    {
+                        ProductOption = optionEntities[i],
+                        ProductOptionValue = pov,
+                    });
+                }
+
+                skuEntities.Add(new ProductSku
+                {
+                    SKU = string.Empty,
+                    ExtRef = string.Empty,
+                    Name = string.Join(" · ", sku.Opts),
+                    Gtin = string.Empty,
+                    Price = sku.Price,
+                    Tax = 0m,
+                    StockQuantity = CatalogSeedData.StockFromBucket(sku.Stock),
+                    LowStockThreshold = 5,
+                    Uom = sku.Uom,
+                    SkuOptionValues = skuOptionValues,
+                });
+            }
+            product.ProductSkus = skuEntities;
+
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    // Compact slugifier for tag names — lowercases, strips diacritics, replaces
+    // whitespace with dashes. Mirrors the legacy slug style used by ShopData.
+    private static string Slugify(string text)
+    {
+        var lowered = text.ToLowerInvariant();
+        var normalized = new System.Text.StringBuilder(lowered.Length);
+        foreach (var ch in lowered.Normalize(System.Text.NormalizationForm.FormD))
+        {
+            var cat = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(ch);
+            if (cat == System.Globalization.UnicodeCategory.NonSpacingMark) continue;
+            if (char.IsLetterOrDigit(ch)) normalized.Append(ch);
+            else if (char.IsWhiteSpace(ch) || ch == '-' || ch == '_') normalized.Append('-');
+        }
+        return System.Text.RegularExpressions.Regex.Replace(normalized.ToString(), "-+", "-").Trim('-');
     }
 
     private async Task SeedInspirationsAsync()

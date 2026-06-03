@@ -1,7 +1,12 @@
 @page "/cart"
 @layout MainLayout
 @rendermode InteractiveServer
-@using System.Text.Json
+@implements IDisposable
+@using dWebShop.Web.Services
+@using dWebShop.Application.Features.ShoppingCart.Queries
+@using dWebShop.Application.Features.ShoppingCart.Commands
+@using MediatR
+@using Microsoft.AspNetCore.Components.Web
 
 <PageTitle>Korpa — Web Shop</PageTitle>
 
@@ -28,6 +33,16 @@
                 Učitavanje...
             </div>
         }
+        else if (!_isLoggedIn)
+        {
+            <div class="asg-cart-empty">
+                <p>Korpa zahtijeva prijavu kao B2B partner.</p>
+                <a href="/login?returnUrl=%2Fcart" class="asg-btn asg-btn-pri">
+                    Prijavi se
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+                </a>
+            </div>
+        }
         else if (_cart.Count == 0)
         {
             <div class="asg-cart-empty">
@@ -40,7 +55,7 @@
         }
         else
         {
-            var subtotal = _cart.Sum(i => i.Qty * i.Price);
+            var subtotal = _cart.Sum(i => i.Quantity * i.Price);
             var tax = subtotal * 0.17m;
             var total = subtotal + tax;
 
@@ -52,19 +67,18 @@
                         <div class="asg-cart-row">
                             <div class="asg-cart-img"></div>
                             <div class="asg-cart-info">
-                                <h5><a href="/shop/p/@it.ProductSlug">@it.ProductName</a></h5>
-                                <div class="opts">@it.OptsLabel</div>
+                                <h5><a href="/shop/p/@it.ProductSlug">@it.Name</a></h5>
                             </div>
                             <div class="asg-cart-qty">
-                                <button type="button" @onclick="() => UpdateQty(it, it.Qty - 1)">−</button>
-                                <input value="@it.Qty" @onchange="e => UpdateQtyFromInput(it, e.Value?.ToString())" />
-                                <button type="button" @onclick="() => UpdateQty(it, it.Qty + 1)">+</button>
+                                <button type="button" @onclick="() => UpdateQty(it, (int)it.Quantity - 1)">−</button>
+                                <input value="@((int)it.Quantity)" @onchange="e => UpdateQtyFromInput(it, e.Value?.ToString())" />
+                                <button type="button" @onclick="() => UpdateQty(it, (int)it.Quantity + 1)">+</button>
                             </div>
                             <div class="asg-cart-price">
-                                @if (_isLoggedIn) { @($"{ShopData.FmtPrice(it.Price)} / {it.Uom}") } else { <text>Prijava za cijenu</text> }
+                                @($"{ShopFormatting.FmtPrice(it.Price)}{(string.IsNullOrEmpty(it.Uom) ? "" : $" / {it.Uom}")}")
                             </div>
                             <div class="asg-cart-line">
-                                @(_isLoggedIn ? ShopData.FmtPrice(it.Qty * it.Price) : "—")
+                                @ShopFormatting.FmtPrice(it.Quantity * it.Price)
                             </div>
                             <button class="asg-cart-rm" @onclick="() => RemoveItem(it)" title="Ukloni">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:16px;height:16px">
@@ -77,33 +91,14 @@
 
                 <aside class="asg-cart-summary">
                     <h4>Sažetak</h4>
-                    @if (_isLoggedIn)
-                    {
-                        <div class="line"><span>Međuzbir</span><span>@ShopData.FmtPrice(subtotal)</span></div>
-                        <div class="line"><span>PDV (17%)</span><span>@ShopData.FmtPrice(tax)</span></div>
-                        <div class="line"><span>Dostava</span><span>Po dogovoru</span></div>
-                        <div class="line total"><span>Ukupno</span><span>@ShopData.FmtPrice(total)</span></div>
-                    }
-                    else
-                    {
-                        <div class="login-needed">
-                            Prijavite se kao B2B partner za prikaz cijena, primjenu rabata i nastavak na narudžbu.
-                        </div>
-                    }
-                    @if (_isLoggedIn)
-                    {
-                        <a href="/checkout" class="asg-btn asg-btn-pri">
-                            Nastavi na checkout
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
-                        </a>
-                    }
-                    else
-                    {
-                        <button class="asg-btn asg-btn-pri" onclick="if(window.asgShop)window.asgShop.openLogin()">
-                            Prijavi se
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
-                        </button>
-                    }
+                    <div class="line"><span>Međuzbir</span><span>@ShopFormatting.FmtPrice(subtotal)</span></div>
+                    <div class="line"><span>PDV (17%)</span><span>@ShopFormatting.FmtPrice(tax)</span></div>
+                    <div class="line"><span>Dostava</span><span>Po dogovoru</span></div>
+                    <div class="line total"><span>Ukupno</span><span>@ShopFormatting.FmtPrice(total)</span></div>
+                    <a href="/checkout" class="asg-btn asg-btn-pri">
+                        Nastavi na checkout
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+                    </a>
                     <a href="/shop" class="asg-btn asg-btn-sec" style="margin-top:8px">Nastavi kupovinu</a>
                 </aside>
             </div>
@@ -112,47 +107,74 @@
 </div>
 
 @code {
-    [Inject] IJSRuntime JS { get; set; } = default!;
+    [Inject] CurrentUser CurrentUser { get; set; } = default!;
+    [Inject] IMediator Mediator { get; set; } = default!;
+    [Inject] PersistentComponentState ApplicationState { get; set; } = default!;
 
-    private List<ShopData.CartItem> _cart = [];
+    private List<CartItemDto> _cart = [];
     private bool _isLoggedIn;
     private bool _initialized;
+    private int? _userId;
+    private PersistingComponentStateSubscription _persistSubscription;
 
-    private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (!firstRender) return;
-        await LoadState();
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistState);
+        _isLoggedIn = await CurrentUser.IsAuthenticatedAsync();
+        if (_isLoggedIn)
+        {
+            _userId = await CurrentUser.GetUserIdAsync();
+            // Restore SSR-pass result if present, otherwise hit the DB.
+            if (ApplicationState.TryTakeFromJson<List<CartItemDto>>("cart", out var persisted) && persisted is not null)
+            {
+                _cart = persisted;
+            }
+            else
+            {
+                await LoadCart();
+            }
+        }
         _initialized = true;
-        StateHasChanged();
     }
 
-    private async Task LoadState()
+    private async Task LoadCart()
     {
-        var cartJson = await JS.InvokeAsync<string>("window.asgShop.getCartJson");
-        _cart = JsonSerializer.Deserialize<List<ShopData.CartItem>>(cartJson, _json) ?? [];
-        var userJson = await JS.InvokeAsync<string>("window.asgShop.getUserJson");
-        _isLoggedIn = userJson != "null";
+        if (_userId is null) return;
+        _cart = await Mediator.Send(new GetCartQuery(_userId.Value));
     }
 
-    private async Task UpdateQty(ShopData.CartItem item, int newQty)
+    private Task PersistState()
     {
-        await JS.InvokeVoidAsync("window.asgShop.updateCartItem", item.SkuKey, item.ProductSlug, newQty);
-        await LoadState();
-        StateHasChanged();
+        if (_isLoggedIn) ApplicationState.PersistAsJson("cart", _cart);
+        return Task.CompletedTask;
     }
 
-    private async Task UpdateQtyFromInput(ShopData.CartItem item, string? val)
+    public void Dispose() => _persistSubscription.Dispose();
+
+    private async Task UpdateQty(CartItemDto item, int newQty)
+    {
+        if (_userId is null) return;
+        if (newQty <= 0)
+        {
+            await Mediator.Send(new RemoveCartItemCommand(_userId.Value, item.Id));
+        }
+        else
+        {
+            await Mediator.Send(new UpdateCartItemCommand(_userId.Value, item.Id, newQty));
+        }
+        await LoadCart();
+    }
+
+    private async Task UpdateQtyFromInput(CartItemDto item, string? val)
     {
         var qty = int.TryParse(val, out var v) ? Math.Max(1, v) : 1;
         await UpdateQty(item, qty);
     }
 
-    private async Task RemoveItem(ShopData.CartItem item)
+    private async Task RemoveItem(CartItemDto item)
     {
-        await JS.InvokeVoidAsync("window.asgShop.removeFromCart", item.SkuKey, item.ProductSlug);
-        await LoadState();
-        StateHasChanged();
+        if (_userId is null) return;
+        await Mediator.Send(new RemoveCartItemCommand(_userId.Value, item.Id));
+        await LoadCart();
     }
 }

@@ -1,12 +1,18 @@
 @page "/account"
 @layout MainLayout
 @rendermode InteractiveServer
+@implements IDisposable
 
 @using dWebShop.Application.Common.Interfaces
+@using dWebShop.Application.Features.Orders.Queries
+@using dWebShop.Domain.Entities.Orders
 @using dWebShop.Domain.Entities.Partners
 @using dWebShop.Domain.Entities.Users
+@using dWebShop.Web.Services
+@using MediatR
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Web
 @using Microsoft.EntityFrameworkCore
 
 <PageTitle>Moj nalog — Web Shop</PageTitle>
@@ -19,7 +25,7 @@
                 Učitavanje...
             </div>
         }
-        else if (_user is null)
+        else if (_partner is null)
         {
             <div class="asg-listing-head" style="margin-bottom:32px">
                 <div>
@@ -37,6 +43,10 @@
         }
         else
         {
+            var fullName = $"{_partner.FirstName} {_partner.LastName}".Trim();
+            if (string.IsNullOrWhiteSpace(fullName)) fullName = _partner.CompanyName;
+            var firstName = fullName.Split(' ').FirstOrDefault() ?? fullName;
+
             <nav class="asg-shop-crumbs">
                 <a href="/shop">Web Shop</a>
                 <span class="sep">/</span>
@@ -45,20 +55,20 @@
 
             <div class="asg-listing-head" style="margin-bottom:32px">
                 <div>
-                    <div class="asg-eyebrow"><span class="dot"></span><span>@_user.PartnerType</span></div>
-                    <h1 style="margin-top:12px">Dobrodošli, @_user.Name.Split(' ')[0]</h1>
+                    <div class="asg-eyebrow"><span class="dot"></span><span>@(_partner.PartnerType)</span></div>
+                    <h1 style="margin-top:12px">Dobrodošli, @firstName</h1>
                     <p class="asg-lede">Pregled vašeg partnerskog naloga, narudžbi i adresa.</p>
                 </div>
             </div>
 
             <div class="asg-account-grid">
                 <aside class="asg-account-side">
-                    <h3>@_user.Company</h3>
-                    <div style="font-size:13px;color:var(--asg-muted)">@_user.Name · @_user.Email</div>
+                    <h3>@_partner.CompanyName</h3>
+                    <div style="font-size:13px;color:var(--asg-muted)">@fullName · @_email</div>
                     <div class="meta">
-                        <div><span>Tip naloga</span><b>@_user.PartnerType</b></div>
-                        <div><span>Tier</span><b>@_user.Tier</b></div>
-                        <div><span>Partner od</span><b>@_user.Since</b></div>
+                        <div><span>Tip naloga</span><b>@(_partner.PartnerType)</b></div>
+                        <div><span>Tier</span><b>@(_partner.Tier)</b></div>
+                        <div><span>Partner od</span><b>@(_partner.CreatedDate?.ToString("yyyy") ?? "—")</b></div>
                     </div>
                     <a class="asg-btn asg-btn-sec" href="/logout">Odjava</a>
                 </aside>
@@ -67,26 +77,34 @@
                     <h3 style="font-family:var(--asg-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--asg-muted);margin:0 0 16px;padding-bottom:8px;border-bottom:1px solid var(--asg-line)">
                         Istorija narudžbi
                     </h3>
-                    <div class="asg-account-orders">
-                        @foreach (var order in ShopData.SampleOrders)
-                        {
-                            <div class="asg-account-order">
-                                <div class="id">
-                                    #@order.Id
-                                    <small>@order.Date</small>
+                    @if (_orders.Count == 0)
+                    {
+                        <p style="color:var(--asg-muted);font-size:13px">Još nema narudžbi. <a href="/shop">Pregledajte ponudu</a>.</p>
+                    }
+                    else
+                    {
+                        <div class="asg-account-orders">
+                            @foreach (var order in _orders)
+                            {
+                                <div class="asg-account-order">
+                                    <div class="id">
+                                        #@order.Id
+                                        <small>@order.Created.ToString("yyyy-MM-dd")</small>
+                                    </div>
+                                    <div class="items">
+                                        <div>@order.ItemCount @(order.ItemCount == 1 ? "stavka" : "stavki")</div>
+                                        <div style="margin-top:6px;font-family:var(--asg-mono);font-size:11px;letter-spacing:.05em">
+                                            <a href="/order-confirmation/@order.Guid">Detalji →</a>
+                                        </div>
+                                    </div>
+                                    <div class="status @(order.Status == OrderStatus.Delivered ? "is-delivered" : "is-pending")">
+                                        @StatusLabel(order.Status)
+                                    </div>
+                                    <div class="total">@ShopFormatting.FmtPrice(order.Total)</div>
                                 </div>
-                                <div class="items">
-                                    @foreach (var item in order.Items)
-                                    {
-                                        <div><b>@item.Qty×</b> @item.Name</div>
-                                    }
-                                    <div style="margin-top:6px;font-family:var(--asg-mono);font-size:11px;letter-spacing:.05em">@order.Po</div>
-                                </div>
-                                <div class="status @(order.Status == "Isporučeno" ? "is-delivered" : "is-pending")">@order.Status</div>
-                                <div class="total">@ShopData.FmtPrice(order.Total)</div>
-                            </div>
-                        }
-                    </div>
+                            }
+                        </div>
+                    }
                 </div>
             </div>
         }
@@ -97,9 +115,32 @@
     [CascadingParameter] private Task<AuthenticationState> AuthState { get; set; } = default!;
     [Inject] private UserManager<ApplicationUser> UserManager { get; set; } = default!;
     [Inject] private IAppDbContext Db { get; set; } = default!;
+    [Inject] private IMediator Mediator { get; set; } = default!;
+    [Inject] private PersistentComponentState ApplicationState { get; set; } = default!;
 
-    private ShopData.ShopUser? _user;
+    private Partner? _partner;
+    private string _email = "";
+    private List<OrderListDto> _orders = [];
     private bool _initialized;
+    private PersistingComponentStateSubscription _persistSubscription;
+
+    // Serializable snapshot of just the fields the page binds — Partner is an
+    // EF entity with navigations we don't want in the JSON payload.
+    private record PersistedAccount(
+        int PartnerId,
+        string FirstName,
+        string LastName,
+        string CompanyName,
+        string PartnerType,
+        string Tier,
+        DateTime? CreatedDate,
+        string Email,
+        List<OrderListDto> Orders);
+
+    protected override void OnInitialized()
+    {
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistState);
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -110,26 +151,64 @@
             return;
         }
 
+        if (ApplicationState.TryTakeFromJson<PersistedAccount>("account", out var persisted) && persisted is not null)
+        {
+            _partner = new Partner
+            {
+                Id = persisted.PartnerId,
+                FirstName = persisted.FirstName,
+                LastName = persisted.LastName,
+                CompanyName = persisted.CompanyName,
+                PartnerType = persisted.PartnerType,
+                Tier = persisted.Tier,
+                CreatedDate = persisted.CreatedDate,
+            };
+            _email = persisted.Email;
+            _orders = persisted.Orders;
+            _initialized = true;
+            return;
+        }
+
         var appUser = await UserManager.GetUserAsync(auth.User);
         if (appUser?.PartnerId is { } partnerId)
         {
-            var partner = await Db.Partners
+            _partner = await Db.Partners
                 .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.Id == partnerId);
 
-            if (partner is not null)
-            {
-                _user = new ShopData.ShopUser(
-                    Name: $"{partner.FirstName} {partner.LastName}",
-                    Company: partner.CompanyName,
-                    Email: appUser.Email ?? partner.Email,
-                    PartnerType: partner.PartnerType,
-                    Tier: partner.Tier,
-                    Since: partner.CreatedDate?.ToString("yyyy") ?? "—"
-                );
-            }
+            _email = appUser.Email ?? _partner?.Email ?? "";
+
+            // Load recent orders for the partner — paged at 20 to keep the
+            // first paint small; a "Show all" link can come later.
+            var (items, _) = await Mediator.Send(new GetPartnerOrdersQuery(partnerId, Page: 1, PageSize: 20));
+            _orders = items;
         }
 
         _initialized = true;
     }
+
+    private Task PersistState()
+    {
+        if (_partner is not null)
+        {
+            ApplicationState.PersistAsJson("account", new PersistedAccount(
+                _partner.Id, _partner.FirstName, _partner.LastName, _partner.CompanyName,
+                _partner.PartnerType, _partner.Tier, _partner.CreatedDate,
+                _email, _orders));
+        }
+        return Task.CompletedTask;
+    }
+
+    public void Dispose() => _persistSubscription.Dispose();
+
+    private static string StatusLabel(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending    => "U pripremi",
+        OrderStatus.Processing => "U obradi",
+        OrderStatus.Shipped    => "Otpremljeno",
+        OrderStatus.Delivered  => "Isporučeno",
+        OrderStatus.Cancelled  => "Otkazano",
+        OrderStatus.Refunded   => "Vraćeno",
+        _ => status.ToString(),
+    };
 }

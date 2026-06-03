@@ -18,6 +18,7 @@ public class ProductSku : BaseAuditableEntity
     public int StockQuantity { get; set; }
     public int LowStockThreshold { get; set; } = 5;
     public string? ImagePath { get; set; }
+    public string Uom { get; set; } = string.Empty;
     public int? ProductId { get; set; }
     public ICollection<SkuOptionValue>? SkuOptionValues { get; set; }
 }

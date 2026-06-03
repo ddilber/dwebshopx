@@ -1,12 +1,10 @@
-@using dWebShop.Web
+@using dWebShop.Web.Services
 
 <a href="/shop/p/@Product.Slug" class="asg-pcard">
     <div class="asg-pcard-img">
-        <span class="asg-pcard-brand">@Product.Brand.ToUpperInvariant()</span>
+        <span class="asg-pcard-brand">@(Product.BrandSlug?.ToUpperInvariant() ?? Product.BrandName?.ToUpperInvariant() ?? "")</span>
         @{
-            var stockVal = Product.Skus.Any(s => s.Stock == "in") ? "in"
-                         : Product.Skus.Any(s => s.Stock == "low") ? "low" : "order";
-            var (stockLabel, stockColor) = ShopData.StockLabel(stockVal);
+            var (stockLabel, stockColor) = ShopFormatting.StockLabel(Product.StockBucket);
         }
         <span class="asg-pcard-stock">
             <span class="dot" style="background:@stockColor"></span>
@@ -15,18 +13,15 @@
         <span class="ph">Slika proizvoda</span>
     </div>
     <div class="asg-pcard-body">
-        @{
-            var cat = ShopData.FindCategory(Product.Brand, Product.Category);
-        }
-        <div class="asg-pcard-cat">@(cat?.Name ?? "")</div>
+        <div class="asg-pcard-cat">@(Product.CategoryName ?? "")</div>
         <h4>@Product.Name</h4>
         <p>@Product.Short</p>
         <div class="asg-pcard-foot">
             <div class="asg-pcard-price">
                 <span class="from">Cijena od</span>
-                @if (IsLoggedIn)
+                @if (IsLoggedIn && Product.MinPrice.HasValue)
                 {
-                    <span class="val">@ShopData.FmtPrice(Product.Skus.Min(s => s.Price))</span>
+                    <span class="val">@ShopFormatting.FmtPrice(Product.MinPrice.Value)</span>
                 }
                 else
                 {
@@ -43,6 +38,6 @@
 </a>
 
 @code {
-    [Parameter] public ShopData.Product Product { get; set; } = default!;
+    [Parameter] public ShopProductCardVm Product { get; set; } = default!;
     [Parameter] public bool IsLoggedIn { get; set; }
 }

@@ -18,6 +18,23 @@
     <ReconnectModal />
     <script src="_content/Microsoft.FluentUI.AspNetCore.Components/js/loading-theme.js" type="module"></script>
     <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script>
+        // Scroll to top on Blazor navigation. Admin runs InteractiveServer at root, so navigation
+        // happens via the circuit and the browser never auto-scrolls. Blazor's NavigationManager
+        // calls history.pushState for forward nav, so we hook it. popstate is left alone so
+        // back/forward keep native scroll restoration.
+        (function() {
+            if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+            window.scrollTo({ top: 0, behavior: 'instant' });
+
+            var origPush = history.pushState;
+            history.pushState = function() {
+                var ret = origPush.apply(this, arguments);
+                window.scrollTo({ top: 0, behavior: 'instant' });
+                return ret;
+            };
+        })();
+    </script>
 </body>
 
 </html>

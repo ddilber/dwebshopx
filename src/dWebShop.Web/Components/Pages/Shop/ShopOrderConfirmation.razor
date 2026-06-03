@@ -1,8 +1,11 @@
-@page "/order-confirmation"
+@page "/order-confirmation/{orderGuid:guid}"
 @layout MainLayout
 @rendermode InteractiveServer
-@using System.Text.Json
-@using System.Text.Json.Serialization
+@implements IDisposable
+@using dWebShop.Web.Services
+@using dWebShop.Application.Features.Orders.Queries
+@using MediatR
+@using Microsoft.AspNetCore.Components.Web
 
 <PageTitle>Narudžba potvrđena — Web Shop</PageTitle>
 
@@ -16,12 +19,14 @@ else if (_order is null)
 {
     <div class="asg-order-conf">
         <div class="asg-wrap">
-            <p style="color:var(--asg-muted)">Nema podataka o narudžbi. <a href="/shop">Idi na shop</a>.</p>
+            <p style="color:var(--asg-muted)">Narudžba nije pronađena. <a href="/shop">Idi na shop</a>.</p>
         </div>
     </div>
 }
 else
 {
+    var total = _order.Items.Sum(i => i.Price * i.Quantity);
+
     <div class="asg-order-conf">
         <div class="asg-wrap">
             <div class="asg-order-conf-card">
@@ -37,9 +42,9 @@ else
 
                 <div class="asg-order-conf-meta">
                     <div><div class="l">Broj narudžbe</div><div class="v">#@_order.Id</div></div>
-                    <div><div class="l">Datum</div><div class="v">@_order.Date</div></div>
-                    <div><div class="l">PO broj</div><div class="v">@_order.Po</div></div>
-                    <div><div class="l">Ukupno</div><div class="v">@ShopData.FmtPrice(_order.Total)</div></div>
+                    <div><div class="l">Datum</div><div class="v">@_order.Created.ToString("yyyy-MM-dd")</div></div>
+                    <div><div class="l">Status</div><div class="v">@_order.Status</div></div>
+                    <div><div class="l">Ukupno</div><div class="v">@ShopFormatting.FmtPrice(total)</div></div>
                 </div>
 
                 <div class="asg-order-conf-actions">
@@ -73,26 +78,49 @@ else
 }
 
 @code {
-    [Inject] IJSRuntime JS { get; set; } = default!;
+    [Inject] CurrentUser CurrentUser { get; set; } = default!;
+    [Inject] IMediator Mediator { get; set; } = default!;
+    [Inject] PersistentComponentState ApplicationState { get; set; } = default!;
 
-    private OrderSummary? _order;
+    [Parameter] public Guid OrderGuid { get; set; }
+
+    private OrderDetailDto? _order;
     private bool _initialized;
+    private PersistingComponentStateSubscription _persistSubscription;
+    private Guid _loadedGuid;
 
-    private record OrderSummary(
-        [property: JsonPropertyName("id")] string Id,
-        [property: JsonPropertyName("date")] string Date,
-        [property: JsonPropertyName("po")] string Po,
-        [property: JsonPropertyName("total")] decimal Total);
-
-    private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnInitialized()
     {
-        if (!firstRender) return;
-        var orderJson = await JS.InvokeAsync<string>("window.asgShop.getLastOrderJson");
-        if (orderJson != "null")
-            _order = JsonSerializer.Deserialize<OrderSummary>(orderJson, _json);
-        _initialized = true;
-        StateHasChanged();
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistState);
     }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (OrderGuid == _loadedGuid && _order is not null) return;
+        _loadedGuid = OrderGuid;
+        _initialized = false;
+
+        var key = $"order:{OrderGuid}";
+        if (ApplicationState.TryTakeFromJson<OrderDetailDto>(key, out var persisted) && persisted is not null)
+        {
+            _order = persisted;
+        }
+        else
+        {
+            var partnerId = await CurrentUser.GetPartnerIdAsync();
+            // Scope the lookup to the signed-in partner so a guessed Guid can't
+            // reveal another partner's order. Falls through to null if anonymous.
+            _order = await Mediator.Send(new GetOrderByGuidQuery(OrderGuid, partnerId));
+        }
+        _initialized = true;
+    }
+
+    private Task PersistState()
+    {
+        if (_order is not null)
+            ApplicationState.PersistAsJson($"order:{OrderGuid}", _order);
+        return Task.CompletedTask;
+    }
+
+    public void Dispose() => _persistSubscription.Dispose();
 }

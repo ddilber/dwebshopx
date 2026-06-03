@@ -63,10 +63,6 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDb250YWN0LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[F:/PROJECTS/Blazor/dWebShopX/src/dWebShop.Web/Components/Pages/Counter.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDb3VudGVyLnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
 [F:/PROJECTS/Blazor/dWebShopX/src/dWebShop.Web/Components/Pages/Error.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xFcnJvci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
@@ -139,10 +135,6 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xUZXJtcy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[F:/PROJECTS/Blazor/dWebShopX/src/dWebShop.Web/Components/Pages/Weather.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xXZWF0aGVyLnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
 [F:/PROJECTS/Blazor/dWebShopX/src/dWebShop.Web/Components/RedirectToLogin.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSZWRpcmVjdFRvTG9naW4ucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
@@ -174,10 +166,6 @@ build_metadata.AdditionalFiles.CssScope = b-8f8i3mbm5q
 [F:/PROJECTS/Blazor/dWebShopX/src/dWebShop.Web/Components/Layout/Navbar.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTmF2YmFyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = b-nku3og9c1x
-
-[F:/PROJECTS/Blazor/dWebShopX/src/dWebShop.Web/Components/Layout/NavMenu.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTmF2TWVudS5yYXpvcg==
-build_metadata.AdditionalFiles.CssScope = b-y1jv9vap4u
 
 [F:/PROJECTS/Blazor/dWebShopX/src/dWebShop.Web/Components/Layout/ReconnectModal.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcUmVjb25uZWN0TW9kYWwucmF6b3I=

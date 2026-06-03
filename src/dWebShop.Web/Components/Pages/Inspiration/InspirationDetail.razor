@@ -2,11 +2,16 @@
 @layout MainLayout
 @using MediatR
 @using dWebShop.Application.Features.Inspirations.Queries
+@using dWebShop.Web.Services
 @inject IMediator Mediator
+@inject ShopCatalogService Catalog
 
 @if (_item == null)
 {
     <PageTitle>Članak nije pronađen — A&amp;S GIFIKS</PageTitle>
+    <HeadContent>
+        <meta name="robots" content="noindex,follow" />
+    </HeadContent>
     <div class="asg-page" style="padding:120px 0">
         <div class="asg-wrap" style="text-align:center">
             <h2 class="asg-h2">Članak nije pronađen</h2>
@@ -19,6 +24,60 @@
 else
 {
     <PageTitle>@_item.Title — A&amp;S GIFIKS</PageTitle>
+    var _canonical = $"https://asgifiks.ba/brands/{BrandSlug}/inspiracija/{ArticleSlug}";
+    var _metaTitle = string.IsNullOrWhiteSpace(_item.MetaTitle) ? _item.Title : _item.MetaTitle;
+    var _metaDesc = string.IsNullOrWhiteSpace(_item.MetaDescription) ? _item.Lede : _item.MetaDescription;
+    var _ogImage = !string.IsNullOrWhiteSpace(_item.OgImage)
+        ? $"https://asgifiks.ba/{_item.OgImage.TrimStart('/')}"
+        : (!string.IsNullOrWhiteSpace(_item.CoverImage)
+            ? $"https://asgifiks.ba/{_item.CoverImage.TrimStart('/')}"
+            : "https://asgifiks.ba/images/asgifiks_building.jpeg");
+    <HeadContent>
+        <link rel="canonical" href="@_canonical" />
+        <meta name="description" content="@_metaDesc" />
+        <meta property="og:title" content="@_metaTitle" />
+        <meta property="og:description" content="@_metaDesc" />
+        <meta property="og:url" content="@_canonical" />
+        <meta property="og:type" content="article" />
+        <meta property="og:image" content="@_ogImage" />
+        @Seo.JsonLd(new JsonObject {
+            ["@type"] = "Article",
+            ["headline"] = _item.Title,
+            ["description"] = _item.Lede,
+            ["url"] = _canonical,
+            ["image"] = _ogImage,
+            ["datePublished"] = _item.PublishedAt,
+            ["inLanguage"] = "bs-BA",
+            ["author"] = new JsonArray(
+                _item.Authors.Select(a => (JsonNode)new JsonObject {
+                    ["@type"] = "Person",
+                    ["name"] = a
+                }).ToArray()
+            ),
+            ["publisher"] = new JsonObject {
+                ["@type"] = "Organization",
+                ["name"] = "A&S GIFIKS",
+                ["logo"] = new JsonObject {
+                    ["@type"] = "ImageObject",
+                    ["url"] = "https://asgifiks.ba/images/logo.png"
+                }
+            },
+            ["mainEntityOfPage"] = new JsonObject {
+                ["@type"] = "WebPage",
+                ["@id"] = _canonical
+            },
+            ["keywords"] = string.Join(", ", _item.Tags ?? Array.Empty<string>())
+        })
+        @Seo.JsonLd(new JsonObject {
+            ["@type"] = "BreadcrumbList",
+            ["itemListElement"] = new JsonArray(
+                new JsonObject { ["@type"] = "ListItem", ["position"] = 1, ["name"] = "Brendovi", ["item"] = "https://asgifiks.ba/brands" },
+                new JsonObject { ["@type"] = "ListItem", ["position"] = 2, ["name"] = _brandName, ["item"] = $"https://asgifiks.ba/brands/{BrandSlug}" },
+                new JsonObject { ["@type"] = "ListItem", ["position"] = 3, ["name"] = "Inspiracija", ["item"] = $"https://asgifiks.ba/brands/{BrandSlug}/inspiracija" },
+                new JsonObject { ["@type"] = "ListItem", ["position"] = 4, ["name"] = _item.Title, ["item"] = _canonical }
+            )
+        })
+    </HeadContent>
 
     <article class="asg-page asg-insp-detail">
 
@@ -213,7 +272,7 @@ else
                                         <a href="/shop/p/@p.Slug" class="asg-insp-side-product">
                                             <div class="asg-insp-side-product-img">@p.Name.ToLower()</div>
                                             <div class="asg-insp-side-product-info">
-                                                <div class="b">@p.Brand.ToUpper()</div>
+                                                <div class="b">@(p.BrandSlug?.ToUpperInvariant() ?? p.BrandName?.ToUpperInvariant() ?? "")</div>
                                                 <div class="n">@p.Name</div>
                                                 <div class="s">@p.Short</div>
                                             </div>
@@ -285,7 +344,7 @@ else
     private InspirationDetailDto? _item;
     private InspirationData.ContentTypeInfo _typeInfo = InspirationData.Types[Domain.Entities.Inspirations.InspirationContentType.Story];
     private List<InspirationListItemDto> _related = [];
-    private List<ShopData.Product> _linkedProducts = [];
+    private List<ShopProductCardVm> _linkedProducts = [];
     private string _brandName = "";
     private List<SectionGroup> _groups = [];
 
@@ -318,11 +377,21 @@ else
             .Take(3)
             .ToList();
 
-        _linkedProducts = _item.LinkedProductSlugs
-            .Select(s => ShopData.Products.FirstOrDefault(p => p.Slug == s))
-            .Where(p => p != null)
-            .Select(p => p!)
-            .ToList();
+        // Linked products live in the same brand as the inspiration article,
+        // so pulling the brand's full catalogue once + filtering is cheaper
+        // than firing one PDP query per slug.
+        if (_item.LinkedProductSlugs.Length > 0)
+        {
+            var slugs = _item.LinkedProductSlugs.ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var brandProducts = await Catalog.GetProductsAsync(brandSlug: brand);
+            _linkedProducts = brandProducts
+                .Where(p => slugs.Contains(p.Slug))
+                .ToList();
+        }
+        else
+        {
+            _linkedProducts = [];
+        }
     }
 
     private static List<SectionGroup> BuildGroups(InspirationSectionDto[] sections)

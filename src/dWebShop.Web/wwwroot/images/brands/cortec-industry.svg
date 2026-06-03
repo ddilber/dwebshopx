@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="t">
+  <title id="t">CORTEC — industrijska zaštita</title>
+  <defs>
+    <linearGradient id="bg-ci" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f1ea"/>
+      <stop offset="1" stop-color="#dcd6c5"/>
+    </linearGradient>
+    <pattern id="steel-ci" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="6" stroke="#16161a" stroke-width=".5" stroke-opacity=".25"/>
+    </pattern>
+    <pattern id="hatch-ci" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="14" stroke="#1a5c2e" stroke-width="1" stroke-opacity=".22"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg-ci)"/>
+
+  <!-- floor -->
+  <line x1="0" y1="520" x2="800" y2="520" stroke="#16161a" stroke-width="1.2"/>
+  <rect x="0" y="520" width="800" height="80" fill="url(#hatch-ci)"/>
+
+  <!-- factory silhouette back -->
+  <g stroke="#16161a" stroke-width="1.4" stroke-linejoin="round" fill="#c9c2b1">
+    <!-- main hall sawtooth roof -->
+    <polygon points="60,260 60,520 740,520 740,200 700,200 700,240 660,200 660,240 620,200 620,240 580,200 580,240 540,200 540,240 500,200 500,240 460,200 460,240 420,200 420,240 380,200 380,240 340,200 340,240 300,200 300,240 260,200 260,240 220,200 220,240 180,200 180,240 140,200 140,240 100,200 100,260"/>
+    <!-- stack -->
+    <rect x="660" y="80" width="50" height="200"/>
+    <rect x="654" y="70" width="62" height="14"/>
+  </g>
+
+  <!-- VpCI smoke (green) from stack -->
+  <g fill="#2e8b4a" fill-opacity=".4" stroke="#1a5c2e" stroke-width=".8">
+    <ellipse cx="700" cy="60" rx="22" ry="14"/>
+    <ellipse cx="730" cy="40" rx="28" ry="16"/>
+    <ellipse cx="700" cy="22" rx="22" ry="12"/>
+    <ellipse cx="740" cy="8" rx="18" ry="10"/>
+  </g>
+
+  <!-- windows row -->
+  <g fill="#1a3c6e" fill-opacity=".5" stroke="#16161a" stroke-width="1">
+    <rect x="100" y="280" width="40" height="80"/>
+    <rect x="160" y="280" width="40" height="80"/>
+    <rect x="220" y="280" width="40" height="80"/>
+    <rect x="280" y="280" width="40" height="80"/>
+    <rect x="340" y="280" width="40" height="80"/>
+  </g>
+
+  <!-- big door -->
+  <g stroke="#16161a" stroke-width="1.4" fill="#1a5c2e">
+    <rect x="420" y="320" width="220" height="200"/>
+    <line x1="530" y1="320" x2="530" y2="520" stroke="#f4f1ea" stroke-opacity=".4"/>
+  </g>
+
+  <!-- machinery in foreground: large industrial part -->
+  <g stroke="#16161a" stroke-width="1.6" stroke-linejoin="round">
+    <!-- pallet -->
+    <rect x="80" y="490" width="280" height="14" fill="#a8a8a8"/>
+    <rect x="80" y="504" width="280" height="14" fill="#909090"/>
+    <line x1="120" y1="490" x2="120" y2="518" stroke="#16161a"/>
+    <line x1="180" y1="490" x2="180" y2="518" stroke="#16161a"/>
+    <line x1="240" y1="490" x2="240" y2="518" stroke="#16161a"/>
+    <line x1="300" y1="490" x2="300" y2="518" stroke="#16161a"/>
+    <!-- engine/turbine block -->
+    <rect x="120" y="380" width="200" height="110" fill="#a8a8a8"/>
+    <rect x="120" y="380" width="200" height="110" fill="url(#steel-ci)"/>
+    <rect x="120" y="380" width="200" height="110" fill="none" stroke="#16161a" stroke-width="1.6"/>
+    <!-- cylinders -->
+    <g fill="#909090" stroke="#16161a" stroke-width="1.2">
+      <rect x="140" y="340" width="36" height="60"/>
+      <rect x="186" y="340" width="36" height="60"/>
+      <rect x="232" y="340" width="36" height="60"/>
+      <rect x="278" y="340" width="36" height="60"/>
+    </g>
+    <!-- screws -->
+    <g fill="#dcd6c5" stroke="#16161a" stroke-width=".8">
+      <circle cx="138" cy="404" r="4"/>
+      <circle cx="302" cy="404" r="4"/>
+      <circle cx="138" cy="470" r="4"/>
+      <circle cx="302" cy="470" r="4"/>
+    </g>
+  </g>
+
+  <!-- VpCI molecules in the air -->
+  <g stroke="#1a5c2e" stroke-width=".8" fill="#2e8b4a" fill-opacity=".7">
+    <g transform="translate(420 200)">
+      <circle r="5"/><circle cx="10" cy="-5" r="3"/><circle cx="-8" cy="-6" r="3"/>
+    </g>
+    <g transform="translate(500 240)">
+      <circle r="5"/><circle cx="10" cy="-5" r="3"/><circle cx="-8" cy="-6" r="3"/>
+    </g>
+    <g transform="translate(380 280)">
+      <circle r="5"/><circle cx="10" cy="-5" r="3"/><circle cx="-8" cy="-6" r="3"/>
+    </g>
+    <g transform="translate(560 320)">
+      <circle r="5"/><circle cx="10" cy="-5" r="3"/><circle cx="-8" cy="-6" r="3"/>
+    </g>
+  </g>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#16161a" fill-opacity=".7" letter-spacing="1.5">
+    <text x="40" y="50">FIG. — INDUSTRIJA</text>
+    <text x="40" y="565">STROJEVI · DIJELOVI · SKLADIŠTENJE · TRANSPORT</text>
+  </g>
+</svg>

@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="t">
+  <title id="t">XYPEX — tunelske konstrukcije</title>
+  <defs>
+    <pattern id="concrete-t" width="6" height="6" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r=".7" fill="#16161a" fill-opacity=".22"/>
+    </pattern>
+    <pattern id="soil-t" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="6" r="1.4" fill="#8a7a5a" fill-opacity=".6"/>
+      <circle cx="14" cy="14" r="1.8" fill="#8a7a5a" fill-opacity=".5"/>
+      <circle cx="8" cy="16" r="1" fill="#8a7a5a" fill-opacity=".55"/>
+      <circle cx="16" cy="4" r="1.2" fill="#8a7a5a" fill-opacity=".5"/>
+    </pattern>
+    <linearGradient id="bg-t" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f1ea"/>
+      <stop offset="1" stop-color="#dcd6c5"/>
+    </linearGradient>
+    <radialGradient id="tunnel-dark" cx=".5" cy=".5" r=".7">
+      <stop offset="0" stop-color="#1a3c6e"/>
+      <stop offset="1" stop-color="#0a1f3e"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg-t)"/>
+
+  <!-- ground surface -->
+  <line x1="0" y1="140" x2="800" y2="140" stroke="#16161a" stroke-width="1.2"/>
+  <!-- soil/earth above and around -->
+  <g>
+    <rect x="0" y="140" width="800" height="440" fill="#b8a37d"/>
+    <rect x="0" y="140" width="800" height="440" fill="url(#soil-t)"/>
+  </g>
+
+  <!-- water droplets pressure arrows from soil -->
+  <g stroke="#2e6db4" stroke-width="1.4" fill="#2e6db4">
+    <g transform="translate(140 200)"><polygon points="0,0 6,12 -6,12"/></g>
+    <g transform="translate(220 220)"><polygon points="0,0 6,12 -6,12"/></g>
+    <g transform="translate(580 210)"><polygon points="0,0 6,12 -6,12"/></g>
+    <g transform="translate(660 200)"><polygon points="0,0 6,12 -6,12"/></g>
+    <g transform="translate(100 460)"><polygon points="0,0 -6,-12 6,-12"/></g>
+    <g transform="translate(700 460)"><polygon points="0,0 -6,-12 6,-12"/></g>
+  </g>
+
+  <!-- tunnel cross-section (arch tube) -->
+  <g stroke="#16161a" stroke-width="1.8" stroke-linejoin="round">
+    <!-- outer concrete shell -->
+    <path d="M180 480 V300 a220 220 0 0 1 440 0 V480 Z" fill="#c9c2b1"/>
+    <path d="M180 480 V300 a220 220 0 0 1 440 0 V480 Z" fill="url(#concrete-t)"/>
+    <!-- inner tunnel void -->
+    <path d="M230 480 V310 a170 170 0 0 1 340 0 V480 Z" fill="url(#tunnel-dark)"/>
+    <!-- floor of tunnel -->
+    <line x1="230" y1="480" x2="570" y2="480" stroke="#16161a" stroke-width="1.6"/>
+
+    <!-- lighting fixtures -->
+    <circle cx="320" cy="335" r="4" fill="#f9d77a"/>
+    <circle cx="400" cy="320" r="4" fill="#f9d77a"/>
+    <circle cx="480" cy="335" r="4" fill="#f9d77a"/>
+
+    <!-- center white line -->
+    <g stroke="#f4f1ea" stroke-width="3" stroke-dasharray="14 14">
+      <line x1="400" y1="450" x2="400" y2="480"/>
+    </g>
+  </g>
+
+  <!-- xypex crystals lining inner wall -->
+  <g stroke="#2e6db4" stroke-width="1" fill="#2e6db4" fill-opacity=".7">
+    <polygon points="246,420 254,428 246,436 238,428"/>
+    <polygon points="252,360 260,368 252,376 244,368"/>
+    <polygon points="276,320 284,328 276,336 268,328"/>
+    <polygon points="316,280 324,288 316,296 308,288"/>
+    <polygon points="368,256 376,264 368,272 360,264"/>
+    <polygon points="432,256 440,264 432,272 424,264"/>
+    <polygon points="484,280 492,288 484,296 476,288"/>
+    <polygon points="524,320 532,328 524,336 516,328"/>
+    <polygon points="548,360 556,368 548,376 540,368"/>
+    <polygon points="554,420 562,428 554,436 546,428"/>
+  </g>
+
+  <!-- callout -->
+  <g stroke="#16161a" stroke-width="1.2" fill="none">
+    <line x1="700" y1="350" x2="572" y2="340"/>
+    <polygon points="572,340 584,332 586,346" fill="#16161a"/>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#16161a">
+    <text x="708" y="346" letter-spacing="1">XYPEX SLOJ</text>
+    <text x="708" y="360" letter-spacing="1">NEGATIVNI PRITISAK</text>
+  </g>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#16161a" fill-opacity=".7" letter-spacing="1.5">
+    <text x="40" y="50">FIG. — TUNELI</text>
+    <text x="40" y="565">PODZEMNI PROLAZI · METRO · PODVODNI TUNELI</text>
+  </g>
+</svg>

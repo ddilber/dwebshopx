@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="t">
+  <title id="t">STO — stambeni objekat</title>
+  <defs>
+    <pattern id="hatch-res" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="14" stroke="#00457C" stroke-width="1" stroke-opacity=".22"/>
+    </pattern>
+    <linearGradient id="sky-res" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f1ea"/>
+      <stop offset="1" stop-color="#e8e3d8"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#sky-res)"/>
+
+  <!-- ground -->
+  <line x1="0" y1="500" x2="800" y2="500" stroke="#16161a" stroke-width="1"/>
+  <rect x="0" y="500" width="800" height="100" fill="url(#hatch-res)"/>
+
+  <!-- Detached house 1 -->
+  <g stroke="#16161a" stroke-width="1.4" stroke-linejoin="round">
+    <!-- body -->
+    <rect x="160" y="280" width="220" height="220" fill="#f4f1ea"/>
+    <!-- roof -->
+    <polygon points="150,280 270,180 390,280" fill="#00457C"/>
+    <!-- chimney -->
+    <rect x="320" y="210" width="22" height="38" fill="#0073CF"/>
+    <!-- windows -->
+    <rect x="190" y="320" width="50" height="60" fill="#0073CF" fill-opacity=".25"/>
+    <rect x="300" y="320" width="50" height="60" fill="#0073CF" fill-opacity=".25"/>
+    <line x1="215" y1="320" x2="215" y2="380"/>
+    <line x1="190" y1="350" x2="240" y2="350"/>
+    <line x1="325" y1="320" x2="325" y2="380"/>
+    <line x1="300" y1="350" x2="350" y2="350"/>
+    <!-- door -->
+    <rect x="248" y="410" width="54" height="90" fill="#0073CF"/>
+    <circle cx="290" cy="455" r="2.2" fill="#f4f1ea"/>
+  </g>
+
+  <!-- Detached house 2 (further) -->
+  <g stroke="#16161a" stroke-width="1.2" stroke-linejoin="round" opacity=".75">
+    <rect x="450" y="320" width="180" height="180" fill="#e8e3d8"/>
+    <polygon points="442,320 540,238 638,320" fill="#0073CF"/>
+    <rect x="478" y="356" width="44" height="50" fill="#00457C" fill-opacity=".4"/>
+    <rect x="556" y="356" width="44" height="50" fill="#00457C" fill-opacity=".4"/>
+    <rect x="520" y="430" width="40" height="70" fill="#00457C"/>
+  </g>
+
+  <!-- small tree -->
+  <g stroke="#16161a" stroke-width="1.2" fill="none">
+    <line x1="110" y1="500" x2="110" y2="430"/>
+    <circle cx="110" cy="412" r="22" fill="#0073CF" fill-opacity=".25"/>
+  </g>
+
+  <!-- editorial label -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#16161a" fill-opacity=".7" letter-spacing="1.5">
+    <text x="40" y="50">FIG. — STAMBENI OBJEKTI</text>
+    <text x="40" y="565">STO ETICS · PORODIČNE KUĆE · ENERGETSKA EFIKASNOST</text>
+  </g>
+</svg>

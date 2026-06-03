@@ -1,7 +1,13 @@
 @page "/checkout"
 @layout MainLayout
 @rendermode InteractiveServer
-@using System.Text.Json
+@implements IDisposable
+@using dWebShop.Web.Services
+@using dWebShop.Application.Features.ShoppingCart.Queries
+@using dWebShop.Application.Features.Orders.Commands
+@using dWebShop.Application.Features.Profile.Queries
+@using MediatR
+@using Microsoft.AspNetCore.Components.Web
 
 <PageTitle>B2B Checkout — Web Shop</PageTitle>
 
@@ -22,7 +28,7 @@ else if (!_isLoggedIn || _cart.Count == 0)
 }
 else
 {
-    var subtotal = _cart.Sum(i => i.Qty * i.Price);
+    var subtotal = _cart.Sum(i => i.Quantity * i.Price);
     var tax = subtotal * 0.17m;
     var deliveryCost = _delivery == "express" ? 80m : _delivery == "pickup" ? 0m : 45m;
     var total = subtotal + tax + deliveryCost;
@@ -43,30 +49,45 @@ else
                 </div>
             </div>
 
+            @if (!string.IsNullOrEmpty(_error))
+            {
+                <div style="background:#fdecea;border:1px solid #f5c2bd;color:#8a2422;padding:14px 18px;border-radius:6px;margin-bottom:24px;font-size:14px">
+                    @_error
+                </div>
+            }
+
             <div class="asg-checkout-grid">
                 <div>
                     <section class="asg-checkout-section">
-                        <h3><span class="num">1</span>Podaci o partneru</h3>
-                        <div class="asg-form-grid">
-                            <div class="asg-field full"><label>Naziv firme</label><input @bind="_company" required /></div>
-                            <div class="asg-field"><label>PDV broj</label><input @bind="_vat" required /></div>
-                            <div class="asg-field"><label>Kontakt osoba</label><input @bind="_contactName" required /></div>
-                            <div class="asg-field"><label>E-mail</label><input type="email" @bind="_email" required /></div>
-                            <div class="asg-field"><label>Telefon</label><input @bind="_phone" required /></div>
-                        </div>
+                        <h3><span class="num">1</span>Adresa isporuke</h3>
+                        @if (_addresses.Count > 0)
+                        {
+                            <div class="asg-radio-grp">
+                                @foreach (var addr in _addresses)
+                                {
+                                    var a = addr;
+                                    <label class="@(_selectedAddressId == a.Id ? "active" : "")">
+                                        <input type="radio" name="addr" value="@a.Id"
+                                               checked="@(_selectedAddressId == a.Id)"
+                                               @onchange="() => _selectedAddressId = a.Id" />
+                                        <div style="flex:1">
+                                            <div style="font-weight:600">@(string.IsNullOrEmpty(a.Label) ? "Adresa" : a.Label)</div>
+                                            <div class="meta">@a.Address1, @a.ZipCode @a.City, @a.Country</div>
+                                        </div>
+                                    </label>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p style="color:var(--asg-muted);font-size:13px">
+                                Nema sačuvanih adresa. <a href="/account">Dodajte adresu isporuke</a> na profilu.
+                            </p>
+                        }
                     </section>
 
                     <section class="asg-checkout-section">
-                        <h3><span class="num">2</span>Adresa isporuke</h3>
-                        <div class="asg-form-grid">
-                            <div class="asg-field full"><label>Adresa</label><input @bind="_addr" required /></div>
-                            <div class="asg-field"><label>Grad</label><input @bind="_city" required /></div>
-                            <div class="asg-field"><label>Poštanski broj</label><input @bind="_zip" required /></div>
-                        </div>
-                    </section>
-
-                    <section class="asg-checkout-section">
-                        <h3><span class="num">3</span>Način isporuke</h3>
+                        <h3><span class="num">2</span>Način isporuke</h3>
                         <div class="asg-radio-grp">
                             @foreach (var opt in _deliveryOptions)
                             {
@@ -86,11 +107,12 @@ else
                     </section>
 
                     <section class="asg-checkout-section">
-                        <h3><span class="num">4</span>Detalji narudžbe</h3>
+                        <h3><span class="num">3</span>Detalji narudžbe</h3>
                         <div class="asg-form-grid">
-                            <div class="asg-field"><label>PO broj (opcionalno)</label><input @bind="_poNumber" placeholder="PO-2024-XXX" /></div>
-                            <div class="asg-field"><label>Željeni datum isporuke</label><input type="date" @bind="_deliveryDate" /></div>
-                            <div class="asg-field full"><label>Napomena</label><textarea @bind="_notes" placeholder="Posebne instrukcije, kontakt na lokaciji…"></textarea></div>
+                            <div class="asg-field full">
+                                <label>Napomena</label>
+                                <textarea @bind="_notes" placeholder="Posebne instrukcije, kontakt na lokaciji, PO broj…"></textarea>
+                            </div>
                         </div>
                     </section>
                 </div>
@@ -101,16 +123,16 @@ else
                         @foreach (var it in _cart)
                         {
                             <div style="display:flex;justify-content:space-between;font-size:12px;gap:12px">
-                                <span style="flex:1">@it.ProductName <span style="color:var(--asg-muted)">× @it.Qty</span></span>
-                                <span style="font-variant-numeric:tabular-nums;font-family:var(--asg-mono)">@ShopData.FmtPrice(it.Qty * it.Price)</span>
+                                <span style="flex:1">@it.Name <span style="color:var(--asg-muted)">× @((int)it.Quantity)</span></span>
+                                <span style="font-variant-numeric:tabular-nums;font-family:var(--asg-mono)">@ShopFormatting.FmtPrice(it.Quantity * it.Price)</span>
                             </div>
                         }
                     </div>
-                    <div class="line"><span>Međuzbir</span><span>@ShopData.FmtPrice(subtotal)</span></div>
-                    <div class="line"><span>Dostava</span><span>@(deliveryCost == 0 ? "—" : ShopData.FmtPrice(deliveryCost))</span></div>
-                    <div class="line"><span>PDV (17%)</span><span>@ShopData.FmtPrice(tax)</span></div>
-                    <div class="line total"><span>Ukupno</span><span>@ShopData.FmtPrice(total)</span></div>
-                    <button class="asg-btn asg-btn-pri" @onclick="Submit" disabled="@_submitting">
+                    <div class="line"><span>Međuzbir</span><span>@ShopFormatting.FmtPrice(subtotal)</span></div>
+                    <div class="line"><span>Dostava</span><span>@(deliveryCost == 0 ? "—" : ShopFormatting.FmtPrice(deliveryCost))</span></div>
+                    <div class="line"><span>PDV (17%)</span><span>@ShopFormatting.FmtPrice(tax)</span></div>
+                    <div class="line total"><span>Ukupno</span><span>@ShopFormatting.FmtPrice(total)</span></div>
+                    <button class="asg-btn asg-btn-pri" @onclick="Submit" disabled="@(_submitting || _partnerId is null)">
                         @(_submitting ? "Slanje..." : "Pošalji narudžbu")
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
                     </button>
@@ -124,79 +146,98 @@ else
 }
 
 @code {
-    [Inject] IJSRuntime JS { get; set; } = default!;
+    [Inject] CurrentUser CurrentUser { get; set; } = default!;
+    [Inject] IMediator Mediator { get; set; } = default!;
     [Inject] NavigationManager Nav { get; set; } = default!;
+    [Inject] PersistentComponentState ApplicationState { get; set; } = default!;
 
-    private List<ShopData.CartItem> _cart = [];
-    private ShopData.ShopUser? _user;
+    private List<CartItemDto> _cart = [];
+    private List<DeliveryAddressDto> _addresses = [];
+    private int? _selectedAddressId;
     private bool _isLoggedIn;
     private bool _initialized;
     private bool _submitting;
+    private int? _userId;
+    private int? _partnerId;
+    private string? _error;
 
-    private string _company = "", _vat = "272123450009", _contactName = "", _email = "", _phone = "+387 63 254 887";
-    private string _addr = "Kralja Tomislava bb", _city = "Tomislavgrad", _zip = "80240";
-    private string _poNumber = "", _notes = "";
-    private DateOnly? _deliveryDate;
+    private string _notes = "";
     private string _delivery = "standard";
 
-    private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
+    private PersistingComponentStateSubscription _persistSubscription;
+    private record PersistedCheckout(List<CartItemDto> Cart, List<DeliveryAddressDto> Addresses);
 
     private record DeliveryOpt(string Val, string Title, string Sub, string Cost);
     private readonly DeliveryOpt[] _deliveryOptions =
     [
-        new("standard", "Standardna isporuka",             "2–5 radnih dana · BiH",              "45.00 KM"),
-        new("express",  "Express isporuka",                "24h · samo za stavke na zalihi",      "80.00 KM"),
-        new("pickup",   "Preuzimanje u Tomislavgradu",     "Skladište · Kralja Tomislava bb",     "Bez naknade"),
+        new("standard", "Standardna isporuka",         "2–5 radnih dana · BiH",            "45.00 KM"),
+        new("express",  "Express isporuka",            "24h · samo za stavke na zalihi",   "80.00 KM"),
+        new("pickup",   "Preuzimanje u Tomislavgradu", "Skladište · Kralja Tomislava bb",  "Bez naknade"),
     ];
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (!firstRender) return;
-        var cartJson = await JS.InvokeAsync<string>("window.asgShop.getCartJson");
-        _cart = JsonSerializer.Deserialize<List<ShopData.CartItem>>(cartJson, _json) ?? [];
-        var userJson = await JS.InvokeAsync<string>("window.asgShop.getUserJson");
-        if (userJson != "null")
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistState);
+        _isLoggedIn = await CurrentUser.IsAuthenticatedAsync();
+        if (_isLoggedIn)
         {
-            _user = JsonSerializer.Deserialize<ShopData.ShopUser>(userJson, _json);
-            _isLoggedIn = true;
-            _company = _user?.Company ?? "";
-            _contactName = _user?.Name ?? "";
-            _email = _user?.Email ?? "";
+            _userId = await CurrentUser.GetUserIdAsync();
+            _partnerId = await CurrentUser.GetPartnerIdAsync();
+
+            if (ApplicationState.TryTakeFromJson<PersistedCheckout>("checkout", out var persisted) && persisted is not null)
+            {
+                _cart = persisted.Cart;
+                _addresses = persisted.Addresses;
+                _selectedAddressId = _addresses.FirstOrDefault()?.Id;
+            }
+            else if (_userId is not null)
+            {
+                _cart = await Mediator.Send(new GetCartQuery(_userId.Value));
+                if (_partnerId is not null)
+                {
+                    var profile = await Mediator.Send(new GetProfileQuery(_partnerId.Value));
+                    if (profile is not null)
+                    {
+                        _addresses = profile.DeliveryAddresses;
+                        _selectedAddressId = _addresses.FirstOrDefault()?.Id;
+                    }
+                }
+            }
         }
         _initialized = true;
-        StateHasChanged();
     }
+
+    private Task PersistState()
+    {
+        if (_isLoggedIn)
+            ApplicationState.PersistAsJson("checkout", new PersistedCheckout(_cart, _addresses));
+        return Task.CompletedTask;
+    }
+
+    public void Dispose() => _persistSubscription.Dispose();
 
     private async Task Submit()
     {
-        if (_cart.Count == 0 || !_isLoggedIn) return;
+        if (_cart.Count == 0 || !_isLoggedIn || _userId is null || _partnerId is null) return;
+        _error = null;
         _submitting = true;
         StateHasChanged();
 
-        var subtotal = _cart.Sum(i => i.Qty * i.Price);
-        var tax = subtotal * 0.17m;
-        var deliveryCost = _delivery == "express" ? 80m : _delivery == "pickup" ? 0m : 45m;
-        var total = subtotal + tax + deliveryCost;
-        var orderId = $"2024-{400 + Random.Shared.Next(99):D4}";
-
-        var order = new
+        try
         {
-            id = orderId,
-            date = DateTime.Today.ToString("yyyy-MM-dd"),
-            po = string.IsNullOrEmpty(_poNumber) ? "—" : _poNumber,
-            items = _cart,
-            subtotal,
-            tax,
-            deliveryCost,
-            total,
-            company = _company,
-            deliveryDate = _deliveryDate.HasValue ? _deliveryDate.Value.ToString("yyyy-MM-dd") : "Po dogovoru",
-            delivery = _delivery,
-        };
+            var orderGuid = await Mediator.Send(new PlaceOrderCommand(
+                UserId: _userId.Value,
+                PartnerId: _partnerId.Value,
+                DeliveryAddressId: _selectedAddressId,
+                Notes: _notes));
 
-        var orderJson = JsonSerializer.Serialize(order);
-        await JS.InvokeVoidAsync("window.asgShop.saveLastOrder", orderJson);
-        await JS.InvokeVoidAsync("window.asgShop.clearCart");
-        Nav.NavigateTo("/order-confirmation");
+            Nav.NavigateTo($"/order-confirmation/{orderGuid}");
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+            _submitting = false;
+            StateHasChanged();
+        }
     }
 }

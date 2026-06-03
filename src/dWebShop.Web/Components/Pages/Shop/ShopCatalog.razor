@@ -1,15 +1,25 @@
 @page "/shop"
 @layout MainLayout
 @rendermode InteractiveServer
+@implements IDisposable
+@using dWebShop.Web.Services
+@using Microsoft.AspNetCore.Components.Web
 
 <PageTitle>Web Shop — A&amp;S GIFIKS</PageTitle>
+<HeadContent>
+    <link rel="canonical" href="https://asgifiks.ba/shop" />
+    <meta name="description" content="Web shop ASGifiks — STO fasadni sistemi, XYPEX hidroizolacija betona i CORTEC antikorozivna zaštita. B2B narudžbe i tehnička podrška za cijelu BiH." />
+    <meta property="og:title" content="Web Shop — A&amp;S GIFIKS" />
+    <meta property="og:description" content="STO, XYPEX i CORTEC proizvodi na jednom mjestu. B2B cijene, isporuka u BiH." />
+    <meta property="og:url" content="https://asgifiks.ba/shop" />
+</HeadContent>
 
 <div>
     <section class="asg-shop-hero">
         <div class="asg-wrap">
             <div class="asg-shop-hero-grid">
                 <div>
-                    <div class="asg-eyebrow"><span class="dot"></span><span>Web Shop · @ShopData.Products.Length proizvoda</span></div>
+                    <div class="asg-eyebrow"><span class="dot"></span><span>Web Shop · @_products.Count proizvoda</span></div>
                     <h1>Profesionalna gradnja, <em>dostupna online</em>.</h1>
                     <p class="asg-lede">
                         Originalni STO, XYPEX i CORTEC proizvodi sa tehničkim podacima, dokumentacijom i partnerskim cijenama.
@@ -27,9 +37,9 @@
                     </form>
                 </div>
                 <div class="asg-shop-stats">
-                    <div><div class="n">@ShopData.Products.Length</div><div class="l">Proizvoda</div></div>
-                    <div><div class="n">@ShopData.Categories.Values.Sum(c => c.Length)</div><div class="l">Kategorija</div></div>
-                    <div><div class="n">3</div><div class="l">Brendova</div></div>
+                    <div><div class="n">@_products.Count</div><div class="l">Proizvoda</div></div>
+                    <div><div class="n">@_categoriesByBrand.Values.Sum(c => c.Count)</div><div class="l">Kategorija</div></div>
+                    <div><div class="n">@_brands.Count</div><div class="l">Brendova</div></div>
                     <div><div class="n">24h</div><div class="l">Tehnička podrška</div></div>
                 </div>
             </div>
@@ -46,24 +56,35 @@
                 </div>
             </div>
             <div class="asg-shop-brand-grid">
-                @foreach (var brand in ShopData.Brands)
+                @foreach (var brand in _brands)
                 {
-                    var cats = ShopData.Categories.GetValueOrDefault(brand.Key, []);
-                    var count = ShopData.Products.Count(p => p.Brand == brand.Key);
-                    <a href="/shop/@brand.Key" class="asg-shop-brand">
+                    var cats = _categoriesByBrand.GetValueOrDefault(brand.Slug, []);
+                    var count = _products.Count(p => p.BrandSlug == brand.Slug);
+                    <a href="/shop/@brand.Slug" class="asg-shop-brand">
                         <div class="asg-shop-brand-arrow">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:16px;height:16px">
                                 <path d="M5 12 H19 M13 6 L19 12 L13 18"/>
                             </svg>
                         </div>
-                        <div class="asg-shop-brand-mark">@brand.Origin · od @brand.Since</div>
+                        @if (!string.IsNullOrEmpty(brand.Origin) || !string.IsNullOrEmpty(brand.Since))
+                        {
+                            <div class="asg-shop-brand-mark">@brand.Origin@(string.IsNullOrEmpty(brand.Since) ? "" : $" · od {brand.Since}")</div>
+                        }
                         <h3>@brand.Name</h3>
                         <div class="tag">@brand.Tagline</div>
                         <ul>
+                            @* Root categories only — this card is a brand
+                               summary. The full hierarchy is shown on the
+                               brand page sidebar. Counts still roll up each
+                               root's entire subtree so the number reflects
+                               everything under that umbrella. *@
                             @foreach (var cat in cats)
                             {
-                                var catCount = ShopData.Products.Count(p => p.Brand == brand.Key && p.Category == cat.Slug);
-                                <li><span>@cat.Name</span><span>@catCount</span></li>
+                                var slugs = cat.SelfAndDescendantSlugs().ToHashSet();
+                                var catCount = _products.Count(p => p.BrandSlug == brand.Slug && p.CategorySlug != null && slugs.Contains(p.CategorySlug));
+                                <li>
+                                    <span>@cat.Name</span><span>@catCount</span>
+                                </li>
                             }
                             <li style="padding-top:8px;border-top:1px dashed var(--asg-line);margin-top:6px">
                                 <span style="font-weight:600">Ukupno proizvoda</span>
@@ -86,7 +107,7 @@
                 </div>
             </div>
             <div class="asg-shop-row">
-                @foreach (var p in ShopData.Products.Take(4))
+                @foreach (var p in _products.Take(4))
                 {
                     <ShopProductCard Product="p" IsLoggedIn="_isLoggedIn" />
                 }
@@ -96,17 +117,60 @@
 </div>
 
 @code {
-    [Inject] IJSRuntime JS { get; set; } = default!;
+    [Inject] ShopCatalogService Catalog { get; set; } = default!;
+    [Inject] CurrentUser CurrentUser { get; set; } = default!;
+    [Inject] NavigationManager Nav { get; set; } = default!;
+    [Inject] PersistentComponentState ApplicationState { get; set; } = default!;
 
     private string _search = "";
     private bool _isLoggedIn;
+    private IReadOnlyList<ShopBrandVm> _brands = [];
+    private IReadOnlyDictionary<string, IReadOnlyList<ShopCategoryVm>> _categoriesByBrand =
+        new Dictionary<string, IReadOnlyList<ShopCategoryVm>>();
+    private IReadOnlyList<ShopProductCardVm> _products = [];
+    private PersistingComponentStateSubscription _persistSubscription;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    // Concrete state shape for round-tripping through PersistentComponentState.
+    // The interface-typed _categoriesByBrand can't be JSON-deserialized directly
+    // because the deserializer needs a concrete type to instantiate.
+    private record PersistedCatalog(
+        List<ShopBrandVm> Brands,
+        Dictionary<string, List<ShopCategoryVm>> CategoriesByBrand,
+        List<ShopProductCardVm> Products);
+
+    protected override async Task OnInitializedAsync()
     {
-        if (!firstRender) return;
-        var userJson = await JS.InvokeAsync<string>("window.asgShop.getUserJson");
-        _isLoggedIn = userJson != "null";
-        StateHasChanged();
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistState);
+        _isLoggedIn = await CurrentUser.IsAuthenticatedAsync();
+
+        // Restore from SSR if available, otherwise fetch.
+        if (ApplicationState.TryTakeFromJson<PersistedCatalog>("catalog", out var persisted) && persisted is not null)
+        {
+            _brands = persisted.Brands;
+            _categoriesByBrand = persisted.CategoriesByBrand
+                .ToDictionary(kv => kv.Key, kv => (IReadOnlyList<ShopCategoryVm>)kv.Value);
+            _products = persisted.Products;
+            return;
+        }
+
+        var partnerId = _isLoggedIn ? await CurrentUser.GetPartnerIdAsync() : null;
+
+        // Sequential — running these in parallel raced on the scoped DbContext
+        // because multiple ShopCatalogService methods transitively call the
+        // same query handlers. GetBrandsQuery's response is cached upstream so
+        // the second/third call is a memory hit anyway.
+        _brands = await Catalog.GetBrandsAsync();
+        _categoriesByBrand = await Catalog.GetCategoriesByBrandAsync();
+        _products = await Catalog.GetProductsAsync(partnerId: partnerId);
+    }
+
+    private Task PersistState()
+    {
+        ApplicationState.PersistAsJson("catalog", new PersistedCatalog(
+            _brands.ToList(),
+            _categoriesByBrand.ToDictionary(kv => kv.Key, kv => kv.Value.ToList()),
+            _products.ToList()));
+        return Task.CompletedTask;
     }
 
     private void Search()
@@ -115,5 +179,5 @@
             Nav.NavigateTo($"/shop/search?q={Uri.EscapeDataString(_search.Trim())}");
     }
 
-    [Inject] NavigationManager Nav { get; set; } = default!;
+    public void Dispose() => _persistSubscription.Dispose();
 }

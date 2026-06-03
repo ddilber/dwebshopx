@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="t">
+  <title id="t">XYPEX — mostovi i vijadukti</title>
+  <defs>
+    <pattern id="concrete-b" width="6" height="6" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r=".7" fill="#16161a" fill-opacity=".22"/>
+    </pattern>
+    <linearGradient id="sky-b" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f1ea"/>
+      <stop offset="1" stop-color="#dcd6c5"/>
+    </linearGradient>
+    <linearGradient id="river-b" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2e6db4"/>
+      <stop offset="1" stop-color="#1a3c6e"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#sky-b)"/>
+
+  <!-- water below -->
+  <rect x="0" y="430" width="800" height="170" fill="url(#river-b)"/>
+  <g stroke="#f4f1ea" stroke-opacity=".45" fill="none" stroke-width="1">
+    <path d="M0 460 Q60 454 120 460 T240 460 T360 460 T480 460 T600 460 T720 460 T800 460"/>
+    <path d="M0 490 Q70 484 140 490 T280 490 T420 490 T560 490 T700 490 T800 490"/>
+    <path d="M0 520 Q60 514 120 520 T240 520 T360 520 T480 520 T600 520 T720 520 T800 520"/>
+    <path d="M0 550 Q70 544 140 550 T280 550 T420 550 T560 550 T700 550 T800 550"/>
+  </g>
+
+  <!-- abutments + piers + deck -->
+  <g stroke="#16161a" stroke-width="1.6" stroke-linejoin="round">
+    <!-- deck -->
+    <rect x="40" y="280" width="720" height="44" fill="#c9c2b1"/>
+    <rect x="40" y="280" width="720" height="44" fill="url(#concrete-b)"/>
+    <line x1="40" y1="296" x2="760" y2="296" stroke="#16161a" stroke-opacity=".4"/>
+
+    <!-- railing posts -->
+    <g stroke="#16161a" stroke-width="1.2">
+      <line x1="60" y1="280" x2="60" y2="268"/>
+      <line x1="120" y1="280" x2="120" y2="268"/>
+      <line x1="180" y1="280" x2="180" y2="268"/>
+      <line x1="240" y1="280" x2="240" y2="268"/>
+      <line x1="300" y1="280" x2="300" y2="268"/>
+      <line x1="360" y1="280" x2="360" y2="268"/>
+      <line x1="420" y1="280" x2="420" y2="268"/>
+      <line x1="480" y1="280" x2="480" y2="268"/>
+      <line x1="540" y1="280" x2="540" y2="268"/>
+      <line x1="600" y1="280" x2="600" y2="268"/>
+      <line x1="660" y1="280" x2="660" y2="268"/>
+      <line x1="720" y1="280" x2="720" y2="268"/>
+      <line x1="60" y1="268" x2="720" y2="268"/>
+    </g>
+
+    <!-- left abutment -->
+    <rect x="0" y="280" width="80" height="220" fill="#c9c2b1"/>
+    <rect x="0" y="280" width="80" height="220" fill="url(#concrete-b)"/>
+    <!-- right abutment -->
+    <rect x="720" y="280" width="80" height="220" fill="#c9c2b1"/>
+    <rect x="720" y="280" width="80" height="220" fill="url(#concrete-b)"/>
+
+    <!-- arched piers -->
+    <g fill="#c9c2b1">
+      <path d="M150 324 V500 a70 50 0 0 1 -100 0 V324 Z"/>
+      <path d="M350 324 V500 a70 50 0 0 1 -100 0 V324 Z"/>
+      <path d="M550 324 V500 a70 50 0 0 1 -100 0 V324 Z"/>
+      <path d="M750 324 V500 a70 50 0 0 1 -100 0 V324 Z"/>
+    </g>
+    <g fill="url(#concrete-b)" stroke="none">
+      <path d="M150 324 V500 a70 50 0 0 1 -100 0 V324 Z"/>
+      <path d="M350 324 V500 a70 50 0 0 1 -100 0 V324 Z"/>
+      <path d="M550 324 V500 a70 50 0 0 1 -100 0 V324 Z"/>
+      <path d="M750 324 V500 a70 50 0 0 1 -100 0 V324 Z"/>
+    </g>
+  </g>
+
+  <!-- xypex coating layer indicators on pier waterline -->
+  <g stroke="#16161a" stroke-width=".8" fill="#2e6db4" fill-opacity=".85">
+    <polygon points="100,440 110,450 100,460 90,450"/>
+    <polygon points="100,400 110,410 100,420 90,410"/>
+    <polygon points="300,440 310,450 300,460 290,450"/>
+    <polygon points="300,400 310,410 300,420 290,410"/>
+    <polygon points="500,440 510,450 500,460 490,450"/>
+    <polygon points="500,400 510,410 500,420 490,410"/>
+    <polygon points="700,440 710,450 700,460 690,450"/>
+    <polygon points="700,400 710,410 700,420 690,410"/>
+  </g>
+
+  <!-- callout -->
+  <g stroke="#16161a" stroke-width="1.2" fill="none">
+    <line x1="200" y1="380" x2="120" y2="420"/>
+    <polygon points="120,420 134,418 130,432" fill="#16161a"/>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#16161a">
+    <text x="208" y="378" letter-spacing="1">XYPEX SLOJ</text>
+    <text x="208" y="392" letter-spacing="1">U ZONI VLAGE</text>
+  </g>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" fill="#16161a" fill-opacity=".7" letter-spacing="1.5">
+    <text x="40" y="50">FIG. — MOSTOVI</text>
+    <text x="40" y="585">VIJADUKTI · ARMIRANI BETON · ZAŠTITA OD KARBONATIZACIJE</text>
+  </g>
+</svg>

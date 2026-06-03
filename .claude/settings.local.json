@@ -6,7 +6,12 @@
       "Bash(cp '/mnt/c/Users/dario/.claude/projects/F--PROJECTS-Blazor-dWebShopX--claude-worktrees-sad-haslett-753c48/2888b219-e5ad-4cfd-991f-b508f1b06b2d/tool-results/webfetch-1778017462573-l54krz.bin' design.bin)",
       "WebFetch(domain:api.anthropic.com)",
       "Bash(dotnet build *)",
-      "Bash(dotnet restore *)"
+      "Bash(dotnet restore *)",
+      "Bash(dir F:\\\\PROJECTS\\\\Blazor\\\\dWebShopX)",
+      "Bash(dotnet ef *)",
+      "Bash(git checkout *)",
+      "WebFetch(domain:asgifiks.ba)",
+      "Bash(dir /B F:\\\\PROJECTS\\\\Blazor\\\\dWebShopX\\\\src)"
     ]
   }
 }

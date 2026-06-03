@@ -2,6 +2,9 @@
 @page "/shop/{brand}/{cat}"
 @layout MainLayout
 @rendermode InteractiveServer
+@implements IDisposable
+@using dWebShop.Web.Services
+@using Microsoft.AspNetCore.Components.Web
 
 <PageTitle>@_title — Web Shop</PageTitle>
 
@@ -16,51 +19,84 @@ else
             <nav class="asg-shop-crumbs">
                 <a href="/shop">Web Shop</a>
                 <span class="sep">/</span>
-                @if (_category is not null)
+                @if (_ancestors.Count == 0)
                 {
-                    <a href="/shop/@Brand">@_brand.Name</a>
-                    <span class="sep">/</span>
-                    <span class="cur">@_category.Name</span>
+                    <span class="cur">@_brand.Name</span>
                 }
                 else
                 {
-                    <span class="cur">@_brand.Name</span>
+                    <a href="/shop/@Brand">@_brand.Name</a>
+                    @for (int i = 0; i < _ancestors.Count; i++)
+                    {
+                        var anc = _ancestors[i];
+                        var isLast = i == _ancestors.Count - 1;
+                        <span class="sep">/</span>
+                        @if (isLast)
+                        {
+                            <span class="cur">@anc.Name</span>
+                        }
+                        else
+                        {
+                            <a href="/shop/@Brand/@anc.Slug">@anc.Name</a>
+                        }
+                    }
                 }
             </nav>
 
             <div class="asg-listing-head">
                 <div>
-                    <div class="asg-eyebrow"><span class="dot"></span><span>@_brand.Name · @_brand.Origin</span></div>
+                    <div class="asg-eyebrow"><span class="dot"></span>
+                        <span>@_brand.Name@(string.IsNullOrEmpty(_brand.Origin) ? "" : $" · {_brand.Origin}")</span>
+                    </div>
                     <h1 style="margin-top:12px">@(_category is not null ? _category.Name : $"{_brand.Name} proizvodi")</h1>
-                    <p class="asg-lede">@(_category is not null ? _category.Desc : _brand.Tagline)</p>
+                    <p class="asg-lede">@(_category is not null ? _category.Description : _brand.Tagline)</p>
                 </div>
                 <div class="meta">
                     <div>@_filtered.Count @(_filtered.Count == 1 ? "proizvod" : "proizvoda")</div>
-                    <div style="margin-top:6px">@_brand.Origin · od @_brand.Since</div>
+                    @if (!string.IsNullOrEmpty(_brand.Origin) || !string.IsNullOrEmpty(_brand.Since))
+                    {
+                        <div style="margin-top:6px">@_brand.Origin@(string.IsNullOrEmpty(_brand.Since) ? "" : $" · od {_brand.Since}")</div>
+                    }
                 </div>
             </div>
 
             <div class="asg-listing-grid">
                 <aside class="asg-filters">
-                    @if (string.IsNullOrEmpty(Cat) && _cats.Length > 0)
-                    {
-                        <div class="asg-filter-grp">
-                            <h5>Kategorija</h5>
-                            <ul>
-                                @foreach (var c in _cats)
+                    @* Category sidebar — drill-down nav, not a multi-select
+                       filter. At brand root, show top-level (root) categories.
+                       Inside a category, show a "<< parent" back link plus the
+                       current category's direct children. The URL is the
+                       single source of truth for which category is active. *@
+                    <div class="asg-filter-grp">
+                        <h5>Shop kategorije</h5>
+                        <ul class="asg-cat-nav">
+                            @if (_category is null)
+                            {
+                                @foreach (var root in _cats)
                                 {
-                                    var cnt = _baseProducts.Count(p => p.Category == c.Slug);
-                                    <li>
-                                        <label>
-                                            <span><input type="checkbox" checked="@_filterCats.Contains(c.Slug)"
-                                                         @onchange="() => ToggleCat(c.Slug)" />@c.Name</span>
-                                            <span class="count">@cnt</span>
-                                        </label>
-                                    </li>
+                                    <li><a href="/shop/@Brand/@root.Slug">▸ @root.Name</a></li>
                                 }
-                            </ul>
-                        </div>
-                    }
+                            }
+                            else
+                            {
+                                // Parent link goes back one level. If the
+                                // current category is a root (no real parent
+                                // in the tree), the back link returns to the
+                                // brand landing.
+                                var hasParent = _ancestors.Count >= 2;
+                                var parentSlug = hasParent ? _ancestors[^2].Slug : null;
+                                var parentName = hasParent ? _ancestors[^2].Name : _brand!.Name;
+                                var parentUrl = parentSlug is not null
+                                    ? $"/shop/{Brand}/{parentSlug}"
+                                    : $"/shop/{Brand}";
+                                <li><a href="@parentUrl" class="back">« @parentName</a></li>
+                                @foreach (var child in _category.Children)
+                                {
+                                    <li><a href="/shop/@Brand/@child.Slug">▸ @child.Name</a></li>
+                                }
+                            }
+                        </ul>
+                    </div>
                     @if (_allTags.Count > 0)
                     {
                         <div class="asg-filter-grp">
@@ -80,7 +116,7 @@ else
                             </ul>
                         </div>
                     }
-                    @if (_filterCats.Count > 0 || _filterTags.Count > 0)
+                    @if (_filterTags.Count > 0)
                     {
                         <button class="asg-filter-clear" @onclick="ClearFilters">✕ Očisti filtere</button>
                     }
@@ -89,7 +125,7 @@ else
                 <div>
                     <div class="asg-listing-toolbar">
                         <span>@_filtered.Count rezultata</span>
-                        <select @bind="_sortBy">
+                        <select @bind="_sortBy" @bind:after="ApplyFilters">
                             <option value="default">Sortiraj — Preporučeno</option>
                             <option value="name">Naziv (A–Z)</option>
                             <option value="price-asc">Cijena (rastuće)</option>
@@ -118,67 +154,103 @@ else
 }
 
 @code {
-    [Inject] IJSRuntime JS { get; set; } = default!;
+    [Inject] ShopCatalogService Catalog { get; set; } = default!;
+    [Inject] CurrentUser CurrentUser { get; set; } = default!;
+    [Inject] PersistentComponentState ApplicationState { get; set; } = default!;
 
     [Parameter] public string Brand { get; set; } = "";
     [Parameter] public string? Cat { get; set; }
 
-    private ShopData.Brand? _brand;
-    private ShopData.Category? _category;
-    private ShopData.Category[] _cats = [];
-    private List<ShopData.Product> _baseProducts = [];
-    private List<ShopData.Product> _filtered = [];
+    private ShopBrandVm? _brand;
+    private ShopCategoryVm? _category;
+    private IReadOnlyList<ShopCategoryVm> _cats = [];
+    // Path from root to current category (inclusive). Empty when no category
+    // is selected. Drives the breadcrumb and the "<< parent" sidebar link.
+    private IReadOnlyList<ShopCategoryVm> _ancestors = [];
+    private List<ShopProductCardVm> _baseProducts = [];
+    private List<ShopProductCardVm> _filtered = [];
     private List<string> _allTags = [];
-    private HashSet<string> _filterCats = [];
     private HashSet<string> _filterTags = [];
     private string _sortBy = "default";
     private bool _isLoggedIn;
     private string _title = "Web Shop";
+    private PersistingComponentStateSubscription _persistSubscription;
+    private string _loadedKey = "";
 
-    protected override void OnParametersSet()
+    private record PersistedBrandPage(
+        ShopBrandVm? Brand,
+        List<ShopCategoryVm> Cats,
+        List<ShopProductCardVm> BaseProducts);
+
+    protected override void OnInitialized()
     {
-        _brand = ShopData.FindBrand(Brand);
-        _category = string.IsNullOrEmpty(Cat) ? null : ShopData.FindCategory(Brand, Cat);
-        _cats = ShopData.Categories.GetValueOrDefault(Brand, []);
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistState);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var key = $"brandpage:{Brand}:{Cat ?? ""}";
+        if (key == _loadedKey) return;
+        _loadedKey = key;
+
+        _isLoggedIn = await CurrentUser.IsAuthenticatedAsync();
+
+        if (ApplicationState.TryTakeFromJson<PersistedBrandPage>(key, out var persisted) && persisted is not null)
+        {
+            _brand = persisted.Brand;
+            _cats = persisted.Cats;
+            _category = _cats.FindBySlug(Cat);
+            _baseProducts = persisted.BaseProducts;
+        }
+        else
+        {
+            var partnerId = _isLoggedIn ? await CurrentUser.GetPartnerIdAsync() : null;
+
+            var brands = await Catalog.GetBrandsAsync();
+            _brand = brands.FirstOrDefault(b => string.Equals(b.Slug, Brand, StringComparison.OrdinalIgnoreCase));
+
+            var categoriesByBrand = await Catalog.GetCategoriesByBrandAsync();
+            _cats = categoriesByBrand.GetValueOrDefault(Brand, []);
+            _category = _cats.FindBySlug(Cat);
+
+            _baseProducts = _brand is null
+                ? []
+                : (await Catalog.GetProductsAsync(brandSlug: Brand, categorySlug: Cat, partnerId: partnerId)).ToList();
+        }
+
+        _ancestors = _cats.AncestorPath(Cat);
         _title = _category?.Name ?? (_brand is not null ? $"{_brand.Name} proizvodi" : "Web Shop");
-
-        _baseProducts = ShopData.Products
-            .Where(p => p.Brand == Brand && (string.IsNullOrEmpty(Cat) || p.Category == Cat))
-            .ToList();
-
         _allTags = _baseProducts.SelectMany(p => p.Tags).Distinct().ToList();
-        _filterCats.Clear();
         _filterTags.Clear();
         ApplyFilters();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private Task PersistState()
     {
-        if (!firstRender) return;
-        var userJson = await JS.InvokeAsync<string>("window.asgShop.getUserJson");
-        _isLoggedIn = userJson != "null";
-        StateHasChanged();
+        ApplicationState.PersistAsJson(_loadedKey, new PersistedBrandPage(
+            _brand,
+            _cats.ToList(),
+            _baseProducts));
+        return Task.CompletedTask;
     }
+
+    public void Dispose() => _persistSubscription.Dispose();
 
     private void ApplyFilters()
     {
+        // Category narrowing happens via the URL — the listing service already
+        // returns the category subtree's products. Tags are the only sidebar
+        // facet remaining.
         var list = _baseProducts.AsEnumerable();
-        if (_filterCats.Count > 0) list = list.Where(p => _filterCats.Contains(p.Category));
         if (_filterTags.Count > 0) list = list.Where(p => p.Tags.Any(t => _filterTags.Contains(t)));
         list = _sortBy switch
         {
-            "price-asc"  => list.OrderBy(p => p.Skus.Min(s => s.Price)),
-            "price-desc" => list.OrderByDescending(p => p.Skus.Min(s => s.Price)),
+            "price-asc"  => list.OrderBy(p => p.MinPrice ?? decimal.MaxValue),
+            "price-desc" => list.OrderByDescending(p => p.MinPrice ?? decimal.MinValue),
             "name"       => list.OrderBy(p => p.Name),
             _            => list,
         };
         _filtered = list.ToList();
-    }
-
-    private void ToggleCat(string slug)
-    {
-        if (!_filterCats.Remove(slug)) _filterCats.Add(slug);
-        ApplyFilters();
     }
 
     private void ToggleTag(string tag)
@@ -189,7 +261,6 @@ else
 
     private void ClearFilters()
     {
-        _filterCats.Clear();
         _filterTags.Clear();
         ApplyFilters();
     }

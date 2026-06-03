@@ -9,7 +9,12 @@ public record BrandDto(int Id, string Name, string Slug, string Description, str
 
 public record GetBrandsQuery : IRequest<List<BrandDto>>;
 
-public class GetBrandsQueryHandler(IAppDbContext db, IMemoryCache cache) : IRequestHandler<GetBrandsQuery, List<BrandDto>>
+// Uses IAppDbContextFactory rather than the scoped IAppDbContext because
+// ShopCatalogService fans out three parallel queries (brands, categories,
+// products) and each of them transitively calls GetBrandsQuery. With a
+// scoped context those parallel calls clashed on the same connection.
+// Cache hit returns instantly; cache miss runs on a fresh context.
+public class GetBrandsQueryHandler(IAppDbContextFactory dbFactory, IMemoryCache cache) : IRequestHandler<GetBrandsQuery, List<BrandDto>>
 {
     private const string CacheKey = "brands:all";
 
@@ -18,6 +23,7 @@ public class GetBrandsQueryHandler(IAppDbContext db, IMemoryCache cache) : IRequ
         if (cache.TryGetValue(CacheKey, out List<BrandDto>? cached) && cached is not null)
             return cached;
 
+        await using var db = await dbFactory.CreateDbContextAsync(ct);
         var brands = await db.Brands
             .AsNoTracking()
             .OrderBy(b => b.Name)

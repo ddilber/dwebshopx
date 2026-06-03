@@ -3,6 +3,30 @@
 @rendermode InteractiveServer
 
 <PageTitle>Kontakt — A&amp;S GIFIKS</PageTitle>
+<HeadContent>
+    <link rel="canonical" href="https://asgifiks.ba/contact" />
+    <meta name="description" content="Kontaktirajte ASGifiks — Tomislavgrad, BiH. Pošaljite upit za STO, XYPEX i CORTEC sisteme; odgovor inženjera u 24h." />
+    <meta property="og:title" content="Kontakt — A&amp;S GIFIKS" />
+    <meta property="og:description" content="Tomislavgrad, +387 34 000 000, info@asgifiks.ba. Inženjer odgovara u 24 sata." />
+    <meta property="og:url" content="https://asgifiks.ba/contact" />
+    @Seo.JsonLd(new JsonObject {
+        ["@type"] = "ContactPage",
+        ["name"] = "Kontakt — A&S GIFIKS",
+        ["url"] = "https://asgifiks.ba/contact",
+        ["mainEntity"] = new JsonObject {
+            ["@type"] = "Organization",
+            ["name"] = "A&S GIFIKS",
+            ["url"] = "https://asgifiks.ba",
+            ["email"] = "info@asgifiks.ba",
+            ["telephone"] = "+387 34 000 000",
+            ["address"] = new JsonObject {
+                ["@type"] = "PostalAddress",
+                ["addressLocality"] = "Tomislavgrad",
+                ["addressCountry"] = "BA"
+            }
+        }
+    })
+</HeadContent>
 
 <div class="asg-page">
 

@@ -494,11 +494,20 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                     b.Property<int>("ContentType")
                         .HasColumnType("int");
 
+                    b.Property<string>("CoverImage")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("GalleryJson")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("HeroLabel")
                         .IsRequired()
@@ -517,6 +526,21 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("varchar(1000)");
+
+                    b.Property<string>("MetaDescription")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("MetaTitle")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<string>("OgImage")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<bool>("Published")
                         .HasColumnType("tinyint(1)");
@@ -1737,6 +1761,10 @@ namespace dWebShop.Infrastructure.Persistence.Migrations
                     b.Property<decimal>("Tax")
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Uom")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<int?>("UpdatedBy")
                         .HasColumnType("int");

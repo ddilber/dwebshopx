@@ -1,16 +1,19 @@
 @inject NavigationManager Nav
+@inject CurrentUser CurrentUser
+@inject IMediator Mediator
+@using dWebShop.Application.Features.ShoppingCart.Queries
+@using dWebShop.Web.Services
+@using MediatR
 
 <nav class="asg-nav">
-    <a href="/" class="asg-brand">
-        <svg class="asg-brand-mark" viewBox="0 0 80 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="A&amp;S Gifiks">
-            <path d="M36 30 L54 14 L72 30 L72 50 L62 50 L62 36 L54 36 L54 50 L36 50 Z" fill="#8796b3" />
-            <rect x="36" y="50" width="36" height="6" fill="#afb1b0" />
-            <rect x="6" y="10" width="40" height="40" stroke="#00335e" stroke-width="7" fill="#f4f1ea" />
-        </svg>
-        <span class="asg-brand-words">
-            <span class="light">A&amp;S</span>
-            <span class="bold">GIFIKS</span>
-        </span>
+	<a href="/" class="asg-brand">
+		<img class="asg-brand-mark"
+			 src="/images/logo.svg"
+			 alt="A&S Gifiks" />
+		<span class="asg-brand-words">
+			<span class="light">A&amp;S</span>
+			<span class="bold">GIFIKS</span>
+		</span>
         <small>BiH</small>
     </a>
 
@@ -29,12 +32,25 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:14px;height:14px">
                 <path d="M3 4 H6 L8 17 H20 L22 7 H7"/><circle cx="9" cy="21" r="1.3"/><circle cx="18" cy="21" r="1.3"/>
             </svg>
-            <span class="asg-cart-badge" id="asg-cart-badge-count" style="display:none">0</span>
+            @if (_cartCount > 0)
+            {
+                <span class="asg-cart-badge">@_cartCount</span>
+            }
         </a>
-        <button class="asg-login-chip" id="asg-login-chip">
-            <span class="dot"></span>
-            <span id="asg-login-chip-label">Prijava</span>
-        </button>
+        @if (_isAuthenticated)
+        {
+            <a href="/account" class="asg-login-chip is-in" title="Moj nalog">
+                <span class="dot"></span>
+                <span>@_chipLabel</span>
+            </a>
+        }
+        else
+        {
+            <a href="/login" class="asg-login-chip" title="Prijava">
+                <span class="dot"></span>
+                <span>Prijava</span>
+            </a>
+        }
     </div>
 
     <button class="asg-nav-hamburger @(_menuOpen ? "open" : "")" @onclick="ToggleMenu" aria-label="Meni">
@@ -60,6 +76,40 @@
 
 @code {
     private bool _menuOpen = false;
+    private bool _isAuthenticated;
+    private string _chipLabel = "Prijava";
+    private int _cartCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Static SSR navbar: state below is computed once per request render.
+        // For anonymous visitors we skip the cart query entirely so marketing
+        // pages don't take a DB hit they don't need.
+        _isAuthenticated = await CurrentUser.IsAuthenticatedAsync();
+        if (!_isAuthenticated) return;
+
+        var name = await CurrentUser.GetDisplayNameAsync();
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            // Strip email-style names (foo@bar.com → foo) and take the first
+            // word so the chip stays compact.
+            var firstToken = name.Split('@', ' ').FirstOrDefault(t => !string.IsNullOrWhiteSpace(t));
+            _chipLabel = string.IsNullOrWhiteSpace(firstToken) ? "Račun" : firstToken!;
+        }
+        else
+        {
+            _chipLabel = "Račun";
+        }
+
+        var userId = await CurrentUser.GetUserIdAsync();
+        if (userId is not null)
+        {
+            var cart = await Mediator.Send(new GetCartQuery(userId.Value));
+            // Cart quantities are decimal in the schema but always whole units
+            // for this catalogue — round so the badge shows a clean integer.
+            _cartCount = (int)Math.Round(cart.Sum(c => c.Quantity));
+        }
+    }
 
     private string IsActive(string path)
     {

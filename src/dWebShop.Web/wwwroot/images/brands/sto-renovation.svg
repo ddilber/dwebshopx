@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="t">
+  <title id="t">STO — energetska renovacija (prije/poslije)</title>
+  <defs>
+    <pattern id="hatch-ren" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="14" stroke="#00457C" stroke-width="1" stroke-opacity=".22"/>
+    </pattern>
+    <pattern id="crack" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M0 5 L12 9 L18 4 L28 14 L40 10" stroke="#16161a" stroke-width=".6" stroke-opacity=".55" fill="none"/>
+      <path d="M0 28 L10 32 L22 26 L34 36" stroke="#16161a" stroke-width=".6" stroke-opacity=".4" fill="none"/>
+    </pattern>
+    <clipPath id="cut">
+      <polygon points="0,0 460,0 360,600 0,600"/>
+    </clipPath>
+    <linearGradient id="sky-ren" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f1ea"/>
+      <stop offset="1" stop-color="#e8e3d8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="600" fill="url(#sky-ren)"/>
+
+  <!-- ground -->
+  <line x1="0" y1="510" x2="800" y2="510" stroke="#16161a" stroke-width="1"/>
+  <rect x="0" y="510" width="800" height="90" fill="url(#hatch-ren)"/>
+
+  <!-- AFTER (right side, full) — STO renovated -->
+  <g stroke="#16161a" stroke-width="1.4" stroke-linejoin="round">
+    <rect x="100" y="120" width="600" height="390" fill="#00457C"/>
+    <!-- new windows -->
+    <g fill="#f4f1ea" stroke="#16161a" stroke-width="1">
+      <rect x="140" y="160" width="60" height="80"/>
+      <rect x="220" y="160" width="60" height="80"/>
+      <rect x="300" y="160" width="60" height="80"/>
+      <rect x="380" y="160" width="60" height="80"/>
+      <rect x="460" y="160" width="60" height="80"/>
+      <rect x="540" y="160" width="60" height="80"/>
+      <rect x="620" y="160" width="60" height="80"/>
+      <rect x="140" y="260" width="60" height="80"/>
+      <rect x="220" y="260" width="60" height="80"/>
+      <rect x="300" y="260" width="60" height="80"/>
+      <rect x="380" y="260" width="60" height="80"/>
+      <rect x="460" y="260" width="60" height="80"/>
+      <rect x="540" y="260" width="60" height="80"/>
+      <rect x="620" y="260" width="60" height="80"/>
+      <rect x="140" y="360" width="60" height="80"/>
+      <rect x="220" y="360" width="60" height="80"/>
+      <rect x="300" y="360" width="60" height="80"/>
+      <rect x="380" y="360" width="60" height="80"/>
+      <rect x="460" y="360" width="60" height="80"/>
+      <rect x="540" y="360" width="60" height="80"/>
+      <rect x="620" y="360" width="60" height="80"/>
+    </g>
+  </g>
+
+  <!-- BEFORE (left side, clipped on diagonal) — old worn -->
+  <g clip-path="url(#cut)">
+    <g stroke="#16161a" stroke-width="1.4" stroke-linejoin="round">
+      <rect x="100" y="120" width="600" height="390" fill="#a89a82"/>
+      <rect x="100" y="120" width="600" height="390" fill="url(#crack)"/>
+      <!-- old windows -->
+      <g fill="#3a3327" stroke="#16161a" stroke-width="1">
+        <rect x="140" y="160" width="60" height="80"/>
+        <rect x="220" y="160" width="60" height="80"/>
+        <rect x="300" y="160" width="60" height="80"/>
+        <rect x="140" y="260" width="60" height="80"/>
+        <rect x="220" y="260" width="60" height="80"/>
+        <rect x="300" y="260" width="60" height="80"/>
+        <rect x="140" y="360" width="60" height="80"/>
+        <rect x="220" y="360" width="60" height="80"/>
+        <rect x="300" y="360" width="60" height="80"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- diagonal seam -->
+  <line x1="460" y1="0" x2="360" y2="600" stroke="#16161a" stroke-width="1.6"/>
+  <line x1="460" y1="0" x2="360" y2="600" stroke="#f4f1ea" stroke-width=".6" stroke-dasharray="4 4"/>
+
+  <!-- labels -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" letter-spacing="1.5">
+    <text x="40" y="50" fill="#16161a" fill-opacity=".7">FIG. — ENERGETSKA SANACIJA</text>
+    <text x="180" y="100" fill="#16161a" fill-opacity=".7" text-anchor="middle">PRIJE</text>
+    <text x="600" y="100" fill="#16161a" fill-opacity=".7" text-anchor="middle">POSLIJE</text>
+    <text x="40" y="565" fill="#16161a" fill-opacity=".7">STO ETICS · OBNOVA STARIH FASADA · DO 60% UŠTEDA ENERGIJE</text>
+  </g>
+</svg>
