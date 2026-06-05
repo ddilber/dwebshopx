@@ -12,7 +12,14 @@
       "Bash(git checkout *)",
       "WebFetch(domain:asgifiks.ba)",
       "Bash(dir /B F:\\\\PROJECTS\\\\Blazor\\\\dWebShopX\\\\src)",
-      "Bash(grep -n \"^/\\\\*\" src/dWebShop.Web/wwwroot/css/app.css)"
+      "Bash(grep -n \"^/\\\\*\" src/dWebShop.Web/wwwroot/css/app.css)",
+      "Bash(awk -F'/\\(bin|obj\\)/' '{print $1\"/\"$2}')",
+      "Bash(git rm *)",
+      "Bash(git ls-files *)",
+      "Bash(xargs -0 git rm --cached --quiet)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git rev-list *)"
     ]
   }
 }
