@@ -104,7 +104,11 @@ public record ShopSkuVm(
     decimal Price,
     int StockQuantity,
     int LowStockThreshold,
-    string Uom)
+    string Uom,
+    // Optional per-SKU image. The PDP gallery pins this image as the first
+    // slot when the corresponding option combination is selected, so changing
+    // a variant (e.g. colour) flips the lead photo on the page.
+    string? ImagePath = null)
 {
     // Stock label categories mirror the legacy "in" / "low" / "order" strings
     // so the existing ShopFormatting helper keeps producing the same UI labels.

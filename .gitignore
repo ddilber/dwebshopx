@@ -1,5 +1,7 @@
 # Uploaded user content
 /uploads/
+uploads.tar
+*.tar
 
 # Build output
 bin/

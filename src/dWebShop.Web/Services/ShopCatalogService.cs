@@ -199,7 +199,7 @@ public class ShopCatalogService(IMediator mediator, IPricingService pricing)
             .Select(s => new ShopSkuVm(
                 s.Id, s.SKU, s.Opts, s.Price,
                 s.StockQuantity, s.LowStockThreshold,
-                s.Uom))
+                s.Uom, s.ImagePath))
             .ToList();
 
         var primaryImage = pdp.Skus.FirstOrDefault(s => !string.IsNullOrEmpty(s.ImagePath))?.ImagePath

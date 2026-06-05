@@ -25,6 +25,10 @@
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
     <HeadOutlet />
+    <script>
+        // Disable browser scroll restoration as early as possible (before any layout/paint).
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    </script>
 </head>
 
 <body>
@@ -34,28 +38,27 @@
     <script>
         window.scrollToTop = function() { window.scrollTo({ top: 0, behavior: "instant" }); };
 
-        // Scroll to top on navigation and reload. Disables browser's scroll restoration on F5,
-        // and handles enhanced-nav link clicks (which don't fire a normal load).
+        // Scroll to top on navigation and reload. We cover three navigation paths:
+        //  1. Initial page load / F5  — direct scrollTo (browser restoration already disabled in <head>).
+        //  2. Enhanced SSR navigation — fires `enhancedload`.
+        //  3. InteractiveServer / NavigationManager — calls history.pushState (monkey-patched).
+        // popstate (back/forward) intentionally not handled here; with manual restoration the page
+        // simply starts at top, which the user explicitly wants.
         (function() {
-            if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-            window.scrollTo({ top: 0, behavior: 'instant' });
+            function toTop() { window.scrollTo({ top: 0, behavior: 'instant' }); }
+            toTop();
+            window.addEventListener('load', toTop);
 
-            var forwardNav = false;
-            document.addEventListener('click', function(e) {
-                var a = e.target && e.target.closest && e.target.closest('a[href]');
-                if (!a) return;
-                if (a.target === '_blank' || a.hasAttribute('download')) return;
-                var url; try { url = new URL(a.href, location.href); } catch (_) { return; }
-                if (url.origin !== location.origin) return;
-                if (url.pathname === location.pathname && url.search === location.search && url.hash) return;
-                forwardNav = true;
-            }, true);
-            document.addEventListener('enhancedload', function() {
-                if (forwardNav) {
-                    forwardNav = false;
-                    window.scrollTo({ top: 0, behavior: 'instant' });
-                }
-            });
+            document.addEventListener('enhancedload', toTop);
+
+            var origPush = history.pushState;
+            history.pushState = function() {
+                var ret = origPush.apply(this, arguments);
+                toTop();
+                return ret;
+            };
+
+            window.addEventListener('popstate', toTop);
         })();
 
         // Scroll-triggered animations for .animate-on-scroll elements
@@ -89,3 +92,4 @@
 </body>
 
 </html>
+

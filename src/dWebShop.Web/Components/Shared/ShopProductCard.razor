@@ -10,7 +10,14 @@
             <span class="dot" style="background:@stockColor"></span>
             @stockLabel
         </span>
-        <span class="ph">Slika proizvoda</span>
+        @if (!string.IsNullOrEmpty(Product.PrimaryImagePath))
+        {
+            <img src="@Product.PrimaryImagePath" alt="@Product.Name" loading="lazy" />
+        }
+        else
+        {
+            <span class="ph">Slika proizvoda</span>
+        }
     </div>
     <div class="asg-pcard-body">
         <div class="asg-pcard-cat">@(Product.CategoryName ?? "")</div>

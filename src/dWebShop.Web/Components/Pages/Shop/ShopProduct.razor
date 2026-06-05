@@ -85,6 +85,21 @@ else
         ? ShopFormatting.StockLabel(currentSku.StockBucket)
         : ShopFormatting.StockLabel("order");
 
+    // Build the gallery: the current SKU's image (if it has one) leads, then
+    // the product's general images. De-duplicate so we don't show the same
+    // path twice when the SKU's image is also one of the general ones.
+    var galleryImages = new List<(string Path, string Description)>();
+    if (currentSku is not null && !string.IsNullOrWhiteSpace(currentSku.ImagePath))
+    {
+        galleryImages.Add((currentSku.ImagePath!, _product.Name));
+    }
+    foreach (var img in _detail!.Images)
+    {
+        if (galleryImages.Any(g => string.Equals(g.Path, img.Path, StringComparison.OrdinalIgnoreCase))) continue;
+        galleryImages.Add((img.Path, string.IsNullOrWhiteSpace(img.Description) ? _product.Name : img.Description));
+    }
+    var activeIdx = galleryImages.Count > 0 ? Math.Clamp(_activeImg, 0, galleryImages.Count - 1) : 0;
+
     <div class="asg-pdp">
         <div class="asg-wrap">
             <nav class="asg-shop-crumbs">
@@ -97,15 +112,34 @@ else
             <div class="asg-pdp-head">
                 <div class="asg-pdp-gallery">
                     <div class="asg-pdp-main-img">
-                        <span class="ph">Slika @(_activeImg + 1) · @_product.Name</span>
-                    </div>
-                    <div class="asg-pdp-thumbs">
-                        @for (int i = 0; i < Math.Max(_detail!.Images.Count, 1); i++)
+                        @if (galleryImages.Count > 0)
                         {
-                            var idx = i;
-                            <div class="asg-pdp-thumb @(_activeImg == idx ? "active" : "")" @onclick="() => _activeImg = idx"></div>
+                            var img = galleryImages[activeIdx];
+                            <img src="@img.Path" alt="@img.Description" loading="lazy" />
+                        }
+                        else
+                        {
+                            @* No images attached yet — fall back to a labelled
+                               placeholder so the layout still holds shape. *@
+                            <span class="ph">Slika · @_product.Name</span>
                         }
                     </div>
+                    @if (galleryImages.Count > 1)
+                    {
+                        <div class="asg-pdp-thumbs">
+                            @for (int i = 0; i < galleryImages.Count; i++)
+                            {
+                                var idx = i;
+                                var thumb = galleryImages[i];
+                                <button type="button"
+                                        class="asg-pdp-thumb @(activeIdx == idx ? "active" : "")"
+                                        @onclick="() => _activeImg = idx"
+                                        title="@thumb.Description">
+                                    <img src="@thumb.Path" alt="" loading="lazy" />
+                                </button>
+                            }
+                        </div>
+                    }
                 </div>
 
                 <div class="asg-pdp-info">
@@ -211,22 +245,51 @@ else
                     <div class="asg-pdp-desc">@_product.Desc</div>
                 </div>
                 <div>
+                    @{
+                        // Split info rows: real spec rows go in the table,
+                        // file-reference rows (imported docs stored as info)
+                        // get promoted into the documents section below.
+                        var specRows = _detail!.Info.Where(r => !LooksLikeDocPath(r.Key)).ToList();
+                        var inlineDocs = _detail.Info
+                            .Where(r => LooksLikeDocPath(r.Key))
+                            .Select(r => new ShopProductDocVm(
+                                Name: r.Value,
+                                Description: string.Empty,
+                                Path: r.Key))
+                            .ToList();
+                        var allDocs = _detail.Documents.Concat(inlineDocs).ToList();
+                    }
                     <h3>02 / Tehnički podaci</h3>
                     <div class="asg-pdp-spec">
-                        @foreach (var row in _detail!.Info)
+                        @foreach (var row in specRows)
                         {
-                            <div><span>@row.Key</span><span>@row.Value</span></div>
+                            <div>
+                                <span>@row.Key</span>
+                                @* Admin-authored values can contain inline
+                                   HTML (e.g. a <table> for property matrices).
+                                   Render as markup so the structure is shown
+                                   rather than the literal tags. Source is
+                                   trusted (Admin-only edits). *@
+                                <span>@((MarkupString)row.Value)</span>
+                            </div>
                         }
                     </div>
-                    @if (_detail.Documents.Count > 0)
+                    @if (allDocs.Count > 0)
                     {
                         <div class="asg-pdp-docs">
                             <h3>03 / Dokumentacija</h3>
-                            @foreach (var doc in _detail.Documents)
+                            @foreach (var doc in allDocs)
                             {
-                                <a href="@doc.Path" class="asg-pdp-doc" target="_blank" rel="noopener">
+                                var meta = ParseDocLabel(doc.Name);
+                                <a href="@ResolveDocHref(doc.Path)" class="asg-pdp-doc" target="_blank" rel="noopener">
                                     <div class="asg-pdp-doc-icon">PDF</div>
-                                    <span>@doc.Name</span>
+                                    <div class="asg-pdp-doc-text">
+                                        @if (!string.IsNullOrEmpty(meta.TypeLabel))
+                                        {
+                                            <div class="asg-pdp-doc-type">@meta.TypeLabel</div>
+                                        }
+                                        <div class="asg-pdp-doc-name">@meta.DisplayName</div>
+                                    </div>
                                     @if (!string.IsNullOrEmpty(doc.Description))
                                     {
                                         <span class="size">@doc.Description</span>
@@ -341,6 +404,7 @@ else
         }
 
         _qty = 1;
+        _activeImg = 0;
         _added = false;
         _initialized = true;
     }
@@ -369,6 +433,10 @@ else
     private void SetOpt(string optName, string val)
     {
         _selected = new Dictionary<string, string>(_selected) { [optName] = val };
+        // Snap the gallery back to slot 0 so the user immediately sees the
+        // image for the newly selected SKU (or the first general image if
+        // this SKU has none).
+        _activeImg = 0;
     }
 
     private void DecrQty() => _qty = Math.Max(1, _qty - 1);
@@ -428,5 +496,63 @@ else
         // opt1 · opt2" format the order history uses.
         if (sku.Opts.Count == 0) return product.Name;
         return $"{product.Name} · {string.Join(" · ", sku.Opts)}";
+    }
+
+    // Brand-imported document names follow a "<type>:<product>" convention
+    // (e.g. "tds:Sto-Glasfasergewebe" = Technical Data Sheet for that product).
+    // Translate the prefix to a readable type label and strip it from the
+    // visible name. Unknown prefixes survive as uppercase fallbacks rather
+    // than being hidden so a typo is still visible during data review.
+    private static readonly Dictionary<string, string> DocTypeLabels = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["tds"]  = "Tehnički list",
+        ["sds"]  = "Sigurnosno-tehnički list",
+        ["msds"] = "Sigurnosno-tehnički list (MSDS)",
+        ["ndb"]  = "Izjava o održivosti",
+        ["ce"]   = "CE deklaracija",
+        ["bim"]  = "BIM datoteke",
+        ["ill"]  = "Ilustracija",
+        ["doc"]  = "Dokument",
+    };
+
+    private static (string TypeLabel, string DisplayName) ParseDocLabel(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return (string.Empty, string.Empty);
+        var colon = name.IndexOf(':');
+        if (colon <= 0) return (string.Empty, name);
+
+        var prefix = name[..colon].Trim();
+        var rest = name[(colon + 1)..].Trim();
+        var label = DocTypeLabels.TryGetValue(prefix, out var v) ? v : prefix.ToUpperInvariant();
+        return (label, string.IsNullOrWhiteSpace(rest) ? name : rest);
+    }
+
+    // Some imported products store document references as Info rows rather
+    // than as ProductDocument records — the Info Key holds the file path and
+    // the Value holds the prefixed label. Detect those so we can lift them
+    // out of the spec table and into the documents section.
+    private static bool LooksLikeDocPath(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return false;
+        return s.StartsWith("FILE://", StringComparison.OrdinalIgnoreCase)
+            || s.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || s.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+            || s.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase);
+    }
+
+    // Imported records carry paths like "FILE://PRODUCT_DOCS/foo.pdf" which
+    // browsers refuse to navigate to from an http(s) page. Normalise to a
+    // root-relative URL so the static file middleware serves the document.
+    // Real URLs (starting with http or /) pass through unchanged.
+    private static string ResolveDocHref(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return "#";
+        const string filePrefix = "FILE://";
+        if (path.StartsWith(filePrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            var rest = path[filePrefix.Length..].TrimStart('/');
+            return "/" + rest;
+        }
+        return path;
     }
 }

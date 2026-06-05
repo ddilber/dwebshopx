@@ -11,6 +11,10 @@
     <link href="_content/Microsoft.FluentUI.AspNetCore.Components/Microsoft.FluentUI.AspNetCore.Components.bundle.scp.css" rel="stylesheet" />
     <ImportMap />
     <HeadOutlet />
+    <script>
+        // Disable browser scroll restoration as early as possible (before any layout/paint).
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    </script>
 </head>
 
 <body>
@@ -24,15 +28,20 @@
         // calls history.pushState for forward nav, so we hook it. popstate is left alone so
         // back/forward keep native scroll restoration.
         (function() {
-            if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-            window.scrollTo({ top: 0, behavior: 'instant' });
+            function toTop() { window.scrollTo({ top: 0, behavior: 'instant' }); }
+            toTop();
+            window.addEventListener('load', toTop);
+
+            document.addEventListener('enhancedload', toTop);
 
             var origPush = history.pushState;
             history.pushState = function() {
                 var ret = origPush.apply(this, arguments);
-                window.scrollTo({ top: 0, behavior: 'instant' });
+                toTop();
                 return ret;
             };
+
+            window.addEventListener('popstate', toTop);
         })();
     </script>
 </body>

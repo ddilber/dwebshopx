@@ -22,7 +22,7 @@
         },
         ["contactPoint"] = new JsonObject {
             ["@type"] = "ContactPoint",
-            ["telephone"] = "+387 34 000 000",
+            ["telephone"] = "+387 34 352 050",
             ["email"] = "info@asgifiks.ba",
             ["contactType"] = "sales",
             ["areaServed"] = "BA",
@@ -34,7 +34,7 @@
         ["name"] = "A&S GIFIKS",
         ["url"] = "https://asgifiks.ba",
         ["image"] = "https://asgifiks.ba/images/asgifiks_building.jpeg",
-        ["telephone"] = "+387 34 000 000",
+        ["telephone"] = "+387 34 352 050",
         ["email"] = "info@asgifiks.ba",
         ["priceRange"] = "$$",
         ["address"] = new JsonObject {
@@ -111,14 +111,12 @@
     </div>
 
     <div class="asg-hero-figure asg-wrap">
-        <div class="asg-ph ph-dark" style="height:520px">
-            <img src="/images/asgifiks_building.png
-" alt="ASGifiks — fasadni sistemi" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none'" />
-            @* <span>[ hero / objekat sa STO fasadom ]</span> *@
+        <div class="asg-hero-photo">
+            <img src="/images/asgifiks_building.jpeg" alt="A&S GIFIKS — sjedište u Tomislavgradu" />
         </div>
         <div class="cap">
             <span class="l">FIG. 01 / 03</span>
-            <span class="c"><b>Stambeno-poslovni kompleks</b> — Tomislavgrad &middot; STO ETICS sistem</span>
+            <span class="c"><b>Sjedište A&amp;S GIFIKS</b> — Tomislavgrad &middot; STO fasadni sistem</span>
             <span class="r">2024</span>
         </div>
     </div>
@@ -345,25 +343,33 @@
 
         <div class="asg-proj-grid">
             <article class="asg-proj">
-                <div class="asg-ph" style="height:340px">[ stambeni / mostar, bih ]</div>
+                <div class="asg-ph" style="height:340px;padding:0;overflow:hidden;">
+                    <img src="/images/brands/sto-residential.svg" alt="Stambeno-poslovni kompleks — Mostar" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none'" />
+                </div>
                 <div class="meta"><span>Stambeni</span><span>2024</span></div>
                 <h3>Stambeno-poslovni kompleks — Mostar</h3>
                 <div class="s">STO ETICS &middot; MW 16cm &middot; 4.200 m² &middot; Mostar, BiH</div>
             </article>
             <article class="asg-proj">
-                <div class="asg-ph" style="height:340px">[ industrijski / jablanica, bih ]</div>
+                <div class="asg-ph" style="height:340px;padding:0;overflow:hidden;">
+                    <img src="/images/brands/xypex-foundation.svg" alt="Hidroelektrana — sanacija temelja, Jablanica" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none'" />
+                </div>
                 <div class="meta"><span>Industrijski</span><span>2024</span></div>
                 <h3>Hidroelektrana — sanacija temelja</h3>
                 <div class="s">XYPEX Concentrate + Patch &middot; 1.800 m² &middot; Jablanica, BiH</div>
             </article>
             <article class="asg-proj">
-                <div class="asg-ph" style="height:340px">[ javni / tomislavgrad, bih ]</div>
+                <div class="asg-ph" style="height:340px;padding:0;overflow:hidden;">
+                    <img src="/images/brands/sto-public.svg" alt="Osnovna škola — energetska obnova, Tomislavgrad" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none'" />
+                </div>
                 <div class="meta"><span>Javni</span><span>2023</span></div>
                 <h3>Osnovna škola — energetska obnova</h3>
                 <div class="s">STO ETICS &middot; EPS 15cm &middot; 2.600 m² &middot; Tomislavgrad, BiH</div>
             </article>
             <article class="asg-proj">
-                <div class="asg-ph" style="height:340px">[ industrijski / livno, bih ]</div>
+                <div class="asg-ph" style="height:340px;padding:0;overflow:hidden;">
+                    <img src="/images/brands/xypex-wastewater.svg" alt="Vodoopskrbni rezervoar — Livno" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none'" />
+                </div>
                 <div class="meta"><span>Industrijski</span><span>2023</span></div>
                 <h3>Vodoopskrbni rezervoar</h3>
                 <div class="s">XYPEX Admix + Megamix &middot; 800 m³ &middot; Livno, BiH</div>
@@ -518,7 +524,7 @@
                         <path d="M5 12h14M13 5l7 7-7 7" />
                     </svg>
                 </a>
-                <a href="tel:+38734000000" class="asg-btn asg-btn-sec">+387 34 000 000</a>
+                <a href="tel:+38734352050" class="asg-btn asg-btn-sec">+387 34 352 050</a>
             </div>
         </div>
     </div>
@@ -565,6 +571,11 @@
     .asg-ph img { position: absolute; inset: 0; }
     .asg-ph span { position: relative; z-index: 1; }
     .ph-dark { background: repeating-linear-gradient(135deg, #16161a 0 14px, rgba(255,255,255,.04) 14px 28px); color: rgba(255,255,255,.5); }
+
+    /* Hero photo — real building image, no placeholder pattern */
+    .asg-hero-photo { aspect-ratio: 21 / 9; width: 100%; overflow: hidden;
+        background: var(--asg-ink); border: 1px solid var(--asg-line); }
+    .asg-hero-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     /* Brands grid */
     .asg-bgrid { display: grid; grid-template-columns: repeat(3,1fr); gap: 32px; }

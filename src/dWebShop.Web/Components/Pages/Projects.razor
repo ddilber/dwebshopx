@@ -44,7 +44,9 @@
             @foreach (var (proj, i) in FilteredProjects.Select((p, i) => (p, i)))
             {
                 <article class="asg-prow">
-                    <div class="asg-ph" style="height:360px">[ @proj.Kind.ToLower() &middot; @proj.Loc ]</div>
+                    <div class="asg-ph" style="height:360px;padding:0;overflow:hidden;">
+                        <img src="@proj.Img" alt="@proj.Title" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none'" />
+                    </div>
                     <div class="meta">
                         <span>@proj.Kind / @((i + 1).ToString("D3"))</span>
                         <span>@proj.Year</span>
@@ -79,7 +81,7 @@
                         <path d="M5 12h14M13 5l7 7-7 7" />
                     </svg>
                 </a>
-                <a href="tel:+38734000000" class="asg-btn asg-btn-sec">+387 34 000 000</a>
+                <a href="tel:+38734352050" class="asg-btn asg-btn-sec">+387 34 352 050</a>
             </div>
         </div>
     </div>
@@ -120,18 +122,18 @@
 
     private static readonly string[] _kinds = ["Sve", "Stambeni", "Industrijski", "Javni"];
 
-    private record Project(string Kind, int Year, string Title, string Loc, string Sys, string Size);
+    private record Project(string Kind, int Year, string Title, string Loc, string Sys, string Size, string Img);
 
     private static readonly Project[] _allProjects =
     [
-        new("Stambeni", 2024, "Stambeno-poslovni kompleks — Mostar", "Mostar, BiH", "STO ETICS · MW 16cm", "4.200 m²"),
-        new("Industrijski", 2024, "Hidroelektrana — sanacija temelja", "Jablanica, BiH", "XYPEX Concentrate + Patch", "1.800 m²"),
-        new("Javni", 2023, "Osnovna škola — energetska obnova", "Tomislavgrad, BiH", "STO ETICS · EPS 15cm", "2.600 m²"),
-        new("Industrijski", 2023, "Vodoopskrbni rezervoar", "Livno, BiH", "XYPEX Admix + Megamix", "800 m³"),
-        new("Stambeni", 2023, "Hotelski kompleks — fasada", "Neum, BiH", "STO Decorative + Boje", "5.500 m²"),
-        new("Industrijski", 2022, "Skladišni kompleks — antikorozija", "Sarajevo, BiH", "CORTEC VpCI-369 + folije", "12.000 m²"),
-        new("Javni", 2022, "Bolnica — toplinska sanacija", "Široki Brijeg, BiH", "STO ETICS · MW 18cm", "3.400 m²"),
-        new("Industrijski", 2022, "Tunelska konstrukcija", "Konjic, BiH", "XYPEX Concentrate", "2.200 m²"),
+        new("Stambeni", 2024, "Stambeno-poslovni kompleks — Mostar", "Mostar, BiH", "STO ETICS · MW 16cm", "4.200 m²", "/images/brands/sto-residential.svg"),
+        new("Industrijski", 2024, "Hidroelektrana — sanacija temelja", "Jablanica, BiH", "XYPEX Concentrate + Patch", "1.800 m²", "/images/brands/xypex-foundation.svg"),
+        new("Javni", 2023, "Osnovna škola — energetska obnova", "Tomislavgrad, BiH", "STO ETICS · EPS 15cm", "2.600 m²", "/images/brands/sto-public.svg"),
+        new("Industrijski", 2023, "Vodoopskrbni rezervoar", "Livno, BiH", "XYPEX Admix + Megamix", "800 m³", "/images/brands/xypex-wastewater.svg"),
+        new("Stambeni", 2023, "Hotelski kompleks — fasada", "Neum, BiH", "STO Decorative + Boje", "5.500 m²", "/images/brands/sto-commercial.svg"),
+        new("Industrijski", 2022, "Skladišni kompleks — antikorozija", "Sarajevo, BiH", "CORTEC VpCI-369 + folije", "12.000 m²", "/images/brands/cortec-industry.svg"),
+        new("Javni", 2022, "Bolnica — toplinska sanacija", "Široki Brijeg, BiH", "STO ETICS · MW 18cm", "3.400 m²", "/images/brands/sto-renovation.svg"),
+        new("Industrijski", 2022, "Tunelska konstrukcija", "Konjic, BiH", "XYPEX Concentrate", "2.200 m²", "/images/brands/xypex-tunnel.svg"),
     ];
 
     private IEnumerable<Project> FilteredProjects =>

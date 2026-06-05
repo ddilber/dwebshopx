@@ -2,7 +2,14 @@
 
 <a href="/brands/@BrandSlug/inspiracija/@Item.Slug" class="asg-insp-card asg-insp-card--@Size">
     <div class="asg-insp-card-img">
-        <div class="asg-insp-img-ph">[ @Item.HeroLabel ]</div>
+        @if (!string.IsNullOrWhiteSpace(Item.CoverImage))
+        {
+            <img src="/@Item.CoverImage.TrimStart('/')" alt="@Item.Title" class="asg-insp-card-img-el" loading="lazy" />
+        }
+        else
+        {
+            <div class="asg-insp-img-ph">[ @Item.HeroLabel ]</div>
+        }
         <span class="asg-insp-card-type">@InspirationData.Types[Item.ContentType].Label</span>
     </div>
     <div class="asg-insp-card-body">
@@ -42,6 +49,14 @@
         display: flex;
         align-items: flex-end;
         padding: 14px;
+    }
+    .asg-insp-card-img-el {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
     }
 </style>
 
