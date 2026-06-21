@@ -6,7 +6,7 @@
     <link rel="canonical" href="https://asgifiks.ba/projects" />
     <meta name="description" content="Realizovani projekti ASGifiks — stambeni i poslovni objekti, hidroelektrane, javne zgrade i industrijska postrojenja širom BiH." />
     <meta property="og:title" content="Projekti — A&amp;S GIFIKS" />
-    <meta property="og:description" content="600+ realizovanih projekata sa STO, XYPEX i CORTEC sistemima — od Mostara do Tuzle." />
+    <meta property="og:description" content="1.000+ realizovanih projekata sa STO, XYPEX i CORTEC sistemima — od Mostara do Tuzle." />
     <meta property="og:url" content="https://asgifiks.ba/projects" />
 </HeadContent>
 
@@ -17,12 +17,12 @@
     <div class="asg-wrap">
         <div class="asg-pageheader-grid">
             <div>
-                <div class="asg-eyebrow"><span class="dot"></span>Projekti &middot; 600+ realizacija od 2008</div>
+                <div class="asg-eyebrow"><span class="dot"></span>Projekti &middot; 1.000+ realizacija od 1998</div>
                 <h1>Šta smo <em>napravili</em>.</h1>
                 <p class="asg-lede">Selekcija recentnih projekata — od stambenih kompleksa do industrijskih postrojenja. Svaki je realizovan sa materijalima iz našeg portfelja, uz tehničku podršku tima.</p>
             </div>
             <div class="asg-pageheader-meta">
-                <div><span>Ukupno projekata</span><b>600+</b></div>
+                <div><span>Ukupno projekata</span><b>1.000+</b></div>
                 <div><span>Najveći</span><b>12.000 m²</b></div>
                 <div><span>Pokrivenost</span><b>BiH</b></div>
             </div>
@@ -57,6 +57,66 @@
                         <span><b>@proj.Size</b></span>
                     </div>
                 </article>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- XYPEX REFERENCE TABLE -->
+<section class="asg-section asg-soft">
+    <div class="asg-wrap">
+        <div class="asg-shead">
+            <div class="asg-num">XYPEX — Reference</div>
+            <div>
+                <h2 class="asg-h2">Realizirani XYPEX projekti.</h2>
+                <p class="asg-lede">Preko @_xypexRefs.Length realiziranih objekata sa XYPEX kristalnom hidroizolacijom širom Bosne i Hercegovine, 2011.–2026.</p>
+            </div>
+        </div>
+
+        <div class="asg-xref-controls">
+            <input class="asg-xref-search" type="text" placeholder="Pretraži objekt…" @bind="_xSearch" @bind:event="oninput" />
+            <select class="asg-xref-select" @bind="_xCity">
+                <option value="">Sve lokacije</option>
+                @foreach (var c in _xCities)
+                {
+                    <option value="@c">@c</option>
+                }
+            </select>
+            <select class="asg-xref-select" @bind="_xYear">
+                <option value="">Sve godine</option>
+                @foreach (var y in _xYears)
+                {
+                    <option value="@y">@y</option>
+                }
+            </select>
+            <span class="asg-xref-count">@FilteredXrefs.Count() / @_xypexRefs.Length</span>
+        </div>
+
+        <div class="asg-xref-tablewrap">
+            <table class="asg-xref-table">
+                <thead>
+                    <tr><th>Objekt</th><th>Lokacija</th><th>Godina</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in FilteredXrefs)
+                    {
+                        <tr>
+                            <td>
+                                <span class="obj">@r.Obj</span>
+                                @if (!string.IsNullOrEmpty(r.Desc))
+                                {
+                                    <span class="desc">@r.Desc</span>
+                                }
+                            </td>
+                            <td>@r.City</td>
+                            <td class="y">@r.Year</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (!FilteredXrefs.Any())
+            {
+                <div class="asg-xref-empty">Nema rezultata za odabrane filtere.</div>
             }
         </div>
     </div>
@@ -112,8 +172,30 @@
     .asg-prow .specs { display: grid; grid-template-columns: 1fr auto; gap: 16px; font-size: 13px; color: var(--asg-muted); }
     .asg-prow .specs b { color: var(--asg-ink); font-weight: 500; }
 
+    /* XYPEX reference table */
+    .asg-xref-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 24px; }
+    .asg-xref-search, .asg-xref-select { font-family: var(--asg-mono); font-size: 12px; letter-spacing: .04em;
+        padding: 10px 14px; border: 1px solid var(--asg-line); background: #fff; color: var(--asg-ink); }
+    .asg-xref-search { flex: 1; min-width: 200px; }
+    .asg-xref-count { font-family: var(--asg-mono); font-size: 11px; letter-spacing: .1em;
+        text-transform: uppercase; color: var(--asg-muted); margin-left: auto; }
+    .asg-xref-tablewrap { border-top: 1px solid var(--asg-line); }
+    .asg-xref-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .asg-xref-table th { text-align: left; font-family: var(--asg-mono); font-size: 11px; letter-spacing: .1em;
+        text-transform: uppercase; color: var(--asg-muted); padding: 14px 16px 14px 0;
+        border-bottom: 1px solid var(--asg-line); font-weight: 500; }
+    .asg-xref-table td { padding: 14px 16px 14px 0; border-bottom: 1px solid var(--asg-line);
+        color: var(--asg-ink); vertical-align: top; line-height: 1.4; }
+    .asg-xref-table td .obj { display: block; font-weight: 500; }
+    .asg-xref-table td .desc { display: block; margin-top: 4px; font-size: 13px; color: var(--asg-muted); line-height: 1.45; }
+    .asg-xref-table td.y { font-family: var(--asg-mono); font-size: 12px; color: var(--asg-muted); white-space: nowrap; }
+    .asg-xref-table tbody tr:hover { background: rgba(0,51,94,.04); }
+    .asg-xref-table th:last-child, .asg-xref-table td.y { text-align: right; padding-right: 0; }
+    .asg-xref-empty { padding: 32px 0; color: var(--asg-muted); font-size: 14px; }
+
     @@media (max-width: 760px) {
         .asg-pgrid { grid-template-columns: 1fr; }
+        .asg-xref-count { margin-left: 0; width: 100%; }
     }
 </style>
 
@@ -138,4 +220,247 @@
 
     private IEnumerable<Project> FilteredProjects =>
         _filter == "Sve" ? _allProjects : _allProjects.Where(p => p.Kind == _filter);
+
+    // ── XYPEX reference list (izvor: "Referentni objekti Xypex", zaključno 19.03.2026) ──
+    private record XypexRef(string Obj, string Desc, string City, string Year);
+
+    private string _xSearch = "";
+    private string _xCity = "";
+    private string _xYear = "";
+
+    private IEnumerable<XypexRef> FilteredXrefs => _xypexRefs.Where(r =>
+        (string.IsNullOrEmpty(_xCity) || r.City == _xCity) &&
+        (string.IsNullOrEmpty(_xYear) || r.Year == _xYear) &&
+        (string.IsNullOrEmpty(_xSearch) || r.Obj.Contains(_xSearch, StringComparison.OrdinalIgnoreCase)
+            || r.Desc.Contains(_xSearch, StringComparison.OrdinalIgnoreCase)));
+
+    private IEnumerable<string> _xCities => _xypexRefs.Select(r => r.City).Distinct().OrderBy(c => c, StringComparer.Create(System.Globalization.CultureInfo.GetCultureInfo("hr-HR"), true));
+    private IEnumerable<string> _xYears => _xypexRefs.Select(r => r.Year).Distinct().OrderByDescending(y => y, StringComparer.Ordinal);
+
+    private static readonly XypexRef[] _xypexRefs =
+    [
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2025/2026"),
+        new("Kolektivni stambeno - poslovni objekt, SPO – Borik", "Enmon Hidroizolacija AB konstrukcija", "Banja Luka", "2025/2026"),
+        new("Stambeno poslovni objekt zgrada Laus", "Hidroizolacija AB konstrukcija", "Banja Luka", "2025/2026"),
+        new("Objekt Panorama 3", "Hidroizolacija AB konstrukcija", "Banja Luka", "2026"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Gračanica", "2026"),
+        new("Bili Brig vodosprema", "Hidroizolacija AB konstrukcija", "Jajce", "2026"),
+        new("Individualni stambeni objekti", "Hidroizolacija AB konstrukcija", "Mostar", "2026"),
+        new("Manji kolektivni objekat", "Hidroizolacija AB konstrukcija", "Mostar", "2026"),
+        new("Podrumska etaža objekta", "Hidroizolacija AB konstrukcija", "Mostar", "2026"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Mrkonjić Grad", "2026"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija", "Posušje", "2025/2026"),
+        new("Objekt: Motel", "Hidroizolacija AB konstrukcija", "Tomislavgrad", "2025/2026"),
+        new("Prateći objekt Park Residence ”Janov most”", "Hidroizolacija AB konstrukcija", "Travnik", "2026"),
+        new("Objekt: SPO \"N1\" I \"NJ2\" \"N1\"", "Hidroizolacija AB konstrukcija", "Tuzla", "2025/2026"),
+        new("Stambeno poslovni objekt, Pozorišna 10", "Hidroizolacija AB konstrukcija", "Tuzla", "2025/2026"),
+        new("Objekt Panorama 3", "Hidroizolacija AB konstrukcija", "Zenica", "2025/2026"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Čitluk", "2025/2026"),
+        new("Stambeno poslovni objekt, Lamela C", "Hidroizolacija AB konstrukcija", "Banja Luka", "2025"),
+        new("Vjerski objekt", "Sanacija prodora vode", "Banja Luka", "2025"),
+        new("Objekt: Ljetna pozornica", "Hidroizolacija AB konstrukcija", "Banja Luka", "2025"),
+        new("Objekt: DVD PAPRIKOVAC", "Hidroizolacija AB konstrukcija", "Banja Luka", "2025"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija", "Busovača", "2025"),
+        new("Vjerski objekt", "Presjecanje kapilarne vlage", "Goražde", "2024/2025"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Goražde", "2024/2025"),
+        new("Stambeno poslovni objekt i rezervoar", "Hidroizolacija AB konstrukcija", "Laktaši", "2025"),
+        new("Rezervoar", "Hidroizolacija AB konstrukcija", "Livno", "2024/2025"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija", "Mostar", "2024/2025"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Mostar", "2025"),
+        new("Objekt vinarija - nadstrešnica", "Hidroizolacija", "Tomislavgrad", "2025"),
+        new("Objekt: Vjetroelektrana", "Hidroizolacija AB konstrukcija", "Tomislavgrad", "2025"),
+        new("Stambeni objekt Verde Zenica", "Hidroizolacija AB konstrukcija", "Tuzla", "2025"),
+        new("Stambeno poslovni objekt", "Hidroizolacija", "Tuzla", "2025"),
+        new("Objekt: KSPO TRAVNIČKA JASKO", "Hidroizolacija AB konstrukcija", "Zenica", "2025"),
+        new("Stambeno poslovni kompleks", "Hidroizolacija AB konstrukcija", "Zenica", "2025"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Zenica", "2025"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Čitluk", "2025"),
+        new("Individualni stambeni objekat", "Hidroizolacija AB konstrukcija", "Banja Luka", "2024"),
+        new("Poslovna građevina s maloprodajom", "Hidroizolacija AB konstrukcija", "Ljubuški", "2024"),
+        new("Stambeni objekt - obiteljska kuća", "Hidroizolacija AB konstrukcija", "Ljubuški", "2024"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija", "Posušje", "2024"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Prnjavor", "2024"),
+        new("Kolektivni stambeno-poslovni objekat \"Musique\" u", "Tuzli Hidroizolacija AB konstrukcija", "Tuzla", "2024"),
+        new("Kolektivni stambeno-poslovni objekat \"Musique\" u", "Tuzli Hidroizolacija AB konstrukcija", "Tuzla", "2024"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Vitez", "2024"),
+        new("Benzinska pumpa Hifa Travnik", "Hidroizolacija AB konstrukcija", "Zenica", "2024"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Zenica", "2024"),
+        new("Stambeno poslovni objekt, I1", "Hidroizolacija AB konstrukcija", "Čitluk", "2024"),
+        new("Stambeno poslovni objekt, I4", "Hidroizolacija AB konstrukcija", "Čitluk", "2024"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2023"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2023"),
+        new("Stambeno poslovni objekt, Lamela D", "Hidroizolacija AB konstrukcija", "Banja Luka", "2023"),
+        new("Župna kuća", "Hidroizolacija AB konstrukcija", "Ljubija", "2023"),
+        new("Stambeni objekt", "Hidrotehnički objekt – bazen", "Ljubuški", "2023"),
+        new("Urbani vrtovi", "Hidroizolacija AB konstrukcija", "Mostar", "2023"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija", "Mostar", "2023"),
+        new("Edukativno-poslovni objekt", "Hidroizolacija AB konstrukcija", "Poljice", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Prnjavor", "2023"),
+        new("Hidrotehnički objekt – bazen", "Hidroizolacija AB konstrukcija", "Prnjavor", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Tomislavgrad", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Trn", "2023"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija", "Tuzla", "2023"),
+        new("Rezervoar", "Hidroizolacija AB konstrukcija", "Tuzla", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Vitez", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Zenica", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Zenica", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Zenica", "2023"),
+        new("Hidrotehnički objekt – bazen", "Hidroizolacija AB konstrukcija", "Zenica", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Čitluk", "2023"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2022"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2022"),
+        new("Prečišćivač otpadnih voda", "Vodonepropusni AB spojevi, prodori cijevi", "Banja Luka", "2022"),
+        new("Stambeno poslovni objekt", "Sanacija AB konstrukcija sistemom injektaže", "Banja Luka", "2022"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija", "Ljubuški", "2022"),
+        new("Stambeni objekt", "Hidrotehnički objekt – bazen", "Ljubuški", "2022"),
+        new("Stambeno poslovni objekt", "Sanacija AB konstrukcija sistemom injektaže", "Sarajevo", "2022"),
+        new("Prečistač otpadnih voda", "Radni spojevi i sanacija AB konstrukcija sistemom injektaže", "Sarajevo", "2022"),
+        new("Stambeno poslovni objekt", "Radni spojevi", "Sarajevo", "2022"),
+        new("Stambeni objekt", "Hidroizolacija AB ploče/zidova", "Banja Luka", "2021"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2021"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija, temeljna ploča/liftne jame", "Banja Luka", "2021"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2021"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija, podzemne etaže ploča/zidovi", "Laktaši", "2021"),
+        new("Stambeno poslovni objekt", "Sanacija stropne AB ploče", "Laktaši", "2021"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija, podzemne etaže ploča/zidovi", "Laktaši", "2021"),
+        new("Prečišćivač otpadnih voda", "Hidroizolacija radnih prekida AB ploče/zidova, zid/zid", "Laktaši", "2021"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija", "Laktaši", "2021"),
+        new("Stambeni objekt", "Hidrotehnički objekt – bazen", "Ljubuški", "2021"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija, podna ploča/zidovi", "Ljubuški", "2021"),
+        new("Poslovno stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Ljubuški", "2021"),
+        new("Poslovno stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Ljubuški", "2021"),
+        new("Stambeno poslovni objekt", "Sanacija liftne jame", "Mostar", "2021"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija, podzemne etaže ploča/zidovi", "Mostar", "2021"),
+        new("Poslovni objekt", "Sanacija stropne AB ploče sistemom injektaže", "Mostar", "2021"),
+        new("Poslovni objekt", "Presjecanje kapilarne vlage", "Ravno", "2021"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija", "Ravno", "2021"),
+        new("Pumpna stanica „Alipašin Most“ Sarajevo", "Sanacija prodora cijevi", "Sarajevo", "2021"),
+        new("Stambeno poslovni objekt", "Sanacija liftnog okna", "Sarajevo", "2021"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija", "Tešanj", "2021"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija, temeljna ploča/liftne jame", "Travnik", "2021"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Tuzla", "2021"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija", "Tuzla", "2021"),
+        new("Poslovno stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Zenica", "2021"),
+        new("Poslovno stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi, liftne jame", "Zenica", "2021"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi/ bazen", "Zenica", "2021"),
+        new("Poslovno stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Banja Luka", "2020"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2020"),
+        new("Poslovni objekt", "Sanacija AB konstrukcija", "Banja Luka", "2020"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija, podna ploča", "Banja Luka", "2020"),
+        new("Poslovno stambeni objekt", "Hidroizolacija AB konstrukcija", "Banja Luka", "2020"),
+        new("Poslovni objekt", "Sanacija stropne ploče", "Banja Luka", "2020"),
+        new("Poslovni objekt", "Sanacija AB zida", "Bosanska Gradiška", "2020"),
+        new("Most", "Hidroizolacija AB ploče mosta", "Jajce", "2020"),
+        new("Stambeni objekt sa bazenom", "Hidroizolacija AB konstrukcija", "Ljubuški", "2020"),
+        new("Poslovno stambeni objekt", "Hidroizolacija AB konstrukcija", "Tomislavgrad", "2020"),
+        new("Postrojenje za bioplin", "Zatvaranje prodora", "Tomislavgrad", "2020"),
+        new("Poslovni objekt, podzemne autogaraže", "Hidroizolacija AB konstrukcija, podzemne etaže ploča/zidovi", "Travnik", "2020"),
+        new("Benzinska crpka", "Sanacija prodora vode u podrumskim prostorijama", "Vogošća", "2020"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija", "Vogošća", "2020"),
+        new("Hidrotehnički objekt", "Hidroizolacija AB konstrukcija, bazen", "Vogošća", "2020"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Zenica", "2020"),
+        new("Stambeni objekt", "Hidroizolacija AB ploče terase", "Zenica", "2020"),
+        new("Poslovno stambeni objekt", "Sanacija liftnog okna", "Zenica", "2020"),
+        new("Poslovno stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča/zidovi/bazen", "Čitluk", "2020"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija", "Čitluk", "2020"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija", "Čitluk", "2020"),
+        new("Poslovno stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Banja Luka", "2019"),
+        new("Poslovni objekt", "Sanacija provlaživanja u spojevima spoj ploča/zid, zid/zid, stropna ploča/zid na ‐5 etaži", "Bihać", "2019"),
+        new("Poljoprivredni objekt", "Hidroizolacija dozirnih šahtova", "Bosanska Gradiška", "2019"),
+        new("Poslovno uslužni centar", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi, liftne jame", "Laktaši", "2019"),
+        new("Stambeni objekt sa bazenom", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Ljubuški", "2019"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Ljubuški", "2019"),
+        new("Poslovno stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Ljubuški", "2019"),
+        new("Poslovni objekt", "Sanacija podne ploče", "Mostar", "2019"),
+        new("Poslovni objekt", "Hidrotehnički objekt – bazen", "Mostar", "2019"),
+        new("Poslovni objekt", "Sanacija podne ploče", "Sarajevo", "2019"),
+        new("Zdravstveno turistički centar", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi, bazeni", "Teslić", "2019"),
+        new("Poslovno stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Zenica", "2019"),
+        new("Stambeni objekt sa bazenom", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Čitluk", "2019"),
+        new("Sakralni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Čitluk", "2019"),
+        new("Poslovno stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Čitluk", "2019"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija, ploča/zidovi.", "Banja Luka", "2018"),
+        new("Privatni objekt", "Hidroizolacija AB kons., krovna ploča sa bazenom za kupanje", "Bijeljina", "2018"),
+        new("Poslovni centar Delta, Banja Luka", "Hidroizolacija AB konstrukcija, podna ploča podruma 23000m2, zidovi, rješenja spoja prekid betonaže podne ploče od prodora vode i vlage.", "Laktaši", "2017/2018"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Laktaši", "2018"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija ploča/zidovi", "Ljubuški", "2018"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija, podna ploča/zaglađivanje helikopterom kao završna obrada ploče, i hidroizolacija podruma/zidovi", "Ljubuški", "2018"),
+        new("Stambeno poslovni centar", "Hidroizolacija AB konstrukcija,podna ploča/zidovi podruma i hidroizolacija bazena.", "Ljubuški", "2018"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Ljubuški", "2018"),
+        new("Stambeno poslovni centar", "Hidroizolacija AB konstrukcija,podna ploča/zidovi podruma.", "Mostar", "2018"),
+        new("Poslovni centar City Mall, Banja Luka", "Hidroizolacija AB konstrukcija, ploča/zidovi ( - 3 etaže).", "Prnjavor", "2017/2018"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija, podna ploča zaglađivanje helikopterom kao završna obrada ploče", "Sarajevo", "2018"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija ploča/zidovi", "Sarajevo", "2018"),
+        new("Prodajni centar", "Hidroizolacija ploče i zaglađivanje helikopterom kao završna obrada ploče", "Tomislavgrad", "2018"),
+        new("Poslovni objekt", "ploče i zaglađivanje helikopterom kao završna obrada ploče", "Tomislavgrad", "2018"),
+        new("Proizvodni pogon Arcelor Mittal d.o.o. Zenica", "Hidroizolacija i zaštita betona AB bazena za amonijačnu vodu", "Tuzla", "2017/2018"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija, podna ploča zaglađivanje helikopterom kao završna obrada ploče", "Tuzla", "2018"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija, podrumski prostor", "Zenica", "2017/2018"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija, podrumski prostor", "Zenica", "2017/2018"),
+        new("Farma krava", "Hidroizolacija mokrih hodnika za izđubrivanje.", "Čapljina", "2018"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija ploča/zidovi", "Čelinac", "2018"),
+        new("Ugostiteljski objekt", "Hidroizolacija AB konstrukcija podrumski prostor/zidovi", "Čitluk", "2018"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Čitluk", "2018"),
+        new("Benzinska pumpa", "Hidroizolacija AB parterne ploče i poliranje helikopterom", "Banja Luka", "2017"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija – 2 etaže, ploča/zidovi, liftne šahte", "Banja Luka", "2017"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB pokrovne ploče", "Banja Luka", "2017"),
+        new("Poslovno stambeni objekt", "Sanacija dilatacije između dva objekta 10m od prodora vode i vlage", "Banja Luka", "2017"),
+        new("Poslovni objekt", "Hidroizolacija AB konstrukcija, podna ploča/zidovi podruma", "Banja Luka", "2017"),
+        new("Proizvodno skladišna hala", "Hidroizolacija, zaštita AB ploče i poliranje helikopterom", "Kozarska Dubica", "2017"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija – 1 etaže, podna ploča/zidovi, liftne šahte", "Ljubuški", "2017"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča podruma/zidovi", "Ljubuški", "2017"),
+        new("Poslovni objekt", "Sanacija provlaživanja u spojevima ploča/zid, podrumski prostor", "Mostar", "2017"),
+        new("Hidrotehnički objekt ‐ ribnjak", "Sanacija i zaštita AB konstrukcija", "Trebinje", "2017"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija ploča/zidovi", "Zenica", "2017"),
+        new("Skladišna hala", "Hidroizolacija AB zidova i podne ploče i poliranje helikopterom", "Zenica", "2017"),
+        new("Stambeni objekt", "Hidroizolacija AB podne ploče i AB zidova", "Zenica", "2017"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija, podna pločapodruma/zidovi sa trajnom dilatacijom", "Zenica", "2017"),
+        new("Školsko – obrazovni objekt", "Sanacija provlaživanja u spojevima ploča/zid", "Banja Luka", "2016"),
+        new("Poslovni objekt", "Hidroizolacija i zaštita betona AB podne ploče i poliranje helikopterom", "Banja Luka", "2016"),
+        new("Poslovni objekt", "Sanacija provlaživanja u spojevima ploča/zid", "Banja Luka", "2016"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstruk. -2 etaže, ploča/zidovi, liftne šahte", "Banja Luka", "2016"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija -1 etaže, ploča/zidovi", "Banja Luka", "2016"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstruk. ‐ 1 etaže, ploča/zidovi, liftne šahte", "Banja Luka", "2016"),
+        new("Parter i skladišna hala", "Hidroizolacija podne ploče i poliranje helikopterom , hidroizolacija partera i kućne terase", "Grude", "2016"),
+        new("Proizvodni pogon", "Hidroizolacija i zaštita betona podne ploče 520 m2 i zidova u izrada popratnih hidrotehničkih građevina sprinkler bazena, rezervoara za tehničku i pitku vodu, lakirnica", "Jajce", "2016"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija, temeljna ploča/zidovi, bazen za sanitarnu vodu, bazen sa parterom komlet", "Ljubuški", "2016"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija, podna ploča/zidovi podruma", "Ljubuški", "2016"),
+        new("Obiteljska kuća", "Hidroizolacija podrumskog prostora 40 m2", "Međugorje", "2016"),
+        new("Ugostiteljski objekt", "Sanacija od prodora vode i vlage suterenskog prostora 400m2.", "Orašje", "2016"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB podna ploča podruma/zidovi, liftne šahte", "Prnjavor", "2016"),
+        new("Ugostiteljski objekt", "Radovi na sanaciji prodora vode i vlage podrumskog prostora.", "Tomislavgrad", "2016"),
+        new("Skladišna hala", "Hidroizolacija AB zidova, podne ploče i poliranje helikopterom", "Zenica", "2016"),
+        new("Hidrotehnička građevina", "Sanacija provlaživanja u vodospremama za pitku vodu", "Široki Brijeg", "2016"),
+        new("Poslovni objekt", "Hidroizolacija i zaštita AB podne ploče i poliranje helikopterom", "Banja Luka", "2015"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija, temeljn ploča/zidovi, bazen za kupanje", "Kalenderovci", "2015"),
+        new("Poslovni objekt", "Hidroizolacija AB zidova, ploče i poliranje helikopterom", "Ljubuški", "2015"),
+        new("Ugostiteljski objekt", "Radovi na hidroizolaciji AB konstrukcija potpornih zidova, bazena, kompenzacijskog bazena i ploče", "Mostar", "2015"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija,podna ploča u podrumu/zidovi", "Mostar", "2015"),
+        new("Benzinska pumpa", "Hidroizolacija AB parterne ploče", "Mostar", "2015"),
+        new("Poslovni objekt", "Sanacija prodora vode oko ventilacijskih cijevi", "Mostar", "2015"),
+        new("Poslovni objekt", "Hidroizolacija AB ploče i zidova i poliranje helikopterom", "Mostar", "2015"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija, ploča/zidovi, bazen za pitku vodu", "Ljubuški", "2014"),
+        new("Stambeno poslovni objekt", "Hidroizolacija AB konstrukcija, ploča/zidovi", "Međugorje", "2014"),
+        new("Poslovni objekt", "Sanacija prodora vode ‐3 podzemne etaže", "Mrkonjić Grad", "2014"),
+        new("Poslovni objekt", "Sanacija prodora vode u garaži i stepeništa iznad liftnog šahta", "Sarajevo", "2014"),
+        new("Zdravstveni objekt", "Sanacija prodora vode u AB konstrukcijama", "Sarajevo", "2014"),
+        new("Školsko obrazovni objekt", "Hidroizolacija radnih spojeva u podnoj ploči i trajnih dilatacija u temeljnoj ploči", "Sarajevo", "2014"),
+        new("Hidrotehnički objekt", "Sanacija bazena za pitku vodu", "Ugljevik", "2014"),
+        new("Stambeni objekt", "Hidroizolacija AB konstrukcija, temeljna ploča/zidovi, bazen za pitku vodu", "Kalenderovci", "2013"),
+        new("Poslovni objekt", "Hidroizolacija AB zida podrumske ploče i zida, jednostrana oplata", "Maglaj", "2013"),
+        new("Poslovni objekt", "Sanacija AB konstrukcija,spoj ploča/zid u podrumu", "Sarajevo", "2013"),
+        new("Hidrotehnički objekt", "Sanacija krune brane", "Trebinje", "2013"),
+        new("Stambeno poslovni objekt", "Radovi na hidroizolaciji podne ploče ‐1 etaže i zidova, sanacija od prodora vode i vlage kanal spoj/ploča/zid/ pukotine i AB gnijezda", "Sarajevo", "2012"),
+        new("Poslovni objekt", "Hidroizolacija AB podne ploče i poliranje helikopterom", "Tomislavgrad", "2012"),
+        new("Stambeno poslovni objekt", "Radovi na sanaciji liftnih jama", "Gradačac", "2011"),
+
+
+    ];
 }
