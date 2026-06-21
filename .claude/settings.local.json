@@ -19,7 +19,27 @@
       "Bash(xargs -0 git rm --cached --quiet)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git rev-list *)"
+      "Bash(git rev-list *)",
+      "Read(//c/Users/dario/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/678dfbb0-aabe-431f-be2f-5f31022fc30c/0883fa5d-4a78-4327-828b-47cc7b3211e1/skills/docx/**)",
+      "Bash(extract-text \"C:\\\\Users\\\\dario\\\\OneDrive\\\\Documents\\\\ASGifiks\\\\Tekstovi za stranicu.docx\")",
+      "Bash(python C:/Users/dario/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/678dfbb0-aabe-431f-be2f-5f31022fc30c/0883fa5d-4a78-4327-828b-47cc7b3211e1/skills/docx/scripts/office/unpack.py 'C:/Users/dario/OneDrive/Documents/ASGifiks/Tekstovi za stranicu.docx' /tmp/dwebshop_unpacked/)",
+      "Bash(py --version)",
+      "Bash(rm -rf /tmp/dws)",
+      "Bash(mkdir -p /tmp/dws)",
+      "Bash(unzip -o 'C:/Users/dario/OneDrive/Documents/ASGifiks/Tekstovi za stranicu.docx' -d /tmp/dws)",
+      "Read(//tmp/dws/**)",
+      "Bash(perl -0777 -ne ' *)",
+      "Read(//tmp/**)",
+      "Read(//c/Program Files/**)",
+      "Read(//mingw64/**)",
+      "Bash(pdftotext -layout \"C:/Users/dario/Downloads/Tekstovi za stranicu.pdf\" /tmp/pdf_layout.txt)",
+      "Bash(pdftotext -layout \"C:/Users/dario/OneDrive/Documents/ASGifiks/Referentni objekti Xypex zaključno sa 19.03.2026.pdf\" /tmp/xypex_ref.txt)",
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\dario\\\\OneDrive\\\\Documents\\\\ASGifiks\\\\Referentni objekti Xypex zaključno sa 19.03.2026.pdf\" \"$env:TEMP\\\\xypex_ref.pdf\" -Force; Test-Path \"$env:TEMP\\\\xypex_ref.pdf\")",
+      "Bash(perl -i -pe 's{^sub esc \\\\{ my \\\\$s=shift; .*$}{sub esc \\\\{ my \\\\$s=shift; \\\\$s=~s\\\\{\\\\\\\\\\\\\\\\\\\\}\\\\{\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\}g; \\\\$s=~s\\\\{\"\\\\}\\\\{\\\\\\\\\\\\\\\\\"\\\\}g; return \\\\$s; \\\\}}' /tmp/gen_cs.pl)",
+      "Bash(perl /tmp/gen_cs.pl)",
+      "Bash(perl /tmp/g2.pl)",
+      "Bash(perl -e ' *)",
+      "Bash(grep -nE '^        new\\\\\\(\"[^\"]*\", \"[^\"]*\", \"[0-9/]+\"\\\\\\),$' /f/PROJECTS/Blazor/dWebShopX/src/dWebShop.Web/Components/Pages/Projects.razor)"
     ]
   }
 }
